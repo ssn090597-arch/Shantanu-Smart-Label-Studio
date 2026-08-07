@@ -22,7 +22,7 @@
             <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
                 📦 <span>Box Label Generator</span>
             </h1>
-            <p class="text-sm text-gray-500 mt-2">v4.0 Full-Text & Clean MRP Layout Engine</p>
+            <p class="text-sm text-gray-500 mt-2">v4.0 Full-Text & Clean Auto-Wrap Layout Engine</p>
         </div>
 
         <!-- File Upload Area -->
@@ -212,6 +212,7 @@
                 return;
             }
 
+            // Paper Size Fixed: 4 x 6 Inches (101.6 x 152.4 mm)
             const doc = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
@@ -292,7 +293,7 @@
                     { content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
                 ]);
 
-                // Table Render
+                // Table Render with Vertical Auto-Wrapping (Wrap down, not side)
                 doc.autoTable({
                     startY: 25,
                     margin: { left: 2, right: 2 },
@@ -300,21 +301,34 @@
                     body: tableRows,
                     theme: 'grid',
                     headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 5.5, halign: 'center', cellPadding: 0.8 },
-                    bodyStyles: { fontSize: 5, halign: 'center', cellPadding: 0.6 },
-                    styles: { overflow: 'visible', lineWidth: 0.1, strokeColor: [0,0,0] }
+                    bodyStyles: { fontSize: 5, halign: 'center', cellPadding: 0.6, valig: 'middle' },
+                    styles: { 
+                        overflow: 'linebreak', // Auto Linebreak (Aadha upar, aadha neeche)
+                        lineWidth: 0.1, 
+                        strokeColor: [0,0,0] 
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 20 }, // SKU
+                        1: { cellWidth: 12 }, // CODE
+                        2: { cellWidth: 12 }, // NAME
+                        3: { cellWidth: 11 }, // COL
+                        4: { cellWidth: 12 }, // SIZE
+                        5: { cellWidth: 15 }, // EAN
+                        6: { cellWidth: 9 },  // MRP (Fixed width so it wraps down if long)
+                        7: { cellWidth: 6.6 } // QTY
+                    }
                 });
 
                 currentSequentialBoxNo++;
             }
 
             generatedPdfBlob = doc.output('blob');
-            const pdfBase64 = doc.output('datauristring'); // Convert PDF to string for saving
+            const pdfBase64 = doc.output('datauristring');
 
             showStatus("✅ Labels Ready!", "text-green-600");
             document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
             document.getElementById('resultBox').classList.remove('hidden');
 
-            // Save History with PDF Data
             saveToHistory(fileName, totalBoxesFound, pdfBase64);
         }
 
@@ -356,12 +370,10 @@
 
         function cleanOldHistory() {
             let history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
-            const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000; // 20 days milliseconds
+            const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000;
             const now = new Date().getTime();
 
-            // Filter out items older than 20 days
             const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
-
             localStorage.setItem('labelHistory20Days', JSON.stringify(validHistory));
         }
 
