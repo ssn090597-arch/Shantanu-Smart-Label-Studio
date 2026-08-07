@@ -53,24 +53,24 @@
                 <span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
             </div>
             <button id="downloadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
-                <span>📥 Download All Labels PDF</span>
+                <span>📥 Download Current Labels PDF</span>
             </button>
         </div>
 
         <!-- History Toggle Button -->
         <div class="mt-6 text-right">
             <button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
-                📜 Show Recent Upload History (Max 10)
+                📜 Show 20-Day History & Re-Downloads
             </button>
         </div>
 
         <!-- History Box -->
         <div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
             <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-xs text-gray-700">🕒 Upload History (Auto-deletes after 10 files):</span>
-                <button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear History</button>
+                <span class="font-bold text-xs text-gray-700">🕒 20-Days History (Auto-deletes older files):</span>
+                <button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear All</button>
             </div>
-            <ul id="historyList" class="text-xs space-y-2 max-h-40 overflow-y-auto">
+            <ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
                 <li class="text-gray-400 italic text-center">No history yet.</li>
             </ul>
         </div>
@@ -82,7 +82,10 @@
         let totalBoxesFound = 0;
 
         document.getElementById('excelFile').addEventListener('change', handleFileSelect);
-        window.onload = renderHistory;
+        window.onload = function() {
+            cleanOldHistory();
+            renderHistory();
+        };
 
         function norm(str) {
             if (str === null || str === undefined) return '';
@@ -305,12 +308,14 @@
             }
 
             generatedPdfBlob = doc.output('blob');
+            const pdfBase64 = doc.output('datauristring'); // Convert PDF to string for saving
+
             showStatus("✅ Labels Ready!", "text-green-600");
             document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
             document.getElementById('resultBox').classList.remove('hidden');
 
-            // Save History
-            saveToHistory(fileName, totalBoxesFound);
+            // Save History with PDF Data
+            saveToHistory(fileName, totalBoxesFound, pdfBase64);
         }
 
         document.getElementById('downloadBtn').addEventListener('click', () => {
@@ -329,45 +334,71 @@
             st.classList.remove('hidden');
         }
 
-        // --- HISTORY FUNCTIONS ---
-        function saveToHistory(fileName, boxes) {
-            let history = JSON.parse(localStorage.getItem('labelHistory') || '[]');
+        // --- 20-DAY HISTORY SYSTEM ---
+        function saveToHistory(fileName, boxes, pdfBase64) {
+            let history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
+            const now = new Date();
+
             const newEntry = {
+                id: Date.now(),
                 name: fileName,
                 boxes: boxes,
-                time: new Date().toLocaleString()
+                time: now.toLocaleString(),
+                timestamp: now.getTime(),
+                pdfData: pdfBase64
             };
 
-            // Add new at the top
             history.unshift(newEntry);
-
-            // Keep maximum 10 items (Auto delete old ones)
-            if (history.length > 10) {
-                history = history.slice(0, 10);
-            }
-
-            localStorage.setItem('labelHistory', JSON.stringify(history));
+            localStorage.setItem('labelHistory20Days', JSON.stringify(history));
+            cleanOldHistory();
             renderHistory();
         }
 
+        function cleanOldHistory() {
+            let history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
+            const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000; // 20 days milliseconds
+            const now = new Date().getTime();
+
+            // Filter out items older than 20 days
+            const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
+
+            localStorage.setItem('labelHistory20Days', JSON.stringify(validHistory));
+        }
+
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('labelHistory') || '[]');
+            const history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
             const historyList = document.getElementById('historyList');
 
             if (history.length === 0) {
-                historyList.innerHTML = `<li class="text-gray-400 italic text-center">No history yet.</li>`;
+                historyList.innerHTML = `<li class="text-gray-400 italic text-center">No history in the last 20 days.</li>`;
                 return;
             }
 
             historyList.innerHTML = history.map((item, index) => `
-                <li class="flex justify-between items-center bg-white p-2 rounded border border-gray-100 shadow-sm">
-                    <div>
-                        <span class="font-semibold text-gray-800">${index + 1}. ${item.name}</span>
-                        <div class="text-[10px] text-gray-400">${item.time}</div>
+                <li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
+                    <div class="pr-2">
+                        <div class="font-bold text-gray-800 text-[11px] truncate max-w-[200px]">${index + 1}. ${item.name}</div>
+                        <div class="text-[9px] text-gray-400">${item.time} | <span class="text-blue-600 font-semibold">${item.boxes} Boxes</span></div>
                     </div>
-                    <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full text-[11px]">${item.boxes} Boxes</span>
+                    <button onclick="downloadHistoryPDF(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition-all flex items-center gap-1">
+                        📥 Download PDF
+                    </button>
                 </li>
             `).join('');
+        }
+
+        function downloadHistoryPDF(id) {
+            const history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
+            const item = history.find(x => x.id === id);
+            if (!item || !item.pdfData) {
+                alert("PDF not found!");
+                return;
+            }
+
+            const a = document.createElement('a');
+            a.href = item.pdfData;
+            a.download = `HISTORY_${item.name.replace('.xlsx', '')}_LABELS.pdf`;
+            a.click();
         }
 
         function toggleHistory() {
@@ -376,8 +407,8 @@
         }
 
         function clearHistory() {
-            if (confirm("Are you sure you want to clear upload history?")) {
-                localStorage.removeItem('labelHistory');
+            if (confirm("Are you sure you want to clear all history?")) {
+                localStorage.removeItem('labelHistory20Days');
                 renderHistory();
             }
         }
