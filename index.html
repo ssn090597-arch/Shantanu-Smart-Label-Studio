@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise 4x6 Box Label Generator</title>
+    
+    <!-- Google Search Optimization (SEO) -->
+    <title>Shantanu Smart Label Studio - 4x6 Box Label Generator</title>
+    <meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
+    <meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
+    <meta name="author" content="Shantanu Mathura">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/679/679922.png">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- XLSX Library -->
@@ -18,11 +27,15 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
-        <div class="mb-6">
+        
+        <!-- Header with Logo -->
+        <div class="mb-6 flex flex-col items-center justify-center gap-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/679/679922.png" alt="Shantanu Logo" class="w-16 h-16 object-contain mb-1 drop-shadow-md">
+            
             <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
-                📦 <span>Box Label Generator</span>
+                <span>Shantanu Smart Label Studio</span>
             </h1>
-            <p class="text-sm text-gray-500 mt-2">v4.0 Full-Text & Clean Auto-Wrap Layout Engine</p>
+            <p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Row-Height Engine</p>
         </div>
 
         <!-- File Upload Area -->
@@ -60,15 +73,15 @@
         <!-- History Toggle Button -->
         <div class="mt-6 text-right">
             <button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
-                📜 Show 20-Day History & Re-Downloads
+                📜 Show 20-Day Upload History
             </button>
         </div>
 
         <!-- History Box -->
         <div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
             <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-xs text-gray-700">🕒 20-Days History (Auto-deletes older files):</span>
-                <button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear All</button>
+                <span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
+                <button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear History</button>
             </div>
             <ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
                 <li class="text-gray-400 italic text-center">No history yet.</li>
@@ -198,7 +211,7 @@
         async function generatePDF(data, metaPO, metaDest, fileName) {
             const rawGroups = {};
             data.forEach(row => {
-                const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber'], '');
+                const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
                 if (!boxVal) return;
                 if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
                 rawGroups[boxVal].push(row);
@@ -208,11 +221,10 @@
             totalBoxesFound = uniqueRawKeys.length;
 
             if (totalBoxesFound === 0) {
-                showStatus("❌ No Box data found! Check 'BOX COUNT' column.", "text-red-600");
+                showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
                 return;
             }
 
-            // Paper Size Fixed: 4 x 6 Inches (101.6 x 152.4 mm)
             const doc = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
@@ -220,7 +232,6 @@
             });
 
             let isFirstPage = true;
-            let currentSequentialBoxNo = 1;
 
             for (let rawKey of uniqueRawKeys) {
                 if (!isFirstPage) doc.addPage([101.6, 152.4], 'p');
@@ -257,11 +268,13 @@
                 doc.text(`PO/ORD: ${po} | INV: ${inv}`, 4, 15);
                 doc.text(`CHALLAN NO: ${challan}`, 4, 19);
 
-                // Sequential Box Numbering
+                // Direct Excel Box Number/Name Print
+                let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
+
                 doc.setFontSize(8);
                 doc.text("BOX NO.", 71, 8);
                 doc.setFontSize(14);
-                doc.text(`${currentSequentialBoxNo} / ${totalBoxesFound}`, 71, 16);
+                doc.text(`${displayBoxNum} / ${totalBoxesFound}`, 71, 16);
 
                 // Items Table
                 const tableRows = [];
@@ -272,13 +285,13 @@
                     const qty = parseInt(qtyVal) || 1;
                     totalQty += qty;
 
-                    let rawMrp = getColValue(r, ['mrp', 'rate', 'price', 'amount'], '');
+                    let rawMrp = getColValue(r, ['mrp', 'rate', 'price', 'amount', 'rtae'], '');
                     let mrp = rawMrp.replace(/[^0-9]/g, '');
 
                     tableRows.push([
                         getColValue(r, ['merchant sku', 'merchantsku', 'sku'], ''),
                         getColValue(r, ['item code', 'itemcode', 'style', 'code'], ''),
-                        getColValue(r, ['item name', 'itemname', 'title', 'item', 'description'], ''),
+                        getColValue(r, ['item name', 'iteam name', 'itemname', 'title', 'item', 'description'], ''),
                         getColValue(r, ['color', 'colour', 'col'], ''),
                         getColValue(r, ['size'], ''),
                         getColValue(r, ['ean code', 'eancode', 'barcode', 'ean'], ''),
@@ -293,19 +306,26 @@
                     { content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
                 ]);
 
-                // Table Render with Vertical Auto-Wrapping (Wrap down, not side)
+                // Table Render: ROW HEIGHT EXPANDS DOWNWARDS (NO HORIZONTAL EXPANSION)
                 doc.autoTable({
                     startY: 25,
                     margin: { left: 2, right: 2 },
                     head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
                     body: tableRows,
                     theme: 'grid',
-                    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 5.5, halign: 'center', cellPadding: 0.8 },
-                    bodyStyles: { fontSize: 5, halign: 'center', cellPadding: 0.6, valig: 'middle' },
-                    styles: { 
-                        overflow: 'linebreak', // Auto Linebreak (Aadha upar, aadha neeche)
-                        lineWidth: 0.1, 
-                        strokeColor: [0,0,0] 
+                    headStyles: { 
+                        fillColor: [0, 0, 0], 
+                        textColor: [255, 255, 255], 
+                        fontSize: 5.5, 
+                        halign: 'center', 
+                        cellPadding: 0.8 
+                    },
+                    bodyStyles: { 
+                        fontSize: 5, 
+                        halign: 'center', 
+                        valign: 'middle',
+                        cellPadding: 0.8,
+                        overflow: 'linebreak' // Forces text to expand downwards (length increases)
                     },
                     columnStyles: {
                         0: { cellWidth: 20 }, // SKU
@@ -314,22 +334,19 @@
                         3: { cellWidth: 11 }, // COL
                         4: { cellWidth: 12 }, // SIZE
                         5: { cellWidth: 15 }, // EAN
-                        6: { cellWidth: 9 },  // MRP (Fixed width so it wraps down if long)
+                        6: { cellWidth: 9 },  // MRP
                         7: { cellWidth: 6.6 } // QTY
                     }
                 });
-
-                currentSequentialBoxNo++;
             }
 
             generatedPdfBlob = doc.output('blob');
-            const pdfBase64 = doc.output('datauristring');
 
             showStatus("✅ Labels Ready!", "text-green-600");
             document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
             document.getElementById('resultBox').classList.remove('hidden');
 
-            saveToHistory(fileName, totalBoxesFound, pdfBase64);
+            saveToHistory(fileName, totalBoxesFound);
         }
 
         document.getElementById('downloadBtn').addEventListener('click', () => {
@@ -348,37 +365,40 @@
             st.classList.remove('hidden');
         }
 
-        // --- 20-DAY HISTORY SYSTEM ---
-        function saveToHistory(fileName, boxes, pdfBase64) {
-            let history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
-            const now = new Date();
+        // --- LIGHTWEIGHT 20-DAY HISTORY SYSTEM ---
+        function saveToHistory(fileName, boxes) {
+            try {
+                let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+                const now = new Date();
 
-            const newEntry = {
-                id: Date.now(),
-                name: fileName,
-                boxes: boxes,
-                time: now.toLocaleString(),
-                timestamp: now.getTime(),
-                pdfData: pdfBase64
-            };
+                const newEntry = {
+                    id: Date.now(),
+                    name: fileName,
+                    boxes: boxes,
+                    time: now.toLocaleString(),
+                    timestamp: now.getTime()
+                };
 
-            history.unshift(newEntry);
-            localStorage.setItem('labelHistory20Days', JSON.stringify(history));
-            cleanOldHistory();
-            renderHistory();
+                history.unshift(newEntry);
+                localStorage.setItem('labelHistoryLight', JSON.stringify(history));
+                cleanOldHistory();
+                renderHistory();
+            } catch (e) {
+                localStorage.clear();
+            }
         }
 
         function cleanOldHistory() {
-            let history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
+            let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
             const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000;
             const now = new Date().getTime();
 
             const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
-            localStorage.setItem('labelHistory20Days', JSON.stringify(validHistory));
+            localStorage.setItem('labelHistoryLight', JSON.stringify(validHistory));
         }
 
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
+            const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
             const historyList = document.getElementById('historyList');
 
             if (history.length === 0) {
@@ -388,29 +408,13 @@
 
             historyList.innerHTML = history.map((item, index) => `
                 <li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
-                    <div class="pr-2">
-                        <div class="font-bold text-gray-800 text-[11px] truncate max-w-[200px]">${index + 1}. ${item.name}</div>
-                        <div class="text-[9px] text-gray-400">${item.time} | <span class="text-blue-600 font-semibold">${item.boxes} Boxes</span></div>
+                    <div>
+                        <div class="font-bold text-gray-800 text-[11px]">${index + 1}. ${item.name}</div>
+                        <div class="text-[9px] text-gray-400">${item.time}</div>
                     </div>
-                    <button onclick="downloadHistoryPDF(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition-all flex items-center gap-1">
-                        📥 Download PDF
-                    </button>
+                    <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${item.boxes} Boxes</span>
                 </li>
             `).join('');
-        }
-
-        function downloadHistoryPDF(id) {
-            const history = JSON.parse(localStorage.getItem('labelHistory20Days') || '[]');
-            const item = history.find(x => x.id === id);
-            if (!item || !item.pdfData) {
-                alert("PDF not found!");
-                return;
-            }
-
-            const a = document.createElement('a');
-            a.href = item.pdfData;
-            a.download = `HISTORY_${item.name.replace('.xlsx', '')}_LABELS.pdf`;
-            a.click();
         }
 
         function toggleHistory() {
@@ -420,7 +424,7 @@
 
         function clearHistory() {
             if (confirm("Are you sure you want to clear all history?")) {
-                localStorage.removeItem('labelHistory20Days');
+                localStorage.removeItem('labelHistoryLight');
                 renderHistory();
             }
         }
