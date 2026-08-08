@@ -247,8 +247,8 @@ po = po || '-';
 inv = inv || '-';
 challan = challan || '-';
 
-// --- FIXED HEADER LAYOUT ---
-doc.setLineWidth(0.4);
+// --- FIXED HEADER LAYOUT WITH FULL BLACK BORDERS ---
+doc.setLineWidth(0.5);
 doc.setDrawColor(0, 0, 0);
 doc.setTextColor(0, 0, 0);
 
@@ -314,45 +314,49 @@ qty
 
 // Footer Row
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6 } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6 } }
+{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.35, lineColor: [0, 0, 0] } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.35, lineColor: [0, 0, 0] } }
 ]);
 
-// Table Render - RE-BALANCED COLUMN WIDTHS & STRICT SINGLE-LINE SETTINGS
+// Table Render - GRID THEME WITH SOLID BLACK BORDERS ON ALL CELLS
 doc.autoTable({
 startY: 25,
 margin: { left: 2, right: 2 },
 head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
 body: tableRows,
-theme: 'grid',
-tableLineWidth: 0.25,
-tableLineColor: [0, 0, 0],
+theme: 'grid',              // Ensures full grid lines
+tableLineWidth: 0.35,        // Outer table border thickness
+tableLineColor: [0, 0, 0],   // Solid Black outer table line color
 headStyles: {
 fillColor: [0, 0, 0],
 textColor: [255, 255, 255],
 fontSize: 5.5,
 fontStyle: 'bold',
 halign: 'center',
-cellPadding: 0.5
+cellPadding: 0.5,
+lineWidth: 0.35,           // Solid header cell borders
+lineColor: [0, 0, 0]
 },
 bodyStyles: {
-fontSize: 4.5,            // Reduced font size to guarantee everything fits in 1 line
-fontStyle: 'bold',         // Dark & Bold
-textColor: [0, 0, 0],      // Pure Black
+fontSize: 4.5,             // Compact font size for single-line fit
+fontStyle: 'bold',          // Crisp bold print
+textColor: [0, 0, 0],       // Pure black text
 halign: 'center',
 valign: 'middle',
 cellPadding: 0.5,
-overflow: 'ellipsize'      // Prevents text wrapping down to new lines
+overflow: 'ellipsize',
+lineWidth: 0.35,           // Solid black cell borders for every single cell
+lineColor: [0, 0, 0]
 },
 columnStyles: {
-0: { cellWidth: 23 }, // SKU (Expanded)
-1: { cellWidth: 12 }, // CODE
-2: { cellWidth: 12 }, // NAME
-3: { cellWidth: 10 }, // COL
-4: { cellWidth: 14 }, // SIZE (Expanded for 37EU/25.0cm)
-5: { cellWidth: 17 }, // EAN (Expanded for 13-digit EANs)
-6: { cellWidth: 5.6 },// MRP
-7: { cellWidth: 4 }   // QTY
+0: { cellWidth: 23 },
+1: { cellWidth: 12 },
+2: { cellWidth: 12 },
+3: { cellWidth: 10 },
+4: { cellWidth: 14 },
+5: { cellWidth: 17 },
+6: { cellWidth: 5.6 },
+7: { cellWidth: 4 }
 }
 });
 }
