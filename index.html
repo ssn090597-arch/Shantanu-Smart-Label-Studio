@@ -26,11 +26,26 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
 <!-- Header with Custom Uploaded Logo -->
 <div class="mb-6 flex flex-col items-center justify-center gap-2">
-<img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg">
+<img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
-<p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Row-Height Engine</p>
+<p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Multi-Page Engine</p>
+</div>
+
+<!-- Print Orientation Selector Option -->
+<div class="mb-5 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left">
+<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION:</label>
+<div class="flex items-center gap-6">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="p" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+<span class="text-sm font-semibold text-gray-800">📱 Portrait (4" x 6")</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="l" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+<span class="text-sm font-semibold text-gray-800">🖥️ Landscape (6" x 4")</span>
+</label>
+</div>
 </div>
 
 <!-- File Upload Area -->
@@ -201,6 +216,9 @@ return defaultValue;
 }
 
 async function generatePDF(data, metaPO, metaDest, fileName) {
+const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
+const isLandscape = (selectedOrientation === 'l');
+
 const rawGroups = {};
 data.forEach(row => {
 const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
@@ -217,8 +235,11 @@ showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "tex
 return;
 }
 
+const pageWidth = isLandscape ? 152.4 : 101.6;
+const pageHeight = isLandscape ? 101.6 : 152.4;
+
 const doc = new jsPDF({
-orientation: 'p',
+orientation: selectedOrientation,
 unit: 'mm',
 format: [101.6, 152.4]
 });
@@ -226,9 +247,6 @@ format: [101.6, 152.4]
 let isFirstPage = true;
 
 for (let rawKey of uniqueRawKeys) {
-if (!isFirstPage) doc.addPage([101.6, 152.4], 'p');
-isFirstPage = false;
-
 const boxData = rawGroups[rawKey];
 let dest = metaDest;
 let po = metaPO;
@@ -247,48 +265,54 @@ po = po || '-';
 inv = inv || '-';
 challan = challan || '-';
 
-// --- FIXED HEADER LAYOUT WITH FULL BLACK BORDERS ---
-doc.setLineWidth(0.5);
-doc.setDrawColor(0, 0, 0);
-doc.setTextColor(0, 0, 0);
+// Header Drawing Function for First Page & Continuation Pages
+const drawHeader = (docObj) => {
+docObj.setLineWidth(0.4);
+docObj.setDrawColor(0, 0, 0);
+docObj.setTextColor(0, 0, 0);
 
-doc.rect(2, 2, 97.6, 22); // Outer Border Box
-doc.line(65, 2, 65, 24);   // Vertical Divider Line
+const boxOuterWidth = pageWidth - 4;
+const divX = isLandscape ? 110 : 65;
 
-doc.setFont("Helvetica", "bold");
+docObj.rect(2, 2, boxOuterWidth, 22); 
+docObj.line(divX, 2, divX, 24);   
+
+docObj.setFont("Helvetica", "bold");
 
 // Line 1: DESTINATION
-doc.setFontSize(6.5);
-doc.text("SHIP TO / DESTINATION:", 4, 5.5);
-doc.setFontSize(7.5);
-doc.text(String(dest).substring(0, 36), 4, 9);
+docObj.setFontSize(6.5);
+docObj.text("SHIP TO / DESTINATION:", 4, 5.5);
+docObj.setFontSize(7.5);
+docObj.text(String(dest).substring(0, isLandscape ? 60 : 36), 4, 9);
 
 // Line 2: PO / ORD
-doc.setFontSize(6.5);
+docObj.setFontSize(6.5);
 let poLine = `PO/ORD: ${po}`;
-if (poLine.length > 44) poLine = poLine.substring(0, 41) + "...";
-doc.text(poLine, 4, 13);
+if (!isLandscape && poLine.length > 44) poLine = poLine.substring(0, 41) + "...";
+docObj.text(poLine, 4, 13);
 
 // Line 3: CHALLAN NO
 let challanLine = `CHALLAN NO: ${challan}`;
-if (challanLine.length > 44) challanLine = challanLine.substring(0, 41) + "...";
-doc.text(challanLine, 4, 17);
+if (!isLandscape && challanLine.length > 44) challanLine = challanLine.substring(0, 41) + "...";
+docObj.text(challanLine, 4, 17);
 
 // Line 4: INVOICE NO
 let invLine = `INV NO: ${inv}`;
-if (invLine.length > 44) invLine = invLine.substring(0, 41) + "...";
-doc.text(invLine, 4, 21);
+if (!isLandscape && invLine.length > 44) invLine = invLine.substring(0, 41) + "...";
+docObj.text(invLine, 4, 21);
 
 // Right Header Box (BOX NO. Section)
 let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
+const boxCenter = divX + (boxOuterWidth + 2 - divX) / 2;
 
-doc.setFontSize(8.5);
-doc.text("BOX NO.", 82.3, 8, { align: "center" });
+docObj.setFontSize(8.5);
+docObj.text("BOX NO.", boxCenter, 8, { align: "center" });
 
-doc.setFontSize(14);
-doc.text(`${displayBoxNum} / ${totalBoxesFound}`, 82.3, 16, { align: "center" });
+docObj.setFontSize(14);
+docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 16, { align: "center" });
+};
 
-// Items Table
+// Prepare Table Data
 const tableRows = [];
 let totalQty = 0;
 
@@ -314,41 +338,27 @@ qty
 
 // Footer Row
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.35, lineColor: [0, 0, 0] } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.35, lineColor: [0, 0, 0] } }
+{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } }
 ]);
 
-// Table Render - GRID THEME WITH SOLID BLACK BORDERS ON ALL CELLS
-doc.autoTable({
-startY: 25,
-margin: { left: 2, right: 2 },
-head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
-body: tableRows,
-theme: 'grid',              // Ensures full grid lines
-tableLineWidth: 0.35,        // Outer table border thickness
-tableLineColor: [0, 0, 0],   // Solid Black outer table line color
-headStyles: {
-fillColor: [0, 0, 0],
-textColor: [255, 255, 255],
-fontSize: 5.5,
-fontStyle: 'bold',
-halign: 'center',
-cellPadding: 0.5,
-lineWidth: 0.35,           // Solid header cell borders
-lineColor: [0, 0, 0]
-},
-bodyStyles: {
-fontSize: 4.5,             // Compact font size for single-line fit
-fontStyle: 'bold',          // Crisp bold print
-textColor: [0, 0, 0],       // Pure black text
-halign: 'center',
-valign: 'middle',
-cellPadding: 0.5,
-overflow: 'ellipsize',
-lineWidth: 0.35,           // Solid black cell borders for every single cell
-lineColor: [0, 0, 0]
-},
-columnStyles: {
+if (!isFirstPage) {
+doc.addPage([101.6, 152.4], selectedOrientation);
+}
+isFirstPage = false;
+
+drawHeader(doc);
+
+const colWidths = isLandscape ? {
+0: { cellWidth: 32 },
+1: { cellWidth: 18 },
+2: { cellWidth: 20 },
+3: { cellWidth: 16 },
+4: { cellWidth: 20 },
+5: { cellWidth: 25 },
+6: { cellWidth: 10 },
+7: { cellWidth: 7.4 }
+} : {
 0: { cellWidth: 23 },
 1: { cellWidth: 12 },
 2: { cellWidth: 12 },
@@ -357,6 +367,42 @@ columnStyles: {
 5: { cellWidth: 17 },
 6: { cellWidth: 5.6 },
 7: { cellWidth: 4 }
+};
+
+doc.autoTable({
+startY: 25,
+margin: { left: 2, right: 2, top: 25, bottom: 5 },
+head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
+body: tableRows,
+theme: 'grid',
+tableLineWidth: 0.15,
+tableLineColor: [0, 0, 0],
+headStyles: {
+fillColor: [0, 0, 0],
+textColor: [255, 255, 255],
+fontSize: 5.5,
+fontStyle: 'bold',
+halign: 'center',
+cellPadding: 0.5,
+lineWidth: 0.15,
+lineColor: [0, 0, 0]
+},
+bodyStyles: {
+fontSize: 4.5,
+fontStyle: 'bold',
+textColor: [0, 0, 0],
+halign: 'center',
+valign: 'middle',
+cellPadding: 0.5,
+overflow: 'ellipsize',
+lineWidth: 0.15,
+lineColor: [0, 0, 0]
+},
+columnStyles: colWidths,
+didDrawPage: function (data) {
+if (data.pageNumber > 1) {
+drawHeader(doc);
+}
 }
 });
 }
@@ -370,9 +416,8 @@ saveToHistory(fileName, totalBoxesFound);
 
 document.getElementById('downloadBtn').addEventListener('click', () => {
 if (!generatedPdfBlob) return;
-const url = URL.createObjectURL(generatedPdfBlob);
 const a = document.createElement('a');
-a.href = url;
+a.href = URL.createObjectURL(generatedPdfBlob);
 a.download = `ALL_BOX_LABELS_${totalBoxesFound}_UNITS.pdf`;
 a.click();
 });
