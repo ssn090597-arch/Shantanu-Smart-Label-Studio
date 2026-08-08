@@ -1,433 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Google Search Optimization (SEO) -->
-    <title>Shantanu Smart Label Studio - 4x6 Box Label Generator</title>
-    <meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
-    <meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
-    <meta name="author" content="Shantanu Mathura">
-
-    <!-- Favicon / Logo -->
-    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- XLSX Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- jsPDF AutoTable Plugin -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Search Optimization (SEO) -->
+<title>Shantanu Smart Label Studio - 4x6 Box Label Generator</title>
+<meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
+<meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
+<meta name="author" content="Shantanu Mathura">
+<!-- Favicon / Logo -->
+<link rel="icon" type="image/jpeg" href="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- XLSX Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- jsPDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- jsPDF AutoTable Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+</style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
-        
-        <!-- Header with Custom Uploaded Logo -->
-        <div class="mb-6 flex flex-col items-center justify-center gap-2">
-            <img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg">
-            
-            <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
-                <span>Shantanu Smart Label Studio</span>
-            </h1>
-            <p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Row-Height Engine</p>
-        </div>
+<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
+<!-- Header with Custom Uploaded Logo -->
+<div class="mb-6 flex flex-col items-center justify-center gap-2">
+<img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg">
+<h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
+<span>Shantanu Smart Label Studio</span>
+</h1>
+<p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Row-Height Engine</p>
+</div>
 
-        <!-- File Upload Area -->
-        <div class="border-2 border-dashed border-blue-400 rounded-xl p-8 bg-blue-50/50 hover:bg-blue-50 transition-all cursor-pointer relative" id="dropArea">
-            <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-            <div class="space-y-3">
-                <svg class="w-12 h-12 text-blue-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                <p class="text-gray-700 font-medium text-lg">Upload Your Excel File (.xlsx)</p>
-                <p class="text-xs text-gray-400">Click or Drag & Drop File Here</p>
-            </div>
-        </div>
+<!-- File Upload Area -->
+<div class="border-2 border-dashed border-blue-400 rounded-xl p-8 bg-blue-50/50 hover:bg-blue-50 transition-all cursor-pointer relative" id="dropArea">
+<input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+<div class="space-y-3">
+<svg class="w-12 h-12 text-blue-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+</svg>
+<p class="text-gray-700 font-medium text-lg">Upload Your Excel File (.xlsx)</p>
+<p class="text-xs text-gray-400">Click or Drag & Drop File Here</p>
+</div>
+</div>
 
-        <!-- Detected Headers Info Box -->
-        <div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
-            <p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
-            <p id="detectedColsText" class="font-mono text-blue-800"></p>
-        </div>
+<!-- Detected Headers Info Box -->
+<div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
+<p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
+<p id="detectedColsText" class="font-mono text-blue-800"></p>
+</div>
 
-        <!-- Status Message -->
-        <div id="status" class="mt-6 text-sm font-semibold hidden"></div>
+<!-- Status Message -->
+<div id="status" class="mt-6 text-sm font-semibold hidden"></div>
 
-        <!-- Result Stats & Download Button -->
-        <div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
-            <div class="flex justify-between items-center text-green-800">
-                <span class="font-bold text-base">Total Active Boxes Generated:</span>
-                <span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
-            </div>
-            <button id="downloadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
-                <span>📥 Download Current Labels PDF</span>
-            </button>
-        </div>
+<!-- Result Stats & Download Button -->
+<div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
+<div class="flex justify-between items-center text-green-800">
+<span class="font-bold text-base">Total Active Boxes Generated:</span>
+<span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
+</div>
+<button id="downloadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
+<span>📥 Download Current Labels PDF</span>
+</button>
+</div>
 
-        <!-- History Toggle Button -->
-        <div class="mt-6 text-right">
-            <button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
-                📜 Show 20-Day Upload History
-            </button>
-        </div>
+<!-- History Toggle Button -->
+<div class="mt-6 text-right">
+<button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
+📜 Show 20-Day Upload History
+</button>
+</div>
 
-        <!-- History Box -->
-        <div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
-            <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
-                <button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear History</button>
-            </div>
-            <ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
-                <li class="text-gray-400 italic text-center">No history yet.</li>
-            </ul>
-        </div>
-    </div>
+<!-- History Box -->
+<div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
+<button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear History</button>
+</div>
+<ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
+<li class="text-gray-400 italic text-center">No history yet.</li>
+</ul>
+</div>
+</div>
 
-    <script>
-        const { jsPDF } = window.jspdf;
-        let generatedPdfBlob = null;
-        let totalBoxesFound = 0;
+<script>
+const { jsPDF } = window.jspdf;
+let generatedPdfBlob = null;
+let totalBoxesFound = 0;
 
-        document.getElementById('excelFile').addEventListener('change', handleFileSelect);
-        window.onload = function() {
-            cleanOldHistory();
-            renderHistory();
-        };
+document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 
-        function norm(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
-        }
+window.onload = function() {
+cleanOldHistory();
+renderHistory();
+};
 
-        async function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+function norm(str) {
+if (str === null || str === undefined) return '';
+return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
 
-            showStatus("⚡ Processing Excel Data...", "text-blue-600");
-            const reader = new FileReader();
+async function handleFileSelect(e) {
+const file = e.target.files[0];
+if (!file) return;
 
-            reader.onload = async function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    let rawGrid = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+showStatus("⚡ Processing Excel Data...", "text-blue-600");
+const reader = new FileReader();
+reader.onload = async function(evt) {
+try {
+const data = new Uint8Array(evt.target.result);
+const workbook = XLSX.read(data, { type: 'array' });
+const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+let rawGrid = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+let headerRowIndex = -1;
+const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty'];
 
-                    let headerRowIndex = -1;
-                    const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty'];
+for (let r = 0; r < Math.min(rawGrid.length, 20); r++) {
+const row = rawGrid[r];
+if (!row || row.length === 0) continue;
+let matchCount = 0;
+for (let c = 0; c < row.length; c++) {
+const val = norm(row[c]);
+if (headerKeywords.some(kw => val.includes(kw))) {
+matchCount++;
+}
+}
+if (matchCount >= 2) {
+headerRowIndex = r;
+break;
+}
+}
 
-                    for (let r = 0; r < Math.min(rawGrid.length, 20); r++) {
-                        const row = rawGrid[r];
-                        if (!row || row.length === 0) continue;
-                        let matchCount = 0;
-                        for (let c = 0; c < row.length; c++) {
-                            const val = norm(row[c]);
-                            if (headerKeywords.some(kw => val.includes(kw))) {
-                                matchCount++;
-                            }
-                        }
-                        if (matchCount >= 2) {
-                            headerRowIndex = r;
-                            break;
-                        }
-                    }
+if (headerRowIndex === -1) {
+showStatus("❌ Table Header Row not found in Excel!", "text-red-600");
+return;
+}
 
-                    if (headerRowIndex === -1) {
-                        showStatus("❌ Table Header Row not found in Excel!", "text-red-600");
-                        return;
-                    }
+let metaPO = '';
+let metaDest = '';
+for (let r = 0; r < headerRowIndex; r++) {
+const row = rawGrid[r];
+if (!row) continue;
+for (let c = 0; c < row.length; c++) {
+const val = String(row[c] || '').trim();
+const nVal = norm(val);
+if (nVal === 'po' && row[c+1]) {
+metaPO = String(row[c+1]).trim();
+}
+if ((nVal.includes('boxdetail') || nVal.includes('destination') || nVal.includes('shipto')) && row[c+1]) {
+metaDest = String(row[c+1]).trim();
+}
+}
+}
 
-                    let metaPO = '';
-                    let metaDest = '';
+const tableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
+if (tableData.length > 0) {
+const colsFound = Object.keys(tableData[0]).join(' | ');
+document.getElementById('detectedColsText').innerText = colsFound;
+document.getElementById('debugBox').classList.remove('hidden');
+}
 
-                    for (let r = 0; r < headerRowIndex; r++) {
-                        const row = rawGrid[r];
-                        if (!row) continue;
-                        for (let c = 0; c < row.length; c++) {
-                            const val = String(row[c] || '').trim();
-                            const nVal = norm(val);
-                            if (nVal === 'po' && row[c+1]) {
-                                metaPO = String(row[c+1]).trim();
-                            }
-                            if ((nVal.includes('boxdetail') || nVal.includes('destination') || nVal.includes('shipto')) && row[c+1]) {
-                                metaDest = String(row[c+1]).trim();
-                            }
-                        }
-                    }
+await generatePDF(tableData, metaPO, metaDest, file.name);
+} catch (err) {
+console.error(err);
+showStatus("❌ Error processing file: " + err.message, "text-red-600");
+}
+};
 
-                    const tableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
+reader.readAsArrayBuffer(file);
+}
 
-                    if (tableData.length > 0) {
-                        const colsFound = Object.keys(tableData[0]).join(' | ');
-                        document.getElementById('detectedColsText').innerText = colsFound;
-                        document.getElementById('debugBox').classList.remove('hidden');
-                    }
+function getColValue(row, possibleKeys, defaultValue = '') {
+const keys = Object.keys(row);
+for (let pk of possibleKeys) {
+const normPK = norm(pk);
+for (let k of keys) {
+if (norm(k) === normPK) {
+const v = row[k];
+if (v !== undefined && v !== null && String(v).trim() !== '') {
+return String(v).trim();
+}
+}
+}
+}
 
-                    await generatePDF(tableData, metaPO, metaDest, file.name);
+for (let pk of possibleKeys) {
+const normPK = norm(pk);
+for (let k of keys) {
+if (norm(k).includes(normPK)) {
+const v = row[k];
+if (v !== undefined && v !== null && String(v).trim() !== '') {
+return String(v).trim();
+}
+}
+}
+}
 
-                } catch (err) {
-                    console.error(err);
-                    showStatus("❌ Error processing file: " + err.message, "text-red-600");
-                }
-            };
+return defaultValue;
+}
 
-            reader.readAsArrayBuffer(file);
-        }
+async function generatePDF(data, metaPO, metaDest, fileName) {
+const rawGroups = {};
+data.forEach(row => {
+const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
+if (!boxVal) return;
+if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
+rawGroups[boxVal].push(row);
+});
 
-        function getColValue(row, possibleKeys, defaultValue = '') {
-            const keys = Object.keys(row);
-            for (let pk of possibleKeys) {
-                const normPK = norm(pk);
-                for (let k of keys) {
-                    if (norm(k) === normPK) {
-                        const v = row[k];
-                        if (v !== undefined && v !== null && String(v).trim() !== '') {
-                            return String(v).trim();
-                        }
-                    }
-                }
-            }
+const uniqueRawKeys = Object.keys(rawGroups);
+totalBoxesFound = uniqueRawKeys.length;
 
-            for (let pk of possibleKeys) {
-                const normPK = norm(pk);
-                for (let k of keys) {
-                    if (norm(k).includes(normPK)) {
-                        const v = row[k];
-                        if (v !== undefined && v !== null && String(v).trim() !== '') {
-                            return String(v).trim();
-                        }
-                    }
-                }
-            }
-            return defaultValue;
-        }
+if (totalBoxesFound === 0) {
+showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
+return;
+}
 
-        async function generatePDF(data, metaPO, metaDest, fileName) {
-            const rawGroups = {};
-            data.forEach(row => {
-                const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
-                if (!boxVal) return;
-                if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
-                rawGroups[boxVal].push(row);
-            });
+const doc = new jsPDF({
+orientation: 'p',
+unit: 'mm',
+format: [101.6, 152.4]
+});
 
-            const uniqueRawKeys = Object.keys(rawGroups);
-            totalBoxesFound = uniqueRawKeys.length;
+let isFirstPage = true;
 
-            if (totalBoxesFound === 0) {
-                showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
-                return;
-            }
+for (let rawKey of uniqueRawKeys) {
+if (!isFirstPage) doc.addPage([101.6, 152.4], 'p');
+isFirstPage = false;
 
-            const doc = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: [101.6, 152.4]
-            });
+const boxData = rawGroups[rawKey];
+let dest = metaDest;
+let po = metaPO;
+let inv = '';
+let challan = '';
 
-            let isFirstPage = true;
+for (let r of boxData) {
+if (!dest) dest = getColValue(r, ['destination', 'shipto', 'partyname', 'party', 'customer'], '');
+if (!po) po = getColValue(r, ['pono', 'ponumber', 'purchaseorder', 'orderno', 'po'], '');
+if (!inv) inv = getColValue(r, ['invoice number', 'invoiceno', 'invno', 'invoice'], '');
+if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '');
+}
 
-            for (let rawKey of uniqueRawKeys) {
-                if (!isFirstPage) doc.addPage([101.6, 152.4], 'p');
-                isFirstPage = false;
+dest = dest || 'SHANTANU MATHURA';
+po = po || '-';
+inv = inv || '-';
+challan = challan || '-';
 
-                const boxData = rawGroups[rawKey];
-                let dest = metaDest;
-                let po = metaPO;
-                let inv = '';
-                let challan = '';
+// --- FIXED HEADER LAYOUT ---
+doc.rect(2, 2, 97.6, 22); // Outer Border Box
+doc.line(65, 2, 65, 24);   // Vertical Divider Line at 65mm
 
-                for (let r of boxData) {
-                    if (!dest) dest = getColValue(r, ['destination', 'shipto', 'partyname', 'party', 'customer'], '');
-                    if (!po) po = getColValue(r, ['pono', 'ponumber', 'purchaseorder', 'orderno', 'po'], '');
-                    if (!inv) inv = getColValue(r, ['invoice number', 'invoiceno', 'invno', 'invoice'], '');
-                    if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '');
-                }
+// Left Header Box (Destination / PO / INV / Challan)
+doc.setFont("Helvetica", "bold");
+doc.setFontSize(7);
+doc.text("SHIP TO / DESTINATION:", 4, 6);
 
-                dest = dest || 'SHANTANU MATHURA';
-                po = po || '-';
-                inv = inv || '-';
-                challan = challan || '-';
+doc.setFontSize(8);
+doc.text(String(dest).substring(0, 36), 4, 10);
 
-                // Header Box
-                doc.rect(2, 2, 97.6, 22);
-                doc.line(68, 2, 68, 24);
+doc.setFontSize(6);
+// Auto Truncate Long PO/INV Text to avoid overflow
+let poInvLine = `PO/ORD: ${po} | INV: ${inv}`;
+if (poInvLine.length > 44) {
+  poInvLine = poInvLine.substring(0, 41) + "...";
+}
+doc.text(poInvLine, 4, 15);
 
-                doc.setFont("Helvetica", "bold");
-                doc.setFontSize(7);
-                doc.text("SHIP TO / DESTINATION:", 4, 6);
-                doc.setFontSize(7.5);
-                doc.text(String(dest).substring(0, 38), 4, 10);
-                doc.setFontSize(6.5);
-                doc.text(`PO/ORD: ${po} | INV: ${inv}`, 4, 15);
-                doc.text(`CHALLAN NO: ${challan}`, 4, 19);
+let challanLine = `CHALLAN NO: ${challan}`;
+if (challanLine.length > 44) {
+  challanLine = challanLine.substring(0, 41) + "...";
+}
+doc.text(challanLine, 4, 19);
 
-                // Direct Excel Box Number/Name Print
-                let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
+// Right Header Box (BOX NO. Section)
+let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
 
-                doc.setFontSize(8);
-                doc.text("BOX NO.", 71, 8);
-                doc.setFontSize(14);
-                doc.text(`${displayBoxNum} / ${totalBoxesFound}`, 71, 16);
+// Center Alignment inside the right box (65mm to 99.6mm)
+doc.setFontSize(8);
+doc.text("BOX NO.", 82.3, 8, { align: "center" });
 
-                // Items Table
-                const tableRows = [];
-                let totalQty = 0;
+doc.setFontSize(13);
+doc.text(`${displayBoxNum} / ${totalBoxesFound}`, 82.3, 16, { align: "center" });
 
-                boxData.forEach(r => {
-                    const qtyVal = getColValue(r, ['qty', 'quantity', 'boxqty'], '1');
-                    const qty = parseInt(qtyVal) || 1;
-                    totalQty += qty;
+// Items Table
+const tableRows = [];
+let totalQty = 0;
 
-                    let rawMrp = getColValue(r, ['mrp', 'rate', 'price', 'amount', 'rtae'], '');
-                    let mrp = rawMrp.replace(/[^0-9]/g, '');
+boxData.forEach(r => {
+const qtyVal = getColValue(r, ['qty', 'quantity', 'boxqty'], '1');
+const qty = parseInt(qtyVal) || 1;
+totalQty += qty;
 
-                    tableRows.push([
-                        getColValue(r, ['merchant sku', 'merchantsku', 'sku'], ''),
-                        getColValue(r, ['item code', 'itemcode', 'style', 'code'], ''),
-                        getColValue(r, ['item name', 'iteam name', 'itemname', 'title', 'item', 'description'], ''),
-                        getColValue(r, ['color', 'colour', 'col'], ''),
-                        getColValue(r, ['size'], ''),
-                        getColValue(r, ['ean code', 'eancode', 'barcode', 'ean'], ''),
-                        mrp,
-                        qty
-                    ]);
-                });
+let rawMrp = getColValue(r, ['mrp', 'rate', 'price', 'amount', 'rtae'], '');
+let mrp = rawMrp.replace(/[^0-9]/g, '');
 
-                // Footer Row
-                tableRows.push([
-                    { content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left' } },
-                    { content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
-                ]);
+tableRows.push([
+getColValue(r, ['merchant sku', 'merchantsku', 'sku'], ''),
+getColValue(r, ['item code', 'itemcode', 'style', 'code'], ''),
+getColValue(r, ['item name', 'iteam name', 'itemname', 'title', 'item', 'description'], ''),
+getColValue(r, ['color', 'colour', 'col'], ''),
+getColValue(r, ['size'], ''),
+getColValue(r, ['ean code', 'eancode', 'barcode', 'ean'], ''),
+mrp,
+qty
+]);
+});
 
-                // Table Render
-                doc.autoTable({
-                    startY: 25,
-                    margin: { left: 2, right: 2 },
-                    head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
-                    body: tableRows,
-                    theme: 'grid',
-                    headStyles: { 
-                        fillColor: [0, 0, 0], 
-                        textColor: [255, 255, 255], 
-                        fontSize: 5.5, 
-                        halign: 'center', 
-                        cellPadding: 0.8 
-                    },
-                    bodyStyles: { 
-                        fontSize: 5, 
-                        halign: 'center', 
-                        valign: 'middle',
-                        cellPadding: 0.8,
-                        overflow: 'linebreak'
-                    },
-                    columnStyles: {
-                        0: { cellWidth: 20 },
-                        1: { cellWidth: 12 },
-                        2: { cellWidth: 12 },
-                        3: { cellWidth: 11 },
-                        4: { cellWidth: 12 },
-                        5: { cellWidth: 15 },
-                        6: { cellWidth: 9 },
-                        7: { cellWidth: 6.6 }
-                    }
-                });
-            }
+// Footer Row
+tableRows.push([
+{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left' } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
+]);
 
-            generatedPdfBlob = doc.output('blob');
+// Table Render
+doc.autoTable({
+startY: 25,
+margin: { left: 2, right: 2 },
+head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
+body: tableRows,
+theme: 'grid',
+headStyles: {
+fillColor: [0, 0, 0],
+textColor: [255, 255, 255],
+fontSize: 5.5,
+halign: 'center',
+cellPadding: 0.8
+},
+bodyStyles: {
+fontSize: 5,
+halign: 'center',
+valign: 'middle',
+cellPadding: 0.8,
+overflow: 'linebreak'
+},
+columnStyles: {
+0: { cellWidth: 20 },
+1: { cellWidth: 12 },
+2: { cellWidth: 12 },
+3: { cellWidth: 11 },
+4: { cellWidth: 12 },
+5: { cellWidth: 15 },
+6: { cellWidth: 9 },
+7: { cellWidth: 6.6 }
+}
+});
+}
 
-            showStatus("✅ Labels Ready!", "text-green-600");
-            document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
-            document.getElementById('resultBox').classList.remove('hidden');
+generatedPdfBlob = doc.output('blob');
+showStatus("✅ Labels Ready!", "text-green-600");
+document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
+document.getElementById('resultBox').classList.remove('hidden');
+saveToHistory(fileName, totalBoxesFound);
+}
 
-            saveToHistory(fileName, totalBoxesFound);
-        }
+document.getElementById('downloadBtn').addEventListener('click', () => {
+if (!generatedPdfBlob) return;
+const url = URL.createObjectURL(generatedPdfBlob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `ALL_BOX_LABELS_${totalBoxesFound}_UNITS.pdf`;
+a.click();
+});
 
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            if (!generatedPdfBlob) return;
-            const url = URL.createObjectURL(generatedPdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ALL_BOX_LABELS_${totalBoxesFound}_UNITS.pdf`;
-            a.click();
-        });
+function showStatus(msg, colorClass) {
+const st = document.getElementById('status');
+st.className = `mt-6 text-sm font-semibold ${colorClass}`;
+st.innerText = msg;
+st.classList.remove('hidden');
+}
 
-        function showStatus(msg, colorClass) {
-            const st = document.getElementById('status');
-            st.className = `mt-6 text-sm font-semibold ${colorClass}`;
-            st.innerText = msg;
-            st.classList.remove('hidden');
-        }
+// --- LIGHTWEIGHT 20-DAY HISTORY SYSTEM ---
+function saveToHistory(fileName, boxes) {
+try {
+let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+const now = new Date();
+const newEntry = {
+id: Date.now(),
+name: fileName,
+boxes: boxes,
+time: now.toLocaleString(),
+timestamp: now.getTime()
+};
+history.unshift(newEntry);
+localStorage.setItem('labelHistoryLight', JSON.stringify(history));
+cleanOldHistory();
+renderHistory();
+} catch (e) {
+localStorage.clear();
+}
+}
 
-        // --- LIGHTWEIGHT 20-DAY HISTORY SYSTEM ---
-        function saveToHistory(fileName, boxes) {
-            try {
-                let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-                const now = new Date();
+function cleanOldHistory() {
+let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000;
+const now = new Date().getTime();
+const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
+localStorage.setItem('labelHistoryLight', JSON.stringify(validHistory));
+}
 
-                const newEntry = {
-                    id: Date.now(),
-                    name: fileName,
-                    boxes: boxes,
-                    time: now.toLocaleString(),
-                    timestamp: now.getTime()
-                };
+function renderHistory() {
+const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+const historyList = document.getElementById('historyList');
+if (history.length === 0) {
+historyList.innerHTML = `<li class="text-gray-400 italic text-center">No history in the last 20 days.</li>`;
+return;
+}
+historyList.innerHTML = history.map((item, index) => `
+<li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
+<div>
+<div class="font-bold text-gray-800 text-[11px]">${index + 1}. ${item.name}</div>
+<div class="text-[9px] text-gray-400">${item.time}</div>
+</div>
+<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${item.boxes} Boxes</span>
+</li>`).join('');
+}
 
-                history.unshift(newEntry);
-                localStorage.setItem('labelHistoryLight', JSON.stringify(history));
-                cleanOldHistory();
-                renderHistory();
-            } catch (e) {
-                localStorage.clear();
-            }
-        }
+function toggleHistory() {
+const box = document.getElementById('historyBox');
+box.classList.toggle('hidden');
+}
 
-        function cleanOldHistory() {
-            let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-            const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000;
-            const now = new Date().getTime();
-
-            const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
-            localStorage.setItem('labelHistoryLight', JSON.stringify(validHistory));
-        }
-
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-            const historyList = document.getElementById('historyList');
-
-            if (history.length === 0) {
-                historyList.innerHTML = `<li class="text-gray-400 italic text-center">No history in the last 20 days.</li>`;
-                return;
-            }
-
-            historyList.innerHTML = history.map((item, index) => `
-                <li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
-                    <div>
-                        <div class="font-bold text-gray-800 text-[11px]">${index + 1}. ${item.name}</div>
-                        <div class="text-[9px] text-gray-400">${item.time}</div>
-                    </div>
-                    <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${item.boxes} Boxes</span>
-                </li>
-            `).join('');
-        }
-
-        function toggleHistory() {
-            const box = document.getElementById('historyBox');
-            box.classList.toggle('hidden');
-        }
-
-        function clearHistory() {
-            if (confirm("Are you sure you want to clear all history?")) {
-                localStorage.removeItem('labelHistoryLight');
-                renderHistory();
-            }
-        }
-    </script>
+function clearHistory() {
+if (confirm("Are you sure you want to clear all history?")) {
+localStorage.removeItem('labelHistoryLight');
+renderHistory();
+}
+}
+</script>
 </body>
 </html>
