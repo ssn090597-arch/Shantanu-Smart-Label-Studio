@@ -248,6 +248,10 @@ inv = inv || '-';
 challan = challan || '-';
 
 // --- FIXED HEADER LAYOUT (4 SEPARATE LINES) ---
+doc.setLineWidth(0.4);
+doc.setDrawColor(0, 0, 0);
+doc.setTextColor(0, 0, 0); // Pure Black Text Color
+
 doc.rect(2, 2, 97.6, 22); // Outer Border Box
 doc.line(65, 2, 65, 24);   // Vertical Divider Line at 65mm
 
@@ -260,7 +264,7 @@ doc.setFontSize(7.5);
 doc.text(String(dest).substring(0, 36), 4, 9);
 
 // Line 2: PO / ORD
-doc.setFontSize(6);
+doc.setFontSize(6.5);
 let poLine = `PO/ORD: ${po}`;
 if (poLine.length > 44) poLine = poLine.substring(0, 41) + "...";
 doc.text(poLine, 4, 13);
@@ -270,7 +274,7 @@ let challanLine = `CHALLAN NO: ${challan}`;
 if (challanLine.length > 44) challanLine = challanLine.substring(0, 41) + "...";
 doc.text(challanLine, 4, 17);
 
-// Line 4: INVOICE NO (Challan No ke niche)
+// Line 4: INVOICE NO
 let invLine = `INV NO: ${inv}`;
 if (invLine.length > 44) invLine = invLine.substring(0, 41) + "...";
 doc.text(invLine, 4, 21);
@@ -278,10 +282,10 @@ doc.text(invLine, 4, 21);
 // Right Header Box (BOX NO. Section)
 let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
 
-doc.setFontSize(8);
+doc.setFontSize(8.5);
 doc.text("BOX NO.", 82.3, 8, { align: "center" });
 
-doc.setFontSize(13);
+doc.setFontSize(14);
 doc.text(`${displayBoxNum} / ${totalBoxesFound}`, 82.3, 16, { align: "center" });
 
 // Items Table
@@ -310,26 +314,31 @@ qty
 
 // Footer Row
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left' } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
+{ content: 'TOTAL BOX QTY', colSpan: 7, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6 } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6 } }
 ]);
 
-// Table Render
+// Table Render - HIGH CONTRAST DARK PRINT CONFIGURATION
 doc.autoTable({
 startY: 25,
 margin: { left: 2, right: 2 },
 head: [['SKU', 'CODE', 'NAME', 'COL', 'SIZE', 'EAN', 'MRP', 'QTY']],
 body: tableRows,
 theme: 'grid',
+tableLineWidth: 0.25,
+tableLineColor: [0, 0, 0],
 headStyles: {
 fillColor: [0, 0, 0],
 textColor: [255, 255, 255],
-fontSize: 5.5,
+fontSize: 6,
+fontStyle: 'bold',
 halign: 'center',
 cellPadding: 0.8
 },
 bodyStyles: {
-fontSize: 5,
+fontSize: 5.5,
+fontStyle: 'bold',       // Dark, bold text across all rows & EAN numbers
+textColor: [0, 0, 0],    // Pure crisp black text
 halign: 'center',
 valign: 'middle',
 cellPadding: 0.8,
