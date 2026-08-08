@@ -10,8 +10,8 @@
     <meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
     <meta name="author" content="Shantanu Mathura">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/679/679922.png">
+    <!-- Favicon / Logo -->
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,9 +28,9 @@
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
         
-        <!-- Header with Logo -->
+        <!-- Header with Custom Uploaded Logo -->
         <div class="mb-6 flex flex-col items-center justify-center gap-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/679/679922.png" alt="Shantanu Logo" class="w-16 h-16 object-contain mb-1 drop-shadow-md">
+            <img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg">
             
             <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
                 <span>Shantanu Smart Label Studio</span>
@@ -306,7 +306,7 @@
                     { content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center' } }
                 ]);
 
-                // Table Render: ROW HEIGHT EXPANDS DOWNWARDS (NO HORIZONTAL EXPANSION)
+                // Table Render
                 doc.autoTable({
                     startY: 25,
                     margin: { left: 2, right: 2 },
@@ -325,17 +325,17 @@
                         halign: 'center', 
                         valign: 'middle',
                         cellPadding: 0.8,
-                        overflow: 'linebreak' // Forces text to expand downwards (length increases)
+                        overflow: 'linebreak'
                     },
                     columnStyles: {
-                        0: { cellWidth: 20 }, // SKU
-                        1: { cellWidth: 12 }, // CODE
-                        2: { cellWidth: 12 }, // NAME
-                        3: { cellWidth: 11 }, // COL
-                        4: { cellWidth: 12 }, // SIZE
-                        5: { cellWidth: 15 }, // EAN
-                        6: { cellWidth: 9 },  // MRP
-                        7: { cellWidth: 6.6 } // QTY
+                        0: { cellWidth: 20 },
+                        1: { cellWidth: 12 },
+                        2: { cellWidth: 12 },
+                        3: { cellWidth: 11 },
+                        4: { cellWidth: 12 },
+                        5: { cellWidth: 15 },
+                        6: { cellWidth: 9 },
+                        7: { cellWidth: 6.6 }
                     }
                 });
             }
