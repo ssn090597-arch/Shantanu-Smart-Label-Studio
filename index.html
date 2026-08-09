@@ -30,7 +30,7 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
-<p class="text-sm text-gray-500">v4.0 Enterprise 4x6 Dynamic Multi-Page Engine</p>
+<p class="text-sm text-gray-500">v4.0 Enterprise Fully Dynamic 4x6 Engine</p>
 </div>
 
 <!-- Print Orientation Selector Option -->
@@ -129,7 +129,7 @@ const workbook = XLSX.read(data, { type: 'array' });
 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 let rawGrid = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 let headerRowIndex = -1;
-const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty'];
+const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty', 'code', 'price', 'mrp'];
 
 for (let r = 0; r < Math.min(rawGrid.length, 20); r++) {
 const row = rawGrid[r];
@@ -219,9 +219,25 @@ async function generatePDF(data, metaPO, metaDest, fileName) {
 const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
 const isLandscape = (selectedOrientation === 'l');
 
+// Find Box Column Key dynamically
+let boxKey = '';
+if (data.length > 0) {
+const firstRowKeys = Object.keys(data[0]);
+for (let k of firstRowKeys) {
+const nk = norm(k);
+if (nk.includes('box') || nk.includes('carton')) {
+boxKey = k;
+break;
+}
+}
+}
+
 const rawGroups = {};
 data.forEach(row => {
-const boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
+let boxVal = boxKey ? String(row[boxKey] || '').trim() : '';
+if (!boxVal) {
+boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
+}
 if (!boxVal) return;
 if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
 rawGroups[boxVal].push(row);
@@ -246,29 +262,43 @@ format: [101.6, 152.4]
 let isFirstPage = true;
 
 // -------------------------------------------------------------
-// 1. DYNAMIC COLUMNS DETECTION (Jo Column Excel me hoga wahi dikhega)
+// 1. FULLY DYNAMIC COLUMN DETECTOR (Automatic Header Extraction)
 // -------------------------------------------------------------
-const masterColumns = [
-{ header: 'SKU', keys: ['merchant sku', 'merchantsku', 'sku'] },
-{ header: 'CODE', keys: ['item code', 'itemcode', 'style', 'code'] },
-{ header: 'NAME', keys: ['item name', 'iteam name', 'itemname', 'title', 'item', 'description'] },
-{ header: 'COL', keys: ['color', 'colour', 'col'] },
-{ header: 'SIZE', keys: ['size'] },
-{ header: 'EAN', keys: ['ean code', 'eancode', 'barcode', 'ean'] },
-{ header: 'MRP', keys: ['mrp', 'rate', 'price', 'amount', 'rtae'], isMrp: true },
-{ header: 'QTY', keys: ['qty', 'quantity', 'boxqty'], isQty: true }
+const allExcelHeaders = data.length > 0 ? Object.keys(data[0]) : [];
+
+// Words/Columns that belong to Top Header Section (Ignore in table)
+const ignoreInTable = [
+'box', 'boxno', 'boxnum', 'boxnumber', 'boxcount', 'carton',
+'destination', 'shipto', 'party', 'customer', 'partyname',
+'po', 'pono', 'ponumber', 'purchaseorder', 'orderno',
+'invoice', 'invoiceno', 'invno', 'invoicenumber',
+'challan', 'challanno', 'challan_no'
 ];
 
-// Verify which columns actually contain data in the Excel sheet
-const activeCols = masterColumns.filter(col => {
-if (col.isQty) return true; // QTY is always required
-return data.some(r => {
-const val = getColValue(r, col.keys, '');
-return val !== '' && val !== '-';
+// Extract Table-Only Headers
+let tableHeaders = allExcelHeaders.filter(header => {
+const nh = norm(header);
+if (!nh) return false;
+if (ignoreInTable.some(ig => nh === ig || nh.includes(ig))) return false;
+
+// Check if at least one row has non-empty data in this column
+return data.some(row => {
+const val = row[header];
+return val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
 });
 });
 
-const activeHeaders = activeCols.map(c => c.header);
+// Identify Quantity Column key if present
+let qtyHeaderKey = tableHeaders.find(h => {
+const nh = norm(h);
+return nh === 'qty' || nh === 'quantity' || nh === 'boxqty';
+});
+
+// Ensure Quantity is at the far right
+if (qtyHeaderKey) {
+tableHeaders = tableHeaders.filter(h => h !== qtyHeaderKey);
+tableHeaders.push(qtyHeaderKey);
+}
 
 for (let rawKey of uniqueRawKeys) {
 const boxData = rawGroups[rawKey];
@@ -285,7 +315,7 @@ if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '
 }
 
 // -------------------------------------------------------------
-// 2. DYNAMIC HEADER (Jo Header Data Hoga Wahi Draw Hoga)
+// 2. DYNAMIC TOP HEADER DRAWING
 // -------------------------------------------------------------
 const drawHeader = (docObj) => {
 docObj.setLineWidth(0.4);
@@ -295,14 +325,12 @@ docObj.setTextColor(0, 0, 0);
 const boxOuterWidth = pageWidth - 4;
 const divX = isLandscape ? 110 : 65;
 
-// Header Lines List (Only include existing data)
 const headerItems = [];
 if (dest) headerItems.push(`SHIP TO / DEST: ${dest}`);
 if (po) headerItems.push(`PO/ORD: ${po}`);
 if (challan) headerItems.push(`CHALLAN NO: ${challan}`);
 if (inv) headerItems.push(`INV NO: ${inv}`);
 
-// Fallback if empty
 if (headerItems.length === 0) {
 headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA`);
 }
@@ -312,10 +340,9 @@ docObj.line(divX, 2, divX, 24);
 
 docObj.setFont("Helvetica", "bold");
 
-// Draw dynamic header lines smoothly
 const totalLines = headerItems.length;
 const startY = 5.5;
-const maxSpace = 17; // Vertical height available
+const maxSpace = 17;
 const stepY = totalLines > 1 ? maxSpace / totalLines : 0;
 
 headerItems.forEach((textLine, index) => {
@@ -339,35 +366,33 @@ docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 16, { align: "ce
 };
 
 // -------------------------------------------------------------
-// 3. TABLE DATA PREPARATION
+// 3. DYNAMIC TABLE DATA BUILDER
 // -------------------------------------------------------------
 const tableRows = [];
 let totalQty = 0;
 
 boxData.forEach(r => {
-const qtyVal = getColValue(r, ['qty', 'quantity', 'boxqty'], '1');
-const qty = parseInt(qtyVal) || 1;
-totalQty += qty;
-
-const rowData = [];
-activeCols.forEach(col => {
-if (col.isQty) {
-rowData.push(qty);
-} else if (col.isMrp) {
-let rawMrp = getColValue(r, col.keys, '');
-rowData.push(rawMrp.replace(/[^0-9]/g, ''));
-} else {
-rowData.push(getColValue(r, col.keys, ''));
+let rowQty = 1;
+if (qtyHeaderKey) {
+const qVal = r[qtyHeaderKey];
+rowQty = parseInt(qVal) || 1;
 }
+totalQty += rowQty;
+
+const rowCells = tableHeaders.map(h => {
+const val = r[h];
+return (val !== undefined && val !== null) ? String(val).trim() : '';
 });
-tableRows.push(rowData);
+tableRows.push(rowCells);
 });
 
 // Total Box Qty Footer Row
+if (tableHeaders.length > 1) {
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: activeCols.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } },
+{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } },
 { content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } }
 ]);
+}
 
 if (!isFirstPage) {
 doc.addPage([101.6, 152.4], selectedOrientation);
@@ -376,11 +401,11 @@ isFirstPage = false;
 
 drawHeader(doc);
 
-// Auto Table with Automatic Column Width and Auto Line Break
+// Dynamic AutoTable Rendering
 doc.autoTable({
 startY: 25,
 margin: { left: 2, right: 2, top: 25, bottom: 5 },
-head: [activeHeaders],
+head: [tableHeaders],
 body: tableRows,
 theme: 'grid',
 tableLineWidth: 0.15,
@@ -388,7 +413,7 @@ tableLineColor: [0, 0, 0],
 headStyles: {
 fillColor: [0, 0, 0],
 textColor: [255, 255, 255],
-fontSize: 5.5,
+fontSize: tableHeaders.length > 7 ? 4.5 : 5.5,
 fontStyle: 'bold',
 halign: 'center',
 cellPadding: 0.5,
@@ -396,13 +421,13 @@ lineWidth: 0.15,
 lineColor: [0, 0, 0]
 },
 bodyStyles: {
-fontSize: 4.5,
+fontSize: tableHeaders.length > 7 ? 4.0 : 4.5,
 fontStyle: 'bold',
 textColor: [0, 0, 0],
 halign: 'center',
 valign: 'middle',
 cellPadding: 0.5,
-overflow: 'linebreak', // Automatic Multi-Line Support
+overflow: 'linebreak', // Automatic Text Wrap for new lines/large text
 lineWidth: 0.15,
 lineColor: [0, 0, 0]
 },
