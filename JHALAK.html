@@ -23,21 +23,19 @@
   <div class="flex items-center gap-3">
     <button class="p-2 hover:bg-zinc-800 rounded-full text-lg text-zinc-300"><i class="fa-solid fa-bars"></i></button>
     <a href="#" class="flex items-center gap-3 font-black text-2xl tracking-wider text-red-500 hover:opacity-90">
-      <!-- CUSTOM USER LOGO -->
       <img src="https://i.ibb.co/vzB3vB1/ChatGPT-Image-Aug-10-2026-03-01-29-AM.png" id="customBrandLogo" class="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" alt="S Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1384/1384060.png'">
       <span class="bg-gradient-to-r from-red-500 via-zinc-200 to-red-600 bg-clip-text text-transparent">AK JHALAK</span>
     </a>
   </div>
 
-  <!-- SEARCH BAR (Google & Net Live Search) -->
+  <!-- SEARCH BAR -->
   <div class="flex items-center gap-3 w-1/2 max-w-2xl">
     <div class="flex items-center w-full bg-zinc-900 border border-zinc-700 rounded-full overflow-hidden focus-within:border-red-500">
-      <input type="text" id="searchInput" placeholder="Search Google & Free Media Streams..." class="w-full bg-transparent px-4 py-2 text-sm text-white focus:outline-none">
+      <input type="text" id="searchInput" placeholder="Search Google & Free Public Video Streams..." class="w-full bg-transparent px-4 py-2 text-sm text-white focus:outline-none">
       <button onclick="handleSearch()" class="bg-zinc-800 px-6 py-2 border-l border-zinc-700 hover:bg-zinc-700 text-zinc-300">
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
     </div>
-    <!-- AI AUTO FETCH BUTTON -->
     <button onclick="aiAutoFetchMedia()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/50 px-3.5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all shadow-md">
       <i class="fa-solid fa-robot text-red-500 animate-bounce"></i> AI Auto-Fetch
     </button>
@@ -68,7 +66,6 @@
     <div class="text-zinc-500 font-bold px-3 text-xs uppercase mb-1">Account & Media</div>
     <a href="#" onclick="openLoginModal()" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-user-gear"></i> User Profile</a>
     <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
-    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-thumbs-up"></i> Liked Videos</a>
   </aside>
 
   <!-- 3. MAIN CONTENT AREA -->
@@ -86,7 +83,6 @@
       <button onclick="filterCategory('free')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-zinc-200">🌐 Free Google Videos</button>
       <button onclick="filterCategory('ai')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-zinc-200">🤖 AI Media Streams</button>
       <button onclick="filterCategory('fc')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-zinc-200">📦 Warehouse FC</button>
-      <button onclick="filterCategory('music')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-zinc-200">🎵 Free Audio Track</button>
     </div>
 
     <!-- VIDEO GRID -->
@@ -97,7 +93,7 @@
   </main>
 </div>
 
-<!-- 4. REAL VIDEO PLAYER POPUP MODAL -->
+<!-- 4. ERROR-FREE HTML5 VIDEO PLAYER MODAL -->
 <div id="playerModal" class="fixed inset-0 bg-black/95 z-50 hidden overflow-y-auto flex items-center justify-center p-2 sm:p-6">
   <div class="bg-zinc-900 w-full max-w-5xl rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl my-auto">
     
@@ -108,9 +104,12 @@
       <button onclick="closePlayer()" class="text-zinc-400 hover:text-white text-2xl font-bold px-2">&times;</button>
     </div>
 
-    <!-- Embed Player Window -->
-    <div class="aspect-video w-full bg-black">
-      <iframe id="videoIframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <!-- Direct HTML5 Video Player (No Error 153) -->
+    <div class="aspect-video w-full bg-black flex items-center justify-center">
+      <video id="html5VideoPlayer" controls autoplay class="w-full h-full object-contain">
+        <source id="videoSource" src="" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
 
     <!-- Video Metadata & Controls -->
@@ -128,11 +127,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button onclick="toggleLike()" id="likeBtn" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-xs font-semibold text-white">
-            <i class="fa-regular fa-thumbs-up"></i> <span id="likeCount">3.1K</span>
-          </button>
-          <button onclick="alert('Stream URL Copied!')" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-xs font-semibold text-white">
-            <i class="fa-solid fa-share"></i> Share
+          <button onclick="alert('Liked!')" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-xs font-semibold text-white">
+            <i class="fa-regular fa-thumbs-up"></i> <span>3.1K</span>
           </button>
         </div>
       </div>
@@ -150,11 +146,10 @@
       <button onclick="closeLoginModal()" class="text-zinc-400 hover:text-white text-xl">&times;</button>
     </div>
 
-    <p class="text-xs text-zinc-400">Enter your Email Address to create channels, like videos, and sync AI feeds on AK JHALAK.</p>
+    <p class="text-xs text-zinc-400">Enter your Email Address to sync channels on AK JHALAK.</p>
 
-    <!-- Email Form -->
     <div class="space-y-3">
-      <input type="email" id="userEmailInput" placeholder="Enter your Email ID (e.g. user@gmail.com)..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
+      <input type="email" id="userEmailInput" placeholder="Enter your Email ID..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
       <button onclick="loginWithEmail()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg shadow-red-600/30">Connect Email ID</button>
     </div>
   </div>
@@ -171,20 +166,11 @@
     <div class="space-y-3">
       <div>
         <label class="text-xs font-bold text-zinc-400 block mb-1">Channel Name</label>
-        <input type="text" id="channelNameInput" placeholder="e.g. Shantanu Official / FC Operations" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+        <input type="text" id="channelNameInput" placeholder="e.g. Shantanu Tech / FC Ops" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
       </div>
       <div>
         <label class="text-xs font-bold text-zinc-400 block mb-1">Creator Email</label>
         <input type="email" id="channelEmailInput" placeholder="Enter Email ID..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
-      </div>
-      <div>
-        <label class="text-xs font-bold text-zinc-400 block mb-1">Channel Category</label>
-        <select id="channelCategoryInput" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-          <option value="Tech & AI">Tech & AI</option>
-          <option value="Warehouse FC Operations">Warehouse FC Operations</option>
-          <option value="Free Audio & Music">Free Audio & Music</option>
-          <option value="General Media">General Media</option>
-        </select>
       </div>
     </div>
 
@@ -193,61 +179,46 @@
 </div>
 
 <script>
-// REAL WORKING VIDEOS DATABASE (100% Embedded Playable)
+// DIRECT HTML5 MP4 STREAMS (No YouTube Restrictions)
 let videoDatabase = [
   {
     id: 1,
-    title: "FC Warehouse Packing Automation & Auto-Labeling Engine",
-    channel: "Logistics Pro India",
-    category: "fc",
-    views: "245K views",
-    time: "3 days ago",
-    embedUrl: "https://www.youtube.com/embed/aqz-KE-bpKQ?autoplay=1",
-    thumbnail: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
-    desc: "Complete operational walkthrough of automated warehouse packing."
+    title: "Big Buck Bunny - Open Source Public HD Stream",
+    channel: "Blender Open Media",
+    category: "free",
+    views: "1.2M views",
+    time: "1 day ago",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    thumbnail: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=600&q=80",
+    desc: "Direct Google Cloud public video stream."
   },
   {
     id: 2,
-    title: "Girls Bags & Shoes Quality Control (QC) Process Live",
-    channel: "Fashion FC Hub",
-    category: "fc",
-    views: "180K views",
-    time: "1 week ago",
-    embedUrl: "https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1",
-    thumbnail: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
-    desc: "Live QC inspection workflow for ladies fashion products."
+    title: "Elephant Dream - AI & Open Source Public Video",
+    channel: "AI Media Hub",
+    category: "ai",
+    views: "890K views",
+    time: "3 days ago",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+    desc: "AI processed public video stream."
   },
   {
     id: 3,
-    title: "Google AI Auto-Fetched Free Open Source Video Stream",
-    channel: "AK JHALAK AI Engine",
-    category: "ai",
-    views: "1.5M views",
-    time: "Just Now",
-    embedUrl: "https://www.youtube.com/embed/eRsGyueVLvQ?autoplay=1",
-    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
-    desc: "Automated public video stream retrieved via Google & Web Engine."
-  },
-  {
-    id: 4,
-    title: "Free World Copyright-Free Background Music Track",
-    channel: "Free Audio Beats",
-    category: "music",
-    views: "620K views",
-    time: "2 weeks ago",
-    embedUrl: "https://www.youtube.com/embed/2OEL4P1rnt0?autoplay=1",
-    thumbnail: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
-    desc: "Free royalty-free audio music stream."
+    title: "For Bigger Blazes - Free Video Stream Engine",
+    channel: "AK JHALAK AI",
+    category: "free",
+    views: "2.4M views",
+    time: "1 week ago",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    thumbnail: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+    desc: "High performance direct MP4 stream."
   }
 ];
 
 // RENDER VIDEO GRID
 function renderGrid(data) {
   const grid = document.getElementById('videoGrid');
-  if (data.length === 0) {
-    grid.innerHTML = `<div class="col-span-full text-center py-12 text-zinc-500 text-sm">No videos found. Use AI Auto-Fetch!</div>`;
-    return;
-  }
   grid.innerHTML = data.map(v => `
     <div onclick="openVideoPlayer(${v.id})" class="cursor-pointer group space-y-2.5">
       <div class="relative aspect-video rounded-xl overflow-hidden bg-zinc-800 border border-zinc-800 group-hover:border-red-500/50 transition-all">
@@ -275,7 +246,12 @@ function openVideoPlayer(id) {
   const v = videoDatabase.find(item => item.id === id);
   if (!v) return;
 
-  document.getElementById('videoIframe').src = v.embedUrl;
+  const player = document.getElementById('html5VideoPlayer');
+  const source = document.getElementById('videoSource');
+  
+  source.src = v.videoUrl;
+  player.load();
+  
   document.getElementById('modalTitle').innerText = v.title;
   document.getElementById('modalChannel').innerText = v.channel;
   document.getElementById('modalChannelIcon').innerText = v.channel.charAt(0);
@@ -285,49 +261,17 @@ function openVideoPlayer(id) {
 }
 
 function closePlayer() {
-  document.getElementById('videoIframe').src = "";
+  const player = document.getElementById('html5VideoPlayer');
+  player.pause();
   document.getElementById('playerModal').classList.add('hidden');
-}
-
-// AI AUTO-FETCH ENGINE
-function aiAutoFetchMedia() {
-  document.getElementById('aiBanner').classList.remove('hidden');
-  
-  const newAiVideo = {
-    id: Date.now(),
-    title: "Google AI Auto-Fetched Free Media Stream #" + Math.floor(Math.random()*500),
-    channel: "AK JHALAK AI Bot",
-    category: "free",
-    views: "Just Now",
-    time: "Live AI Stream",
-    embedUrl: "https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=1",
-    thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80",
-    desc: "Automatically fetched from global public media streams by AI."
-  };
-
-  videoDatabase.unshift(newAiVideo);
-  renderGrid(videoDatabase);
 }
 
 // SEARCH ENGINE
 function handleSearch() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  if (!query) {
-    renderGrid(videoDatabase);
-    return;
-  }
+  if (!query) { renderGrid(videoDatabase); return; }
   const filtered = videoDatabase.filter(v => v.title.toLowerCase().includes(query) || v.channel.toLowerCase().includes(query));
   renderGrid(filtered);
-}
-
-// CATEGORY FILTER
-function filterCategory(cat) {
-  if (cat === 'all') {
-    renderGrid(videoDatabase);
-  } else {
-    const filtered = videoDatabase.filter(v => v.category === cat);
-    renderGrid(filtered);
-  }
 }
 
 // LOGIN MODAL ENGINE
@@ -350,7 +294,7 @@ function loginWithEmail() {
     </div>
   `;
   closeLoginModal();
-  alert(`✅ Logged in successfully with Email: ${email}`);
+  alert(`✅ Connected with Email: ${email}`);
 }
 
 // CHANNEL CREATION ENGINE
@@ -360,11 +304,10 @@ function closeChannelModal() { document.getElementById('channelModal').classList
 function createNewChannel() {
   const name = document.getElementById('channelNameInput').value.trim();
   const email = document.getElementById('channelEmailInput').value.trim();
-  const cat = document.getElementById('channelCategoryInput').value;
   
   if (!name || !email) { alert("Please enter Channel Name & Email ID!"); return; }
 
-  alert(`🎉 Channel Created Successfully!\n\nName: ${name}\nEmail: ${email}\nCategory: ${cat}`);
+  alert(`🎉 Channel Created Successfully!\nName: ${name}\nEmail: ${email}`);
   closeChannelModal();
 }
 
