@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Search Optimization (SEO) -->
-<title>Shantanu Smart Label Studio - Pro Enterprise Edition</title>
+<title>Shantanu Smart Label Studio - Dynamic 4x6 Engine</title>
 <meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
 <meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
 <meta name="author" content="Shantanu Mathura">
@@ -33,7 +33,7 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
-<p class="text-sm text-gray-500">v6.0 Enterprise Mapper & Live Preview Engine</p>
+<p class="text-sm text-gray-500">v6.1 Enterprise Fully Automatic & Live Preview Engine</p>
 </div>
 
 <!-- Print Orientation Selector Option -->
@@ -63,22 +63,14 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 </div>
 </div>
 
+<!-- Detected Headers Info Box -->
+<div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
+<p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
+<p id="detectedColsText" class="font-mono text-blue-800"></p>
+</div>
+
 <!-- Status Message -->
 <div id="status" class="mt-6 text-sm font-semibold hidden"></div>
-
-<!-- COLUMN MAPPER MODAL / UI -->
-<div id="mapperBox" class="mt-6 hidden bg-blue-50 border border-blue-200 rounded-xl p-5 text-left space-y-4">
-<h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
-<span>⚙️ Match Excel Columns (Smart Mapper)</span>
-</h3>
-<p class="text-xs text-gray-500">Aapki file ke headers detect kar liye gaye hain. Kripya niche zaroori columns match karein:</p>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" id="mapperDropdowns">
-<!-- Dynamic Dropdowns will be rendered here -->
-</div>
-<button id="applyMappingBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow text-xs transition-all">
-✅ Generate Labels with Mapped Columns
-</button>
-</div>
 
 <!-- LIVE PDF PREVIEW BOX & ACTIONS -->
 <div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
@@ -136,11 +128,6 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 const { jsPDF } = window.jspdf;
 let generatedPdfBlob = null;
 let totalBoxesFound = 0;
-let parsedTableData = [];
-let parsedMetaPO = '';
-let parsedMetaDest = '';
-let currentFileName = '';
-let detectedExcelHeaders = [];
 
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 
@@ -165,12 +152,36 @@ return null;
 }
 }
 
+function getColValue(row, possibleKeys, defaultValue = '') {
+const keys = Object.keys(row);
+for (let pk of possibleKeys) {
+const normPK = norm(pk);
+for (let k of keys) {
+if (norm(k) === normPK) {
+const v = row[k];
+if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+}
+}
+}
+
+for (let pk of possibleKeys) {
+const normPK = norm(pk);
+for (let k of keys) {
+if (norm(k).includes(normPK)) {
+const v = row[k];
+if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+}
+}
+}
+
+return defaultValue;
+}
+
 async function handleFileSelect(e) {
 const file = e.target.files[0];
 if (!file) return;
-currentFileName = file.name;
 
-showStatus("⚡ Reading Excel File...", "text-blue-600");
+showStatus("⚡ Processing Excel Data...", "text-blue-600");
 const reader = new FileReader();
 reader.onload = async function(evt) {
 try {
@@ -200,26 +211,29 @@ showStatus("❌ Table Header Row not found in Excel!", "text-red-600");
 return;
 }
 
-parsedMetaPO = '';
-parsedMetaDest = '';
+let metaPO = '';
+let metaDest = '';
 for (let r = 0; r < headerRowIndex; r++) {
 const row = rawGrid[r];
 if (!row) continue;
 for (let c = 0; c < row.length; c++) {
 const val = String(row[c] || '').trim();
 const nVal = norm(val);
-if (nVal === 'po' && row[c+1]) parsedMetaPO = String(row[c+1]).trim();
+if (nVal === 'po' && row[c+1]) metaPO = String(row[c+1]).trim();
 if ((nVal.includes('boxdetail') || nVal.includes('destination') || nVal.includes('shipto')) && row[c+1]) {
-parsedMetaDest = String(row[c+1]).trim();
+metaDest = String(row[c+1]).trim();
 }
 }
 }
 
-parsedTableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
-if (parsedTableData.length > 0) {
-detectedExcelHeaders = Object.keys(parsedTableData[0]);
-renderColumnMapper(detectedExcelHeaders);
+const tableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
+if (tableData.length > 0) {
+const colsFound = Object.keys(tableData[0]).join(' | ');
+document.getElementById('detectedColsText').innerText = colsFound;
+document.getElementById('debugBox').classList.remove('hidden');
 }
+
+await generatePDF(tableData, metaPO, metaDest, file.name);
 } catch (err) {
 console.error(err);
 showStatus("❌ Error processing file: " + err.message, "text-red-600");
@@ -228,74 +242,25 @@ showStatus("❌ Error processing file: " + err.message, "text-red-600");
 reader.readAsArrayBuffer(file);
 }
 
-// RENDER COLUMN MAPPER WITH DROPDOWNS
-function renderColumnMapper(headers) {
-const mapperBox = document.getElementById('mapperBox');
-const mapperDropdowns = document.getElementById('mapperDropdowns');
-mapperDropdowns.innerHTML = '';
-
-const targetFields = [
-{ label: 'Box No. Column', key: 'box', keywords: ['box', 'carton'] },
-{ label: 'SKU / Style Column', key: 'sku', keywords: ['sku', 'style'] },
-{ label: 'Item Code Column', key: 'code', keywords: ['code', 'stylecode', 'itemcode'] },
-{ label: 'Quantity Column', key: 'qty', keywords: ['qty', 'quantity', 'boxqty'] }
-];
-
-targetFields.forEach(field => {
-let optionsHtml = `<option value="">-- Auto / Select Header --</option>`;
-let bestMatch = '';
-
-headers.forEach(h => {
-const nh = norm(h);
-if (field.keywords.some(kw => nh.includes(kw))) bestMatch = h;
-optionsHtml += `<option value="${h}">${h}</option>`;
-});
-
-const fieldDiv = document.createElement('div');
-fieldDiv.className = "flex flex-col gap-1";
-fieldDiv.innerHTML = `
-<label class="font-bold text-gray-700">${field.label}:</label>
-<select data-field="${field.key}" class="mapper-select p-2 border border-gray-300 rounded bg-white text-xs focus:ring-1 focus:ring-blue-500">
-${optionsHtml}
-</select>
-`;
-mapperDropdowns.appendChild(fieldDiv);
-
-if (bestMatch) {
-fieldDiv.querySelector('select').value = bestMatch;
-}
-});
-
-mapperBox.classList.remove('hidden');
-showStatus("⚙️ Confirm column mappings below to generate PDF.", "text-blue-600");
-}
-
-document.getElementById('applyMappingBtn').addEventListener('click', () => {
-document.getElementById('mapperBox').classList.add('hidden');
-processAndGeneratePDF();
-});
-
-async function processAndGeneratePDF() {
+async function generatePDF(data, metaPO, metaDest, fileName) {
 const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
 const isLandscape = (selectedOrientation === 'l');
 
-// Get Mapped Values
-const mappings = {};
-document.querySelectorAll('.mapper-select').forEach(sel => {
-const f = sel.getAttribute('data-field');
-if (sel.value) mappings[f] = sel.value;
-});
-
-let boxKey = mappings['box'] || '';
-if (!boxKey) {
-for (let k of detectedExcelHeaders) {
-if (norm(k).includes('box')) { boxKey = k; break; }
+let boxKey = '';
+if (data.length > 0) {
+const firstRowKeys = Object.keys(data[0]);
+for (let k of firstRowKeys) {
+const nk = norm(k);
+if (nk.includes('box') || nk.includes('carton')) { boxKey = k; break; }
 }
 }
 
 const rawGroups = {};
-parsedTableData.forEach(row => {
+data.forEach(row => {
 let boxVal = boxKey ? String(row[boxKey] || '').trim() : '';
+if (!boxVal) {
+boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
+}
 if (!boxVal) return;
 if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
 rawGroups[boxVal].push(row);
@@ -305,7 +270,7 @@ const uniqueRawKeys = Object.keys(rawGroups);
 totalBoxesFound = uniqueRawKeys.length;
 
 if (totalBoxesFound === 0) {
-showStatus("❌ No Box data found! Please check mapped Box column.", "text-red-600");
+showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
 return;
 }
 
@@ -313,24 +278,48 @@ const pageWidth = isLandscape ? 152.4 : 101.6;
 const doc = new jsPDF({ orientation: selectedOrientation, unit: 'mm', format: [101.6, 152.4] });
 let isFirstPage = true;
 
-const ignoreInTable = ['box', 'carton', 'destination', 'shipto', 'party', 'po', 'invoice', 'challan'];
-let tableHeaders = detectedExcelHeaders.filter(header => {
+const allExcelHeaders = data.length > 0 ? Object.keys(data[0]) : [];
+const ignoreInTable = [
+'box', 'boxno', 'boxnum', 'boxnumber', 'boxcount', 'carton',
+'destination', 'shipto', 'party', 'customer', 'partyname',
+'po', 'pono', 'ponumber', 'purchaseorder', 'orderno',
+'invoice', 'invoiceno', 'invno', 'invoicenumber',
+'challan', 'challanno', 'challan_no'
+];
+
+let tableHeaders = allExcelHeaders.filter(header => {
 const nh = norm(header);
-return !ignoreInTable.some(ig => nh.includes(ig));
+if (!nh) return false;
+if (ignoreInTable.some(ig => nh === ig || nh.includes(ig))) return false;
+
+return data.some(row => {
+const val = row[header];
+return val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
 });
+});
+
+let qtyHeaderKey = tableHeaders.find(h => {
+const nh = norm(h);
+return nh === 'qty' || nh === 'quantity' || nh === 'boxqty';
+});
+
+if (qtyHeaderKey) {
+tableHeaders = tableHeaders.filter(h => h !== qtyHeaderKey);
+tableHeaders.push(qtyHeaderKey);
+}
 
 for (let rawKey of uniqueRawKeys) {
 const boxData = rawGroups[rawKey];
-let dest = parsedMetaDest;
-let po = parsedMetaPO;
+let dest = metaDest;
+let po = metaPO;
 let inv = '';
 let challan = '';
 
 for (let r of boxData) {
-if (!dest) dest = String(r['destination'] || r['shipto'] || r['party'] || '').trim();
-if (!po) po = String(r['po'] || r['pono'] || r['orderno'] || '').trim();
-if (!inv) inv = String(r['invoice'] || r['invoiceno'] || '').trim();
-if (!challan) challan = String(r['challan'] || r['challanno'] || '').trim();
+if (!dest) dest = getColValue(r, ['destination', 'shipto', 'partyname', 'party', 'customer'], '');
+if (!po) po = getColValue(r, ['pono', 'ponumber', 'purchaseorder', 'orderno', 'po'], '');
+if (!inv) inv = getColValue(r, ['invoice number', 'invoiceno', 'invno', 'invoice'], '');
+if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '');
 }
 
 const drawHeader = (docObj) => {
@@ -381,7 +370,11 @@ const tableRows = [];
 let totalQty = 0;
 
 boxData.forEach(r => {
-let rowQty = parseInt(r[mappings['qty']]) || 1;
+let rowQty = 1;
+if (qtyHeaderKey) {
+const qVal = r[qtyHeaderKey];
+rowQty = parseInt(qVal) || 1;
+}
 totalQty += rowQty;
 
 const rowCells = tableHeaders.map(h => {
@@ -409,8 +402,8 @@ margin: { left: 2, right: 2, top: 25, bottom: 5 },
 head: [tableHeaders],
 body: tableRows,
 theme: 'grid',
-headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 5.5, fontStyle: 'bold', halign: 'center' },
-bodyStyles: { fontSize: 4.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak' },
+headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: tableHeaders.length > 7 ? 4.5 : 5.5, fontStyle: 'bold', halign: 'center' },
+bodyStyles: { fontSize: tableHeaders.length > 7 ? 4.0 : 4.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak' },
 didDrawPage: function (data) { if (data.pageNumber > 1) drawHeader(doc); }
 });
 }
@@ -421,13 +414,13 @@ const blobUrl = URL.createObjectURL(generatedPdfBlob);
 // SET LIVE PREVIEW FRAME SRC
 document.getElementById('pdfPreviewFrame').src = blobUrl;
 
-showStatus("✅ Labels Ready for Preview & Print!", "text-green-600");
+showStatus("✅ Labels Ready!", "text-green-600");
 document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
 document.getElementById('resultBox').classList.remove('hidden');
-saveToHistory(currentFileName, totalBoxesFound);
+saveToHistory(fileName, totalBoxesFound);
 }
 
-// PRINT TRIGGER
+// INSTANT PRINT TRIGGER
 document.getElementById('printBtn').addEventListener('click', () => {
 if (!generatedPdfBlob) return;
 const blobUrl = URL.createObjectURL(generatedPdfBlob);
@@ -441,7 +434,7 @@ printFrame.contentWindow.print();
 };
 });
 
-// DOWNLOAD TRIGGER
+// PDF DOWNLOAD TRIGGER
 document.getElementById('downloadBtn').addEventListener('click', () => {
 if (!generatedPdfBlob) return;
 const a = document.createElement('a');
@@ -482,7 +475,6 @@ const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
 renderHistoryFiltered(history);
 }
 
-// SEARCH FILTER FOR HISTORY
 function filterHistory() {
 const query = document.getElementById('historySearch').value.toLowerCase();
 const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
