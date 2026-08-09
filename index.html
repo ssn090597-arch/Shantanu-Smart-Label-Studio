@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Search Optimization (SEO) -->
-<title>Shantanu Smart Label Studio - 4x6 Box Label Generator</title>
+<title>Shantanu Smart Label Studio - Pro Enterprise Edition</title>
 <meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
 <meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
 <meta name="author" content="Shantanu Mathura">
@@ -18,19 +18,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- jsPDF AutoTable Plugin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<!-- JsBarcode -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
 <style>
 body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full border border-gray-100 text-center">
+<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-3xl w-full border border-gray-100 text-center">
+
 <!-- Header with Custom Uploaded Logo -->
 <div class="mb-6 flex flex-col items-center justify-center gap-2">
 <img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
-<p class="text-sm text-gray-500">v4.0 Enterprise Fully Dynamic 4x6 Engine</p>
+<p class="text-sm text-gray-500">v6.0 Enterprise Mapper & Live Preview Engine</p>
 </div>
 
 <!-- Print Orientation Selector Option -->
@@ -60,24 +63,46 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 </div>
 </div>
 
-<!-- Detected Headers Info Box -->
-<div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
-<p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
-<p id="detectedColsText" class="font-mono text-blue-800"></p>
-</div>
-
 <!-- Status Message -->
 <div id="status" class="mt-6 text-sm font-semibold hidden"></div>
 
-<!-- Result Stats & Download Button -->
+<!-- COLUMN MAPPER MODAL / UI -->
+<div id="mapperBox" class="mt-6 hidden bg-blue-50 border border-blue-200 rounded-xl p-5 text-left space-y-4">
+<h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+<span>⚙️ Match Excel Columns (Smart Mapper)</span>
+</h3>
+<p class="text-xs text-gray-500">Aapki file ke headers detect kar liye gaye hain. Kripya niche zaroori columns match karein:</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" id="mapperDropdowns">
+<!-- Dynamic Dropdowns will be rendered here -->
+</div>
+<button id="applyMappingBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow text-xs transition-all">
+✅ Generate Labels with Mapped Columns
+</button>
+</div>
+
+<!-- LIVE PDF PREVIEW BOX & ACTIONS -->
 <div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
 <div class="flex justify-between items-center text-green-800">
 <span class="font-bold text-base">Total Active Boxes Generated:</span>
 <span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
 </div>
-<button id="downloadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
-<span>📥 Download Current Labels PDF</span>
+
+<!-- LIVE PDF PREVIEW WINDOW -->
+<div class="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-inner h-96">
+<iframe id="pdfPreviewFrame" class="w-full h-full" src=""></iframe>
+</div>
+
+<div class="flex gap-3">
+<!-- INSTANT PRINT BUTTON -->
+<button id="printBtn" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
+<span>🖨️ Instant Print</span>
 </button>
+
+<!-- DOWNLOAD PDF BUTTON -->
+<button id="downloadBtn" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
+<span>📥 Download PDF</span>
+</button>
+</div>
 </div>
 
 <!-- History Toggle Button -->
@@ -87,22 +112,35 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 </button>
 </div>
 
-<!-- History Box -->
+<!-- History Box with SEARCH BAR -->
 <div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
-<div class="flex justify-between items-center mb-2">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
 <span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
-<button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline">Clear History</button>
+<div class="flex items-center gap-2 w-full md:w-auto">
+<!-- SEARCH INPUT BAR -->
+<input type="text" id="historySearch" oninput="filterHistory()" placeholder="🔍 Search file name..." class="px-2 py-1 border border-gray-300 rounded text-xs w-full md:w-48 focus:outline-none focus:ring-1 focus:ring-blue-500">
+<button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline whitespace-nowrap">Clear All</button>
+</div>
 </div>
 <ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
 <li class="text-gray-400 italic text-center">No history yet.</li>
 </ul>
 </div>
+
 </div>
+
+<!-- Hidden Canvas for Barcodes -->
+<canvas id="barcodeCanvas" class="hidden"></canvas>
 
 <script>
 const { jsPDF } = window.jspdf;
 let generatedPdfBlob = null;
 let totalBoxesFound = 0;
+let parsedTableData = [];
+let parsedMetaPO = '';
+let parsedMetaDest = '';
+let currentFileName = '';
+let detectedExcelHeaders = [];
 
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 
@@ -116,11 +154,23 @@ if (str === null || str === undefined) return '';
 return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+function generateBarcodeBase64(text) {
+if (!text) return null;
+try {
+const canvas = document.getElementById('barcodeCanvas');
+JsBarcode(canvas, text, { format: "CODE128", width: 2, height: 40, displayValue: false, margin: 0 });
+return canvas.toDataURL("image/png");
+} catch (e) {
+return null;
+}
+}
+
 async function handleFileSelect(e) {
 const file = e.target.files[0];
 if (!file) return;
+currentFileName = file.name;
 
-showStatus("⚡ Processing Excel Data...", "text-blue-600");
+showStatus("⚡ Reading Excel File...", "text-blue-600");
 const reader = new FileReader();
 reader.onload = async function(evt) {
 try {
@@ -129,7 +179,7 @@ const workbook = XLSX.read(data, { type: 'array' });
 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 let rawGrid = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 let headerRowIndex = -1;
-const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty', 'code', 'price', 'mrp'];
+const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty', 'code', 'price', 'mrp', 'style'];
 
 for (let r = 0; r < Math.min(rawGrid.length, 20); r++) {
 const row = rawGrid[r];
@@ -137,9 +187,7 @@ if (!row || row.length === 0) continue;
 let matchCount = 0;
 for (let c = 0; c < row.length; c++) {
 const val = norm(row[c]);
-if (headerKeywords.some(kw => val.includes(kw))) {
-matchCount++;
-}
+if (headerKeywords.some(kw => val.includes(kw))) matchCount++;
 }
 if (matchCount >= 2) {
 headerRowIndex = r;
@@ -152,92 +200,102 @@ showStatus("❌ Table Header Row not found in Excel!", "text-red-600");
 return;
 }
 
-let metaPO = '';
-let metaDest = '';
+parsedMetaPO = '';
+parsedMetaDest = '';
 for (let r = 0; r < headerRowIndex; r++) {
 const row = rawGrid[r];
 if (!row) continue;
 for (let c = 0; c < row.length; c++) {
 const val = String(row[c] || '').trim();
 const nVal = norm(val);
-if (nVal === 'po' && row[c+1]) {
-metaPO = String(row[c+1]).trim();
-}
+if (nVal === 'po' && row[c+1]) parsedMetaPO = String(row[c+1]).trim();
 if ((nVal.includes('boxdetail') || nVal.includes('destination') || nVal.includes('shipto')) && row[c+1]) {
-metaDest = String(row[c+1]).trim();
+parsedMetaDest = String(row[c+1]).trim();
 }
 }
 }
 
-const tableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
-if (tableData.length > 0) {
-const colsFound = Object.keys(tableData[0]).join(' | ');
-document.getElementById('detectedColsText').innerText = colsFound;
-document.getElementById('debugBox').classList.remove('hidden');
+parsedTableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
+if (parsedTableData.length > 0) {
+detectedExcelHeaders = Object.keys(parsedTableData[0]);
+renderColumnMapper(detectedExcelHeaders);
 }
-
-await generatePDF(tableData, metaPO, metaDest, file.name);
 } catch (err) {
 console.error(err);
 showStatus("❌ Error processing file: " + err.message, "text-red-600");
 }
 };
-
 reader.readAsArrayBuffer(file);
 }
 
-function getColValue(row, possibleKeys, defaultValue = '') {
-const keys = Object.keys(row);
-for (let pk of possibleKeys) {
-const normPK = norm(pk);
-for (let k of keys) {
-if (norm(k) === normPK) {
-const v = row[k];
-if (v !== undefined && v !== null && String(v).trim() !== '') {
-return String(v).trim();
+// RENDER COLUMN MAPPER WITH DROPDOWNS
+function renderColumnMapper(headers) {
+const mapperBox = document.getElementById('mapperBox');
+const mapperDropdowns = document.getElementById('mapperDropdowns');
+mapperDropdowns.innerHTML = '';
+
+const targetFields = [
+{ label: 'Box No. Column', key: 'box', keywords: ['box', 'carton'] },
+{ label: 'SKU / Style Column', key: 'sku', keywords: ['sku', 'style'] },
+{ label: 'Item Code Column', key: 'code', keywords: ['code', 'stylecode', 'itemcode'] },
+{ label: 'Quantity Column', key: 'qty', keywords: ['qty', 'quantity', 'boxqty'] }
+];
+
+targetFields.forEach(field => {
+let optionsHtml = `<option value="">-- Auto / Select Header --</option>`;
+let bestMatch = '';
+
+headers.forEach(h => {
+const nh = norm(h);
+if (field.keywords.some(kw => nh.includes(kw))) bestMatch = h;
+optionsHtml += `<option value="${h}">${h}</option>`;
+});
+
+const fieldDiv = document.createElement('div');
+fieldDiv.className = "flex flex-col gap-1";
+fieldDiv.innerHTML = `
+<label class="font-bold text-gray-700">${field.label}:</label>
+<select data-field="${field.key}" class="mapper-select p-2 border border-gray-300 rounded bg-white text-xs focus:ring-1 focus:ring-blue-500">
+${optionsHtml}
+</select>
+`;
+mapperDropdowns.appendChild(fieldDiv);
+
+if (bestMatch) {
+fieldDiv.querySelector('select').value = bestMatch;
 }
-}
-}
+});
+
+mapperBox.classList.remove('hidden');
+showStatus("⚙️ Confirm column mappings below to generate PDF.", "text-blue-600");
 }
 
-for (let pk of possibleKeys) {
-const normPK = norm(pk);
-for (let k of keys) {
-if (norm(k).includes(normPK)) {
-const v = row[k];
-if (v !== undefined && v !== null && String(v).trim() !== '') {
-return String(v).trim();
-}
-}
-}
-}
+document.getElementById('applyMappingBtn').addEventListener('click', () => {
+document.getElementById('mapperBox').classList.add('hidden');
+processAndGeneratePDF();
+});
 
-return defaultValue;
-}
-
-async function generatePDF(data, metaPO, metaDest, fileName) {
+async function processAndGeneratePDF() {
 const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
 const isLandscape = (selectedOrientation === 'l');
 
-// Find Box Column Key dynamically
-let boxKey = '';
-if (data.length > 0) {
-const firstRowKeys = Object.keys(data[0]);
-for (let k of firstRowKeys) {
-const nk = norm(k);
-if (nk.includes('box') || nk.includes('carton')) {
-boxKey = k;
-break;
-}
+// Get Mapped Values
+const mappings = {};
+document.querySelectorAll('.mapper-select').forEach(sel => {
+const f = sel.getAttribute('data-field');
+if (sel.value) mappings[f] = sel.value;
+});
+
+let boxKey = mappings['box'] || '';
+if (!boxKey) {
+for (let k of detectedExcelHeaders) {
+if (norm(k).includes('box')) { boxKey = k; break; }
 }
 }
 
 const rawGroups = {};
-data.forEach(row => {
+parsedTableData.forEach(row => {
 let boxVal = boxKey ? String(row[boxKey] || '').trim() : '';
-if (!boxVal) {
-boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
-}
 if (!boxVal) return;
 if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
 rawGroups[boxVal].push(row);
@@ -247,76 +305,34 @@ const uniqueRawKeys = Object.keys(rawGroups);
 totalBoxesFound = uniqueRawKeys.length;
 
 if (totalBoxesFound === 0) {
-showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
+showStatus("❌ No Box data found! Please check mapped Box column.", "text-red-600");
 return;
 }
 
 const pageWidth = isLandscape ? 152.4 : 101.6;
-
-const doc = new jsPDF({
-orientation: selectedOrientation,
-unit: 'mm',
-format: [101.6, 152.4]
-});
-
+const doc = new jsPDF({ orientation: selectedOrientation, unit: 'mm', format: [101.6, 152.4] });
 let isFirstPage = true;
 
-// -------------------------------------------------------------
-// 1. FULLY DYNAMIC COLUMN DETECTOR (Automatic Header Extraction)
-// -------------------------------------------------------------
-const allExcelHeaders = data.length > 0 ? Object.keys(data[0]) : [];
-
-// Words/Columns that belong to Top Header Section (Ignore in table)
-const ignoreInTable = [
-'box', 'boxno', 'boxnum', 'boxnumber', 'boxcount', 'carton',
-'destination', 'shipto', 'party', 'customer', 'partyname',
-'po', 'pono', 'ponumber', 'purchaseorder', 'orderno',
-'invoice', 'invoiceno', 'invno', 'invoicenumber',
-'challan', 'challanno', 'challan_no'
-];
-
-// Extract Table-Only Headers
-let tableHeaders = allExcelHeaders.filter(header => {
+const ignoreInTable = ['box', 'carton', 'destination', 'shipto', 'party', 'po', 'invoice', 'challan'];
+let tableHeaders = detectedExcelHeaders.filter(header => {
 const nh = norm(header);
-if (!nh) return false;
-if (ignoreInTable.some(ig => nh === ig || nh.includes(ig))) return false;
-
-// Check if at least one row has non-empty data in this column
-return data.some(row => {
-const val = row[header];
-return val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
+return !ignoreInTable.some(ig => nh.includes(ig));
 });
-});
-
-// Identify Quantity Column key if present
-let qtyHeaderKey = tableHeaders.find(h => {
-const nh = norm(h);
-return nh === 'qty' || nh === 'quantity' || nh === 'boxqty';
-});
-
-// Ensure Quantity is at the far right
-if (qtyHeaderKey) {
-tableHeaders = tableHeaders.filter(h => h !== qtyHeaderKey);
-tableHeaders.push(qtyHeaderKey);
-}
 
 for (let rawKey of uniqueRawKeys) {
 const boxData = rawGroups[rawKey];
-let dest = metaDest;
-let po = metaPO;
+let dest = parsedMetaDest;
+let po = parsedMetaPO;
 let inv = '';
 let challan = '';
 
 for (let r of boxData) {
-if (!dest) dest = getColValue(r, ['destination', 'shipto', 'partyname', 'party', 'customer'], '');
-if (!po) po = getColValue(r, ['pono', 'ponumber', 'purchaseorder', 'orderno', 'po'], '');
-if (!inv) inv = getColValue(r, ['invoice number', 'invoiceno', 'invno', 'invoice'], '');
-if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '');
+if (!dest) dest = String(r['destination'] || r['shipto'] || r['party'] || '').trim();
+if (!po) po = String(r['po'] || r['pono'] || r['orderno'] || '').trim();
+if (!inv) inv = String(r['invoice'] || r['invoiceno'] || '').trim();
+if (!challan) challan = String(r['challan'] || r['challanno'] || '').trim();
 }
 
-// -------------------------------------------------------------
-// 2. DYNAMIC TOP HEADER DRAWING
-// -------------------------------------------------------------
 const drawHeader = (docObj) => {
 docObj.setLineWidth(0.4);
 docObj.setDrawColor(0, 0, 0);
@@ -331,52 +347,41 @@ if (po) headerItems.push(`PO/ORD: ${po}`);
 if (challan) headerItems.push(`CHALLAN NO: ${challan}`);
 if (inv) headerItems.push(`INV NO: ${inv}`);
 
-if (headerItems.length === 0) {
-headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA`);
-}
+if (headerItems.length === 0) headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA`);
 
 docObj.rect(2, 2, boxOuterWidth, 22); 
 docObj.line(divX, 2, divX, 24); 
 
 docObj.setFont("Helvetica", "bold");
-
 const totalLines = headerItems.length;
 const startY = 5.5;
-const maxSpace = 17;
-const stepY = totalLines > 1 ? maxSpace / totalLines : 0;
+const stepY = totalLines > 1 ? 17 / totalLines : 0;
 
 headerItems.forEach((textLine, index) => {
 docObj.setFontSize(totalLines > 3 ? 5.8 : 6.5);
 let lineText = textLine;
-if (!isLandscape && lineText.length > 42) {
-lineText = lineText.substring(0, 39) + "...";
-}
+if (!isLandscape && lineText.length > 42) lineText = lineText.substring(0, 39) + "...";
 docObj.text(lineText, 4, startY + (index * stepY));
 });
 
-// Box Number Right Section
 let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
 const boxCenter = divX + (boxOuterWidth + 2 - divX) / 2;
 
 docObj.setFontSize(8.5);
-docObj.text("BOX NO.", boxCenter, 8, { align: "center" });
+docObj.text("BOX NO.", boxCenter, 6.5, { align: "center" });
 
-docObj.setFontSize(14);
-docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 16, { align: "center" });
+docObj.setFontSize(12);
+docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 12, { align: "center" });
+
+const barcodeBase64 = generateBarcodeBase64(`BOX-${displayBoxNum}`);
+if (barcodeBase64) docObj.addImage(barcodeBase64, 'PNG', boxCenter - 14, 13.5, 28, 8);
 };
 
-// -------------------------------------------------------------
-// 3. DYNAMIC TABLE DATA BUILDER
-// -------------------------------------------------------------
 const tableRows = [];
 let totalQty = 0;
 
 boxData.forEach(r => {
-let rowQty = 1;
-if (qtyHeaderKey) {
-const qVal = r[qtyHeaderKey];
-rowQty = parseInt(qVal) || 1;
-}
+let rowQty = parseInt(r[mappings['qty']]) || 1;
 totalQty += rowQty;
 
 const rowCells = tableHeaders.map(h => {
@@ -386,66 +391,57 @@ return (val !== undefined && val !== null) ? String(val).trim() : '';
 tableRows.push(rowCells);
 });
 
-// Total Box Qty Footer Row
 if (tableHeaders.length > 1) {
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6, lineWidth: 0.15, lineColor: [0, 0, 0] } }
+{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6 } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6 } }
 ]);
 }
 
-if (!isFirstPage) {
-doc.addPage([101.6, 152.4], selectedOrientation);
-}
+if (!isFirstPage) doc.addPage([101.6, 152.4], selectedOrientation);
 isFirstPage = false;
 
 drawHeader(doc);
 
-// Dynamic AutoTable Rendering
 doc.autoTable({
 startY: 25,
 margin: { left: 2, right: 2, top: 25, bottom: 5 },
 head: [tableHeaders],
 body: tableRows,
 theme: 'grid',
-tableLineWidth: 0.15,
-tableLineColor: [0, 0, 0],
-headStyles: {
-fillColor: [0, 0, 0],
-textColor: [255, 255, 255],
-fontSize: tableHeaders.length > 7 ? 4.5 : 5.5,
-fontStyle: 'bold',
-halign: 'center',
-cellPadding: 0.5,
-lineWidth: 0.15,
-lineColor: [0, 0, 0]
-},
-bodyStyles: {
-fontSize: tableHeaders.length > 7 ? 4.0 : 4.5,
-fontStyle: 'bold',
-textColor: [0, 0, 0],
-halign: 'center',
-valign: 'middle',
-cellPadding: 0.5,
-overflow: 'linebreak', // Automatic Text Wrap for new lines/large text
-lineWidth: 0.15,
-lineColor: [0, 0, 0]
-},
-didDrawPage: function (data) {
-if (data.pageNumber > 1) {
-drawHeader(doc);
-}
-}
+headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 5.5, fontStyle: 'bold', halign: 'center' },
+bodyStyles: { fontSize: 4.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak' },
+didDrawPage: function (data) { if (data.pageNumber > 1) drawHeader(doc); }
 });
 }
 
 generatedPdfBlob = doc.output('blob');
-showStatus("✅ Labels Ready!", "text-green-600");
+const blobUrl = URL.createObjectURL(generatedPdfBlob);
+
+// SET LIVE PREVIEW FRAME SRC
+document.getElementById('pdfPreviewFrame').src = blobUrl;
+
+showStatus("✅ Labels Ready for Preview & Print!", "text-green-600");
 document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
 document.getElementById('resultBox').classList.remove('hidden');
-saveToHistory(fileName, totalBoxesFound);
+saveToHistory(currentFileName, totalBoxesFound);
 }
 
+// PRINT TRIGGER
+document.getElementById('printBtn').addEventListener('click', () => {
+if (!generatedPdfBlob) return;
+const blobUrl = URL.createObjectURL(generatedPdfBlob);
+const printFrame = document.createElement('iframe');
+printFrame.style.display = 'none';
+printFrame.src = blobUrl;
+document.body.appendChild(printFrame);
+printFrame.onload = function() {
+printFrame.contentWindow.focus();
+printFrame.contentWindow.print();
+};
+});
+
+// DOWNLOAD TRIGGER
 document.getElementById('downloadBtn').addEventListener('click', () => {
 if (!generatedPdfBlob) return;
 const a = document.createElement('a');
@@ -461,25 +457,16 @@ st.innerText = msg;
 st.classList.remove('hidden');
 }
 
-// --- LIGHTWEIGHT 20-DAY HISTORY SYSTEM ---
 function saveToHistory(fileName, boxes) {
 try {
 let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
 const now = new Date();
-const newEntry = {
-id: Date.now(),
-name: fileName,
-boxes: boxes,
-time: now.toLocaleString(),
-timestamp: now.getTime()
-};
+const newEntry = { id: Date.now(), name: fileName, boxes: boxes, time: now.toLocaleString(), timestamp: now.getTime() };
 history.unshift(newEntry);
 localStorage.setItem('labelHistoryLight', JSON.stringify(history));
 cleanOldHistory();
 renderHistory();
-} catch (e) {
-localStorage.clear();
-}
+} catch (e) { localStorage.clear(); }
 }
 
 function cleanOldHistory() {
@@ -492,12 +479,24 @@ localStorage.setItem('labelHistoryLight', JSON.stringify(validHistory));
 
 function renderHistory() {
 const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+renderHistoryFiltered(history);
+}
+
+// SEARCH FILTER FOR HISTORY
+function filterHistory() {
+const query = document.getElementById('historySearch').value.toLowerCase();
+const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
+const filtered = history.filter(item => item.name.toLowerCase().includes(query));
+renderHistoryFiltered(filtered);
+}
+
+function renderHistoryFiltered(list) {
 const historyList = document.getElementById('historyList');
-if (history.length === 0) {
-historyList.innerHTML = `<li class="text-gray-400 italic text-center">No history in the last 20 days.</li>`;
+if (list.length === 0) {
+historyList.innerHTML = `<li class="text-gray-400 italic text-center text-xs">No matching history found.</li>`;
 return;
 }
-historyList.innerHTML = history.map((item, index) => `
+historyList.innerHTML = list.map((item, index) => `
 <li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
 <div>
 <div class="font-bold text-gray-800 text-[11px]">${index + 1}. ${item.name}</div>
@@ -508,8 +507,7 @@ historyList.innerHTML = history.map((item, index) => `
 }
 
 function toggleHistory() {
-const box = document.getElementById('historyBox');
-box.classList.toggle('hidden');
+document.getElementById('historyBox').classList.toggle('hidden');
 }
 
 function clearHistory() {
