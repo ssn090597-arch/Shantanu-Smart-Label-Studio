@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndiaTube - India's Video Platform Engine</title>
+<!-- Tailwind CSS for YouTube Styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { background-color: #0f0f0f; color: #f1f1f1; font-family: 'Roboto', Arial, sans-serif; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- 1. TOP NAVBAR -->
+<nav class="fixed top-0 left-0 w-full bg-[#0f0f0f] z-50 flex items-center justify-between px-4 py-2 border-b border-zinc-800">
+  <!-- Left Section: Logo & Toggle -->
+  <div class="flex items-center gap-4">
+    <button class="p-2 hover:bg-zinc-800 rounded-full text-lg"><i class="fa-solid fa-bars"></i></button>
+    <a href="#" class="flex items-center gap-1 font-bold text-xl tracking-tighter text-white">
+      <i class="fa-brands fa-youtube text-red-600 text-2xl"></i>
+      <span>IndiaTube <sup class="text-[9px] font-normal text-zinc-400">IN</sup></span>
+    </a>
+  </div>
+
+  <!-- Center Section: Search Bar -->
+  <div class="flex items-center gap-3 w-1/2 max-w-2xl">
+    <div class="flex items-center w-full bg-zinc-900 border border-zinc-700 rounded-full overflow-hidden focus-within:border-blue-500">
+      <input type="text" id="searchInput" placeholder="Search videos, creators, topics..." class="w-full bg-transparent px-4 py-2 text-sm text-white focus:outline-none">
+      <button onclick="filterVideos()" class="bg-zinc-800 px-6 py-2 border-l border-zinc-700 hover:bg-zinc-700 text-zinc-300">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </div>
+    <button class="bg-zinc-800 hover:bg-zinc-700 p-3 rounded-full text-sm text-white"><i class="fa-solid fa-microphone"></i></button>
+  </div>
+
+  <!-- Right Section: Actions & Profile -->
+  <div class="flex items-center gap-3">
+    <button class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-full text-sm font-medium">
+      <i class="fa-solid fa-plus text-red-500"></i>
+      <span class="hidden sm:inline">Create</span>
+    </button>
+    <button class="p-2 hover:bg-zinc-800 rounded-full text-lg relative">
+      <i class="fa-regular fa-bell"></i>
+      <span class="absolute top-1 right-1 bg-red-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">9+</span>
+    </button>
+    <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center cursor-pointer text-sm">
+      ST
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<div class="flex pt-14">
+
+  <!-- 2. SIDEBAR NAVIGATION -->
+  <aside class="w-60 bg-[#0f0f0f] min-h-screen hidden md:block px-3 pt-3 fixed left-0 border-r border-zinc-800 text-sm space-y-1">
+    <a href="#" class="flex items-center gap-5 px-3 py-2.5 bg-zinc-800 font-semibold rounded-xl text-white"><i class="fa-solid fa-house text-lg"></i> Home</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2.5 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-bolt text-lg"></i> Shorts</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2.5 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-tv text-lg"></i> Subscriptions</a>
+    <hr class="border-zinc-800 my-2">
+    <div class="text-zinc-400 font-bold px-3 text-xs uppercase mb-1">You</div>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-list-check"></i> Playlists</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-thumbs-up"></i> Liked Videos</a>
+    <hr class="border-zinc-800 my-2">
+    <div class="text-zinc-400 font-bold px-3 text-xs uppercase mb-1">Explore</div>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-fire text-red-500"></i> Trending</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-music text-green-500"></i> Music</a>
+    <a href="#" class="flex items-center gap-5 px-3 py-2 hover:bg-zinc-800 rounded-xl text-zinc-300"><i class="fa-solid fa-gamepad text-purple-500"></i> Gaming</a>
+  </aside>
+
+  <!-- 3. MAIN CONTENT AREA -->
+  <main class="md:ml-60 w-full p-4">
+
+    <!-- Category Filter Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide mb-6 py-1 border-b border-zinc-800">
+      <button class="bg-white text-black px-3.5 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap">All</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Warehouse FC</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Shoes & Bags</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Tech & AI</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Live Stream</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Music</button>
+      <button class="bg-zinc-800 hover:bg-zinc-700 px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-zinc-200">Podcasts</button>
+    </div>
+
+    <!-- VIDEO GRID -->
+    <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Video cards rendered via JavaScript -->
+    </div>
+
+  </main>
+</div>
+
+<!-- 4. YOUTUBE VIDEO PLAYER MODAL -->
+<div id="playerModal" class="fixed inset-0 bg-black/90 z-50 hidden overflow-y-auto flex justify-center p-2 sm:p-6">
+  <div class="bg-zinc-900 w-full max-w-5xl rounded-2xl overflow-hidden border border-zinc-800 my-auto shadow-2xl">
+    
+    <!-- Player Top Bar -->
+    <div class="p-3 bg-zinc-800 flex justify-between items-center border-b border-zinc-700">
+      <span class="font-bold text-sm text-zinc-300" id="playerModalTitle">Now Playing</span>
+      <button onclick="closePlayer()" class="text-zinc-400 hover:text-white text-xl font-bold px-2">&times;</button>
+    </div>
+
+    <!-- Video Embed Window -->
+    <div class="aspect-video w-full bg-black relative">
+      <iframe id="youtubeIframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <!-- Video Info & Controls -->
+    <div class="p-4 space-y-4">
+      <h2 id="modalVideoTitle" class="text-lg font-bold text-white">Video Title</h2>
+      
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+        <!-- Channel Info -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-red-600 font-bold flex items-center justify-center text-white" id="modalChannelIcon">FC</div>
+          <div>
+            <div class="font-bold text-sm text-white" id="modalChannelName">Channel Name</div>
+            <div class="text-xs text-zinc-400">1.2M Subscribers</div>
+          </div>
+          <button id="subBtn" onclick="toggleSubscribe()" class="ml-4 bg-white text-black font-bold text-xs px-4 py-2 rounded-full hover:bg-zinc-200">Subscribe</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+          <button onclick="toggleLike()" id="likeBtn" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-xs font-semibold">
+            <i class="fa-regular fa-thumbs-up"></i> <span id="likeCount">12K</span>
+          </button>
+          <button class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-xs font-semibold">
+            <i class="fa-solid fa-share"></i> Share
+          </button>
+          <button class="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-full text-xs"><i class="fa-solid fa-arrow-down"></i> Download</button>
+        </div>
+      </div>
+
+      <!-- Video Description -->
+      <div class="bg-zinc-800/60 p-3 rounded-xl text-xs text-zinc-300 space-y-1">
+        <p class="font-bold text-white" id="modalStats">124,500 views • 2 days ago</p>
+        <p id="modalDescription">Detailed description of video content goes here...</p>
+      </div>
+
+      <!-- Comments System -->
+      <div class="space-y-3 pt-2">
+        <h3 class="font-bold text-sm text-white">Comments (<span id="commentCount">2</span>)</h3>
+        
+        <div class="flex gap-2">
+          <input type="text" id="commentInput" placeholder="Add a comment..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+          <button onclick="addComment()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg">Comment</button>
+        </div>
+
+        <div id="commentsList" class="space-y-2 max-h-40 overflow-y-auto pt-2">
+          <div class="text-xs bg-zinc-800/40 p-2 rounded-lg"><span class="font-bold text-blue-400">Ramesh K.:</span> Awesome video! Super helpful FC process.</div>
+          <div class="text-xs bg-zinc-800/40 p-2 rounded-lg"><span class="font-bold text-blue-400">Priya S.:</span> Very clear explanation, loved it!</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// MOCK VIDEO DATABASE
+const videos = [
+  {
+    id: 1,
+    title: "FC Warehouse Packing Automation & Auto-Labeling Engine",
+    channel: "Logistics Pro India",
+    views: "245K views",
+    time: "3 days ago",
+    duration: "12:45",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+    thumbnail: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+    desc: "Complete walkthrough of high-speed fulfillment center operations with zero-defect scanning."
+  },
+  {
+    id: 2,
+    title: "Girls Bags & Shoes Quality Control (QC) Process Live",
+    channel: "Fashion FC Hub",
+    views: "180K views",
+    time: "1 week ago",
+    duration: "08:15",
+    embedUrl: "https://www.youtube.com/embed/9bZkp7q19f0?autoplay=1",
+    thumbnail: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&q=80",
+    desc: "How 2-MP QC line processes 1,000+ units per hour using visual camera guards."
+  },
+  {
+    id: 3,
+    title: "Building End-to-End Encrypted Apps with Node.js & WebSockets",
+    channel: "CodeWithShantanu",
+    views: "520K views",
+    time: "2 weeks ago",
+    duration: "24:10",
+    embedUrl: "https://www.youtube.com/embed/3JZ_D3ELwOQ?autoplay=1",
+    thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80",
+    desc: "Learn how to build scalable chat engines handling millions of concurrent users."
+  },
+  {
+    id: 4,
+    title: "Fastest Barcode Scanning & Label Printing System 2026",
+    channel: "Smart Tech India",
+    views: "95K views",
+    time: "1 month ago",
+    duration: "05:50",
+    embedUrl: "https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1",
+    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+    desc: "Thermal printing demonstration for 4x6 enterprise stickers and barcodes."
+  }
+];
+
+// RENDER VIDEO CARDS
+function renderVideos(data) {
+  const grid = document.getElementById('videoGrid');
+  grid.innerHTML = data.map(v => `
+    <div onclick="openPlayer(${v.id})" class="cursor-pointer group space-y-2">
+      <!-- Thumbnail Wrapper -->
+      <div class="relative aspect-video rounded-xl overflow-hidden bg-zinc-800">
+        <img src="${v.thumbnail}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300">
+        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">${v.duration}</span>
+      </div>
+      <!-- Video Details -->
+      <div class="flex gap-3 px-1">
+        <div class="w-9 h-9 rounded-full bg-zinc-700 font-bold flex items-center justify-center text-xs text-white shrink-0">
+          ${v.channel.charAt(0)}
+        </div>
+        <div class="space-y-0.5">
+          <h3 class="text-sm font-semibold text-white line-clamp-2 leading-tight group-hover:text-blue-400">${v.title}</h3>
+          <p class="text-xs text-zinc-400 font-medium">${v.channel} <i class="fa-solid fa-circle-check text-[10px]"></i></p>
+          <p class="text-[11px] text-zinc-500">${v.views} • ${v.time}</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// PLAYER MODAL ENGINE
+function openPlayer(id) {
+  const video = videos.find(v => v.id === id);
+  if (!video) return;
+
+  document.getElementById('youtubeIframe').src = video.embedUrl;
+  document.getElementById('modalVideoTitle').innerText = video.title;
+  document.getElementById('modalChannelName').innerText = video.channel;
+  document.getElementById('modalChannelIcon').innerText = video.channel.charAt(0);
+  document.getElementById('modalStats').innerText = `${video.views} • ${video.time}`;
+  document.getElementById('modalDescription').innerText = video.desc;
+
+  document.getElementById('playerModal').classList.remove('hidden');
+}
+
+function closePlayer() {
+  document.getElementById('youtubeIframe').src = "";
+  document.getElementById('playerModal').classList.add('hidden');
+}
+
+// COMMENT ENGINE
+function addComment() {
+  const input = document.getElementById('commentInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const commentsList = document.getElementById('commentsList');
+  const newComment = document.createElement('div');
+  newComment.className = "text-xs bg-zinc-800/40 p-2 rounded-lg";
+  newComment.innerHTML = `<span class="font-bold text-blue-400">You:</span> ${text}`;
+  
+  commentsList.prepend(newComment);
+  input.value = "";
+
+  const countSpan = document.getElementById('commentCount');
+  countSpan.innerText = parseInt(countSpan.innerText) + 1;
+}
+
+// SUBSCRIBE TOGGLE
+let isSubscribed = false;
+function toggleSubscribe() {
+  const btn = document.getElementById('subBtn');
+  isSubscribed = !isSubscribed;
+  if (isSubscribed) {
+    btn.className = "ml-4 bg-zinc-800 text-zinc-300 font-bold text-xs px-4 py-2 rounded-full border border-zinc-700";
+    btn.innerText = "Subscribed";
+  } else {
+    btn.className = "ml-4 bg-white text-black font-bold text-xs px-4 py-2 rounded-full hover:bg-zinc-200";
+    btn.innerText = "Subscribe";
+  }
+}
+
+// SEARCH FILTER
+function filterVideos() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = videos.filter(v => v.title.toLowerCase().includes(q) || v.channel.toLowerCase().includes(q));
+  renderVideos(filtered);
+}
+
+// INITIAL RENDER
+renderVideos(videos);
+</script>
+</body>
+</html>
