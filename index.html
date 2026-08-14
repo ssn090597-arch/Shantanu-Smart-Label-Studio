@@ -323,12 +323,12 @@ if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '
 }
 
 const drawHeader = (docObj) => {
-docObj.setLineWidth(0.4);
+docObj.setLineWidth(0.5);
 docObj.setDrawColor(0, 0, 0);
 docObj.setTextColor(0, 0, 0);
 
 const boxOuterWidth = pageWidth - 4;
-const divX = isLandscape ? 110 : 65;
+const divX = isLandscape ? 105 : 62;
 
 const headerItems = [];
 if (dest) headerItems.push(`SHIP TO / DEST: ${dest}`);
@@ -338,32 +338,35 @@ if (inv) headerItems.push(`INV NO: ${inv}`);
 
 if (headerItems.length === 0) headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA`);
 
-docObj.rect(2, 2, boxOuterWidth, 22); 
-docObj.line(divX, 2, divX, 24); 
+docObj.rect(2, 2, boxOuterWidth, 24); 
+docObj.line(divX, 2, divX, 26); 
 
 docObj.setFont("Helvetica", "bold");
 const totalLines = headerItems.length;
-const startY = 5.5;
-const stepY = totalLines > 1 ? 17 / totalLines : 0;
+const startY = 6.5;
+const stepY = totalLines > 1 ? 18 / totalLines : 0;
 
 headerItems.forEach((textLine, index) => {
-docObj.setFontSize(totalLines > 3 ? 5.8 : 6.5);
+// INCREASED HEADER FONT SIZE (8.5 to 9.5pt)
+docObj.setFontSize(totalLines > 3 ? 8.0 : 9.5);
 let lineText = textLine;
-if (!isLandscape && lineText.length > 42) lineText = lineText.substring(0, 39) + "...";
+if (!isLandscape && lineText.length > 38) lineText = lineText.substring(0, 35) + "...";
 docObj.text(lineText, 4, startY + (index * stepY));
 });
 
 let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
 const boxCenter = divX + (boxOuterWidth + 2 - divX) / 2;
 
-docObj.setFontSize(8.5);
-docObj.text("BOX NO.", boxCenter, 6.5, { align: "center" });
+// INCREASED "BOX NO." FONT SIZE (from 8.5 to 11)
+docObj.setFontSize(11);
+docObj.text("BOX NO.", boxCenter, 7.5, { align: "center" });
 
-docObj.setFontSize(12);
-docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 12, { align: "center" });
+// INCREASED BOX NUMBER VALUE FONT SIZE (from 12 to 16)
+docObj.setFontSize(16);
+docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, 14.5, { align: "center" });
 
 const barcodeBase64 = generateBarcodeBase64(`BOX-${displayBoxNum}`);
-if (barcodeBase64) docObj.addImage(barcodeBase64, 'PNG', boxCenter - 14, 13.5, 28, 8);
+if (barcodeBase64) docObj.addImage(barcodeBase64, 'PNG', boxCenter - 15, 15.5, 30, 9);
 };
 
 const tableRows = [];
@@ -386,8 +389,9 @@ tableRows.push(rowCells);
 
 if (tableHeaders.length > 1) {
 tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 6 } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 6 } }
+// INCREASED TOTAL BOX QTY FONT SIZE (from 6 to 9)
+{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 9 } },
+{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 9 } }
 ]);
 }
 
@@ -397,13 +401,14 @@ isFirstPage = false;
 drawHeader(doc);
 
 doc.autoTable({
-startY: 25,
-margin: { left: 2, right: 2, top: 25, bottom: 5 },
+startY: 27,
+margin: { left: 2, right: 2, top: 27, bottom: 5 },
 head: [tableHeaders],
 body: tableRows,
 theme: 'grid',
-headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: tableHeaders.length > 7 ? 4.5 : 5.5, fontStyle: 'bold', halign: 'center' },
-bodyStyles: { fontSize: tableHeaders.length > 7 ? 4.0 : 4.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak' },
+// INCREASED TABLE HEADERS & BODY FONT SIZES (from 4.5/5.5 to 7.5/8.5pt)
+headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: tableHeaders.length > 7 ? 6.5 : 8.5, fontStyle: 'bold', halign: 'center' },
+bodyStyles: { fontSize: tableHeaders.length > 7 ? 6.0 : 7.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak' },
 didDrawPage: function (data) { if (data.pageNumber > 1) drawHeader(doc); }
 });
 }
