@@ -27,30 +27,13 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <body class="flex items-center justify-center min-h-screen p-4">
 <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-3xl w-full border border-gray-100 text-center">
 
-<!-- Header with Custom Uploaded Logo -->
+<!-- Header Logo -->
 <div class="mb-6 flex flex-col items-center justify-center gap-2">
-<img id="headerLogo" src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
+<img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
 <p class="text-sm text-gray-500">v6.1 Enterprise Fully Automatic & Live Preview Engine</p>
-</div>
-
-<!-- Custom Logo Upload Option -->
-<div class="mb-5 bg-blue-50/60 border border-blue-200 rounded-xl p-4 text-left flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-<div>
-<label class="block text-xs font-bold text-gray-800">🖼️ CUSTOM COMPANY LOGO (OPTIONAL):</label>
-<p class="text-[11px] text-gray-500">Upload your own logo to display on PDF box labels.</p>
-</div>
-<div class="flex items-center gap-2">
-<input type="file" id="logoInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
-<button onclick="document.getElementById('logoInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2 px-3 rounded-lg shadow-sm transition-all">
-📤 Select Logo Image
-</button>
-<button id="removeLogoBtn" onclick="removeCustomLogo()" class="bg-red-500 hover:bg-red-600 text-white font-semibold text-xs py-2 px-3 rounded-lg shadow-sm transition-all hidden">
-❌ Remove Logo
-</button>
-</div>
 </div>
 
 <!-- Print Orientation Selector Option -->
@@ -145,48 +128,13 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 const { jsPDF } = window.jspdf;
 let generatedPdfBlob = null;
 let totalBoxesFound = 0;
-let customLogoBase64 = null;
 
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 
 window.onload = function() {
 cleanOldHistory();
 renderHistory();
-
-// Load Saved Logo from LocalStorage
-const savedLogo = localStorage.getItem('customLogoStudio');
-if (savedLogo) {
-customLogoBase64 = savedLogo;
-document.getElementById('headerLogo').src = savedLogo;
-document.getElementById('headerLogo').style.display = 'block';
-document.getElementById('removeLogoBtn').classList.remove('hidden');
-}
 };
-
-function handleLogoUpload(e) {
-const file = e.target.files[0];
-if (!file) return;
-
-const reader = new FileReader();
-reader.onload = function(evt) {
-customLogoBase64 = evt.target.result;
-localStorage.setItem('customLogoStudio', customLogoBase64);
-document.getElementById('headerLogo').src = customLogoBase64;
-document.getElementById('headerLogo').style.display = 'block';
-document.getElementById('removeLogoBtn').classList.remove('hidden');
-alert("✅ Custom Logo uploaded and saved successfully!");
-};
-reader.readAsDataURL(file);
-}
-
-function removeCustomLogo() {
-if (confirm("Are you sure you want to remove the custom logo?")) {
-customLogoBase64 = null;
-localStorage.removeItem('customLogoStudio');
-document.getElementById('headerLogo').src = "WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg";
-document.getElementById('removeLogoBtn').classList.add('hidden');
-}
-}
 
 function norm(str) {
 if (str === null || str === undefined) return '';
@@ -393,24 +341,16 @@ if (headerItems.length === 0) headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA
 docObj.rect(2, 2, boxOuterWidth, 24); 
 docObj.line(divX, 2, divX, 26); 
 
-// Draw Custom Logo in Header Box if uploaded
-if (customLogoBase64) {
-try {
-docObj.addImage(customLogoBase64, 'PNG', 3, 3, 14, 14);
-} catch (e) {}
-}
-
 docObj.setFont("Helvetica", "bold");
 const totalLines = headerItems.length;
 const startY = 6.5;
 const stepY = totalLines > 1 ? 18 / totalLines : 0;
-const textXPos = customLogoBase64 ? 18 : 4; // Shift text right if logo exists
 
 headerItems.forEach((textLine, index) => {
 docObj.setFontSize(totalLines > 3 ? 8.0 : 9.5);
 let lineText = textLine;
 if (!isLandscape && lineText.length > 38) lineText = lineText.substring(0, 35) + "...";
-docObj.text(lineText, textXPos, startY + (index * stepY));
+docObj.text(lineText, 4, startY + (index * stepY));
 });
 
 let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
