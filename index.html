@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Warehouse Suite (Labels & Pick List)</title>
+    <title>Shantanu Delhivery Warehouse Suite</title>
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,36 +11,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
     
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%); color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
-        .card { background: #1c2541; border-radius: 12px; padding: 25px 30px; width: 100%; max-width: 600px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45); border: 1px solid #3a506b; }
-        h2 { color: #6fffe9; margin-top: 0; font-size: 22px; text-align: center; font-weight: 700; letter-spacing: 0.5px; }
-        p.subtitle { color: #5bc0be; font-size: 13px; margin-bottom: 20px; text-align: center; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0f172a; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .card { background: #162032; border-radius: 16px; padding: 30px 35px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #233248; text-align: center; }
         
-        .tool-switcher { display: flex; background: #0b132b; border-radius: 8px; padding: 5px; border: 1px solid #3a506b; margin-bottom: 20px; }
-        .switch-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #cbd5e1; font-weight: bold; font-size: 13px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-        .switch-btn.active { background: #5bc0be; color: #0b132b; }
+        /* Top Suite Selector */
+        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 25px; }
+        .switch-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .switch-btn.active { background: #2563eb; color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; font-weight: bold; color: #cbd5e1; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        select, input[type="file"] { width: 100%; padding: 10px; background: #0b132b; border: 1px solid #3a506b; border-radius: 6px; color: #ffffff; font-size: 13px; box-sizing: border-box; }
-        select:focus { outline: none; border-color: #5bc0be; }
+        .logo-container { width: 100px; height: 100px; margin: 0 auto 15px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        .file-input-wrapper { text-align: center; margin-bottom: 15px; }
+        h2 { color: #38bdf8; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        p.subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+        
+        .form-group { margin-bottom: 18px; text-align: left; }
+        label { display: block; font-size: 11px; font-weight: 800; color: #e2e8f0; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+        select { width: 100%; padding: 12px; background: #0b1120; border: 1px solid #233248; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
+        select:focus { border-color: #38bdf8; }
+        
+        .custom-file-upload { display: block; padding: 14px; background: #1e293b; color: #e2e8f0; border-radius: 8px; cursor: pointer; border: 1px dashed #38bdf8; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
+        .custom-file-upload:hover { background: #2563eb; color: #ffffff; border-style: solid; }
         input[type="file"] { display: none; }
-        .custom-file-upload { display: inline-block; padding: 12px 20px; background: #3a506b; color: #ffffff; border-radius: 6px; cursor: pointer; border: 1px solid #5bc0be; font-weight: bold; transition: 0.2s; width: 100%; box-sizing: border-box; }
-        .custom-file-upload:hover { background: #5bc0be; color: #0b132b; }
         
         .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .radio-option { flex: 1 1 45%; background: #0b132b; border: 1px solid #3a506b; padding: 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; }
+        .radio-option { flex: 1 1 45%; background: #0b1120; border: 1px solid #233248; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-action { flex: 1; padding: 12px; background: #3a506b; color: #6fffe9; border: 1px solid #6fffe9; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { background: #6fffe9; color: #0b132b; }
-        .btn-print { flex: 1; padding: 12px; background: #5bc0be; color: #0b132b; border: 1px solid #5bc0be; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .btn-print:hover { background: #3a506b; color: #ffffff; }
-        .btn-action:disabled, .btn-print:disabled { background: #1c2541; color: #475569; border-color: #334155; cursor: not-allowed; }
+        .btn-group { display: flex; gap: 12px; margin-top: 22px; }
+        .btn-action, .btn-print { flex: 1; padding: 13px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
+        .btn-action { background: #1e293b; color: #38bdf8; border-color: #38bdf8; }
+        .btn-action:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
+        .btn-print { background: #0284c7; color: #ffffff; border-color: #38bdf8; }
+        .btn-print:hover:not(:disabled) { background: #0369a1; }
+        .btn-action:disabled, .btn-print:disabled { background: #0b1120; color: #475569; border-color: #1e293b; cursor: not-allowed; opacity: 0.6; }
         
-        #status { margin-top: 15px; font-size: 13px; font-weight: bold; text-align: center; }
+        #status { margin-top: 18px; font-size: 13px; font-weight: 700; }
         .tool-section { display: none; }
         .tool-section.active { display: block; }
     </style>
@@ -48,27 +54,35 @@
 <body>
 
 <div class="card">
-    <h2>📦 Enterprise Warehouse Suite</h2>
-    <p class="subtitle">Select your tool below, upload Excel & generate output.</p>
-    
     <!-- Top Mode Switcher -->
     <div class="tool-switcher">
         <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
-        <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📋 Advanced Pick List Generator</button>
+        <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
     </div>
 
-    <!-- Excel File Upload Section -->
-    <div class="file-input-wrapper">
-        <label for="excelFile" class="custom-file-upload" id="fileLabel">
-            📄 Select Excel File (.xlsx / .xls)
-        </label>
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
+    <!-- Center Logo Header -->
+    <div class="logo-container">
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="45" stroke="#ff3366" stroke-width="4"/>
+            <path d="M30 65 C 30 35, 70 35, 70 65 C 70 45, 30 45, 30 65" stroke="#ffffff" stroke-width="6" fill="none"/>
+            <text x="50" y="82" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">DELHIVERY</text>
+        </svg>
     </div>
 
     <!-- TOOL 1: SMART BOX LABEL STUDIO -->
     <div id="toolLabelSection" class="tool-section active">
+        <h2>🏷️ Smart Box Label Studio</h2>
+        <p class="subtitle">Upload Master Excel & Generate Standardized Outer Box Labels</p>
+
         <div class="form-group">
-            <label>Print Orientation / Sticker Size:</label>
+            <label for="excelFileLabel" class="custom-file-upload" id="fileLabelText">
+                📄 SELECT EXCEL FILE
+            </label>
+            <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFile(this, 'label')">
+        </div>
+
+        <div class="form-group">
+            <label>Print Orientation / Page Format:</label>
             <div class="radio-group">
                 <label class="radio-option"><input type="radio" name="pageOrientation" value="p"> Portrait (4" x 6")</label>
                 <label class="radio-option"><input type="radio" name="pageOrientation" value="l"> Landscape (6" x 4")</label>
@@ -76,23 +90,34 @@
                 <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_2" checked> A4 (2 Boxes/Page)</label>
             </div>
         </div>
+
         <div class="btn-group">
-            <button class="btn-action" id="generateLabelBtn" disabled onclick="processBoxLabels('download')">📥 Download Labels PDF</button>
-            <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Print Labels Direct</button>
+            <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 PDF Download</button>
+            <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Direct Print</button>
         </div>
     </div>
 
     <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
     <div id="toolPickSection" class="tool-section">
+        <h2>📦 Advanced Pick List Generator</h2>
+        <p class="subtitle">Upload Excel, select filter & export/print bordered PDF.</p>
+
         <div class="form-group">
-            <label for="picklistSelect">Pick List No Filter:</label>
+            <label for="excelFilePick" class="custom-file-upload" id="filePickText">
+                📄 SELECT EXCEL FILE
+            </label>
+            <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFile(this, 'picklist')">
+        </div>
+
+        <div class="form-group">
+            <label>PICK LIST NO SELECT KAREIN:</label>
             <select id="picklistSelect" disabled>
                 <option value="ALL">-- ALL PICK LISTS --</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="viewModeSelect">Picking View Type (Page Break Mode):</label>
+            <label>PICKING VIEW TYPE (PAGE BREAK MODE):</label>
             <select id="viewModeSelect">
                 <option value="ITEM">ITEM Wise (Each Item on Separate Page)</option>
                 <option value="BARCODE">BARCODE Wise (Each Barcode on Separate Page)</option>
@@ -101,16 +126,16 @@
         </div>
 
         <div class="form-group">
-            <label for="binSortSelect">Bin No Sorting Order:</label>
+            <label>BIN NO SORTING ORDER:</label>
             <select id="binSortSelect">
-                <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
                 <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
+                <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
             </select>
         </div>
 
         <div class="btn-group">
-            <button class="btn-action" id="generatePickBtn" disabled onclick="processPickList('download')">📥 Download Picklist PDF</button>
-            <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Direct Print Picklist</button>
+            <button class="btn-action" id="genPickBtn" disabled onclick="processPickList('download')">📥 PDF Download</button>
+            <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Direct Print</button>
         </div>
     </div>
 
@@ -121,10 +146,10 @@
 
 <script>
     let rawJsonData = [];
-    let currentTool = 'label';
+    let activeTool = 'label';
 
     function switchTool(tool) {
-        currentTool = tool;
+        activeTool = tool;
         document.getElementById('btnToolLabel').classList.toggle('active', tool === 'label');
         document.getElementById('btnToolPick').classList.toggle('active', tool === 'picklist');
         
@@ -133,36 +158,35 @@
         document.getElementById('status').innerText = "";
     }
 
-    document.getElementById('excelFile').addEventListener('change', function(e) {
-        if (e.target.files.length > 0) {
-            let file = e.target.files[0];
-            document.getElementById('fileLabel').innerText = "✓ Excel Loaded: " + file.name;
+    function handleFile(input, tool) {
+        if (input.files.length > 0) {
+            let file = input.files[0];
+            document.getElementById(tool === 'label' ? 'fileLabelText' : 'filePickText').innerText = "✓ Loaded: " + file.name;
             
             let reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onload = function(e) {
                 try {
-                    let data = new Uint8Array(evt.target.result);
+                    let data = new Uint8Array(e.target.result);
                     let workbook = XLSX.read(data, { type: 'array' });
                     let worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     rawJsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
                     populatePicklistDropdown(rawJsonData);
                     
-                    document.getElementById('generateLabelBtn').disabled = false;
+                    document.getElementById('genLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
                     document.getElementById('picklistSelect').disabled = false;
-                    document.getElementById('generatePickBtn').disabled = false;
+                    document.getElementById('genPickBtn').disabled = false;
                     document.getElementById('printPickBtn').disabled = false;
                     
-                    document.getElementById('status').style.color = '#6fffe9';
-                    document.getElementById('status').innerText = "Excel file uploaded & ready!";
+                    setStatus("Excel file loaded successfully!", "#38bdf8");
                 } catch (err) {
-                    alert("Error reading Excel File: " + err.message);
+                    setStatus("Error reading Excel File: " + err.message, "#ff6b6b");
                 }
             };
             reader.readAsArrayBuffer(file);
         }
-    });
+    }
 
     function norm(str) {
         return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -178,16 +202,22 @@
         return '';
     }
 
+    function setStatus(msg, color = '#38bdf8') {
+        let st = document.getElementById('status');
+        st.style.color = color;
+        st.innerText = msg;
+    }
+
     function populatePicklistDropdown(data) {
-        let picklistSet = new Set();
+        let plSet = new Set();
         data.forEach(row => {
             let val = getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]);
-            if (val) picklistSet.add(val);
+            if (val) plSet.add(val);
         });
 
         let select = document.getElementById('picklistSelect');
         select.innerHTML = '<option value="ALL">-- ALL PICK LISTS --</option>';
-        picklistSet.forEach(pl => {
+        plSet.forEach(pl => {
             let opt = document.createElement('option');
             opt.value = pl;
             opt.innerText = pl;
@@ -196,54 +226,53 @@
     }
 
     // =========================================================================
-    // CODE 1: SMART BOX LABEL GENERATOR
+    // 1. SMART BOX LABEL GENERATOR (MATCHING IMAGE EXACTLY)
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
         if (rawJsonData.length === 0) return;
-
-        let statusDiv = document.getElementById('status');
-        statusDiv.style.color = '#5bc0be';
-        statusDiv.innerText = "Generating Box Labels PDF...";
+        setStatus("Generating Box Labels PDF...");
 
         setTimeout(() => {
             try {
                 let boxesMap = new Map();
+
                 rawJsonData.forEach(row => {
                     let boxNo = getValSmart(row, ["BOX NO", "BOX_NO", "BOXNO", "BOX", "BOX #", "CARTON NO", "CARTON_NO"]);
                     if (!boxNo) boxNo = "1";
 
-                    let brand = getValSmart(row, ["BRAND", "BRAND NAME", "BRAND_NAME", "MAKE", "COMPANY"]);
-                    let poNo = getValSmart(row, ["PO NO", "PO_NO", "PO", "PO NUMBER", "PURCHASE ORDER", "ORDER NO"]);
-                    let picklistNo = getValSmart(row, ["PICK LIST NO", "PICKLIST NO", "PICK_LIST_NO", "PICKLIST_NO", "PICKLIST", "PL NO"]);
-                    let courier = getValSmart(row, ["COURIER", "COURIER NAME", "COURIER_NAME", "TRANSPORTER", "LOGISTICS"]);
-                    let destination = getValSmart(row, ["DESTINATION", "DESTINATION CITY", "CITY", "TO", "SHIP TO"]);
+                    let shipTo = getValSmart(row, ["SHIP TO", "SHIP TO / DEST", "DESTINATION", "SHIP_TO", "BUYER"]);
+                    let poOrd = getValSmart(row, ["PO/ORD", "PO NO", "PO_NO", "ORDER NO", "PO NUMBER"]);
+                    let challanNo = getValSmart(row, ["CHALLAN NO", "CHALLAN_NO", "CHALLAN"]);
+                    let invNo = getValSmart(row, ["INV NO", "INV_NO", "INVOICE NO", "INVOICE"]);
 
-                    let item = getValSmart(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "ITEM_CODE", "STYLE", "ARTICLE", "DESCRIPTION", "PRODUCT"]);
-                    let barcode = getValSmart(row, ["BARCODE", "BARCODE NO", "BARCODE_NO", "EAN", "UPC", "SKU"]);
+                    let merchantSku = getValSmart(row, ["Merchant SKU", "MERCHANT SKU", "SKU", "MERCHANTSKU"]);
                     let size = getValSmart(row, ["SIZE", "SZ"]);
-                    let color = getValSmart(row, ["COLOR", "COLOUR", "CLR"]);
-                    let qty = parseInt(getValSmart(row, ["QTY", "QUANTITY", "PICK QTY", "PCS", "PIECES"])) || 1;
+                    let itemCode = getValSmart(row, ["ITEM CODE", "ITEM_CODE", "STYLE"]);
+                    let itemName = getValSmart(row, ["ITEAM NAME", "ITEM NAME", "ITEM_NAME", "DESCRIPTION"]);
+                    let color = getValSmart(row, ["color", "COLOR", "COLOUR"]);
+                    let eanCode = getValSmart(row, ["Ean code", "EAN CODE", "BARCODE", "EAN"]);
+                    let rtae = getValSmart(row, ["RTAE", "RATE", "PRICE"]);
+                    let mrp = getValSmart(row, ["MRP"]);
+                    let qty = parseInt(getValSmart(row, ["QTY", "QUANTITY", "PCS"])) || 1;
 
                     if (!boxesMap.has(boxNo)) {
                         boxesMap.set(boxNo, {
                             boxNo: boxNo,
-                            brand: brand,
-                            poNo: poNo,
-                            picklistNo: picklistNo,
-                            courier: courier,
-                            destination: destination,
+                            shipTo: shipTo,
+                            poOrd: poOrd,
+                            challanNo: challanNo,
+                            invNo: invNo,
                             items: []
                         });
                     }
 
                     let bData = boxesMap.get(boxNo);
-                    if (!bData.brand && brand) bData.brand = brand;
-                    if (!bData.poNo && poNo) bData.poNo = poNo;
-                    if (!bData.picklistNo && picklistNo) bData.picklistNo = picklistNo;
-                    if (!bData.courier && courier) bData.courier = courier;
-                    if (!bData.destination && destination) bData.destination = destination;
+                    if (!bData.shipTo && shipTo) bData.shipTo = shipTo;
+                    if (!bData.poOrd && poOrd) bData.poOrd = poOrd;
+                    if (!bData.challanNo && challanNo) bData.challanNo = challanNo;
+                    if (!bData.invNo && invNo) bData.invNo = invNo;
 
-                    bData.items.push({ item, barcode, size, color, qty });
+                    bData.items.push({ merchantSku, size, itemCode, itemName, color, eanCode, rtae, mrp, qty });
                 });
 
                 let boxesArray = Array.from(boxesMap.values());
@@ -252,105 +281,108 @@
                 const pageOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
                 const { jsPDF } = window.jspdf;
 
-                let doc;
-                if (pageOrientation === 'a4_1' || pageOrientation === 'a4_2') {
-                    doc = new jsPDF('p', 'mm', 'a4');
-                } else {
-                    doc = new jsPDF(pageOrientation, 'in', [4, 6]);
-                }
+                let doc = new jsPDF('p', 'mm', 'a4');
 
-                function renderLabelBox(d, x, y, width, height) {
+                function renderLabelBox(d, bData, index, x, y, width, height) {
+                    // Outer Border
+                    d.setLineWidth(0.8);
+                    d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
-                    d.setFillColor(15, 23, 42);
-                    d.rect(x, y, width, 14, 'F');
-                    d.setFontSize(14);
-                    d.setFont("helvetica", "bold");
-                    d.setTextColor(255, 255, 255);
-                    d.text("BOX NO: " + (it.boxNo || "-"), x + (width / 2), y + 9.5, { align: "center" });
+                    // Header Partition Line
+                    let headerHeight = 26;
+                    d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    d.setFontSize(8.5);
+                    // Header Middle Vertical Divider
+                    let leftColWidth = width * 0.68;
+                    d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
+
+                    // --- Left Header Info ---
+                    d.setFontSize(8);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
 
-                    let infoY = y + 19;
-                    d.text("BRAND: " + (it.brand || "-"), x + 4, infoY);
-                    d.text("PO NO: " + (it.poNo || "-"), x + (width / 2) + 2, infoY);
+                    let hX = x + 3;
+                    let hY = y + 5;
+                    d.text(`SHIP TO / DEST: ${bData.shipTo || "-"}`, hX, hY);
+                    hY += 5;
+                    d.text(`PO/ORD: ${bData.poOrd || "-"}`, hX, hY);
+                    hY += 5;
+                    d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY);
+                    hY += 5;
+                    d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY);
 
-                    infoY += 5;
-                    d.text("PICK LIST: " + (it.picklistNo || "-"), x + 4, infoY);
-                    d.text("COURIER: " + (it.courier || "-"), x + (width / 2) + 2, infoY);
+                    // --- Right Header (BOX NO & BARCODE) ---
+                    let rX = x + leftColWidth + ((width - leftColWidth) / 2);
+                    d.setFontSize(10);
+                    d.text("BOX NO.", rX, y + 6, { align: "center" });
 
-                    infoY += 5;
-                    d.text("DESTINATION: " + (it.destination || "-"), x + 4, infoY);
+                    d.setFontSize(14);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 12, { align: "center" });
 
-                    d.setLineWidth(0.3);
-                    d.line(x, infoY + 3, x + width, infoY + 3);
+                    // Generate Barcode
+                    try {
+                        let canvas = document.getElementById('barcodeCanvas');
+                        JsBarcode(canvas, String(bData.boxNo), { format: "CODE128", displayValue: false, margin: 0, height: 30 });
+                        let imgData = canvas.toDataURL('image/png');
+                        d.addImage(imgData, 'PNG', x + leftColWidth + 5, y + 14, (width - leftColWidth) - 10, 10);
+                    } catch (e) {}
 
-                    let tableBody = it.items.map(i => [
-                        i.item || "-",
-                        i.barcode || "-",
+                    // --- Item Table ---
+                    let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
+                    let tableBody = bData.items.map(i => [
+                        i.merchantSku || "-",
                         i.size || "-",
+                        i.itemCode || "-",
+                        i.itemName || "-",
                         i.color || "-",
+                        i.eanCode || "-",
+                        i.rtae || "-",
+                        i.mrp || "-",
                         i.qty || 1
                     ]);
 
-                    let totalPcs = it.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
+                    let totalQty = bData.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
 
                     d.autoTable({
-                        startY: infoY + 5,
-                        margin: { left: x + 3, right: (d.internal.pageSize.width - (x + width)) + 3 },
-                        head: [["ITEM", "BARCODE", "SIZE", "COLOR", "QTY"]],
+                        startY: y + headerHeight,
+                        margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
+                        head: tableHeaders,
                         body: tableBody,
-                        foot: [["TOTAL PCS", "", "", "", totalPcs]],
                         theme: 'grid',
-                        styles: { fontSize: 7, cellPadding: 1.5, halign: 'center', textColor: [0, 0, 0] },
-                        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
-                        footStyles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-                        tableWidth: width - 6
+                        styles: {
+                            fontSize: 7,
+                            cellPadding: 2,
+                            halign: 'center',
+                            textColor: [0, 0, 0],
+                            lineColor: [0, 0, 0],
+                            lineWidth: 0.3
+                        },
+                        headStyles: {
+                            fillColor: [0, 0, 0],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold'
+                        },
+                        tableWidth: width
                     });
 
-                    let finalY = d.lastAutoTable.finalY + 4;
+                    // --- Total Box Qty Row ---
+                    let finalY = d.lastAutoTable.finalY;
+                    let footerHeight = 8;
+                    d.rect(x, finalY, width, footerHeight);
 
-                    if (it.boxNo) {
-                        try {
-                            let canvas = document.getElementById('barcodeCanvas');
-                            JsBarcode(canvas, String(it.boxNo), { format: "CODE128", displayValue: true, fontSize: 14, margin: 0, height: 35 });
-                            let imgData = canvas.toDataURL('image/png');
-                            let bcWidth = Math.min(width - 20, 55);
-                            let bcX = x + ((width - bcWidth) / 2);
-                            d.addImage(imgData, 'PNG', bcX, finalY, bcWidth, 13);
-                            finalY += 15;
-                        } catch (e) { console.error(e); }
-                    }
-
-                    d.setFontSize(8.5);
+                    d.setFontSize(9);
                     d.setFont("helvetica", "bold");
-                    d.setTextColor(0, 0, 0);
-                    d.text(`BOX ${boxIndex + 1} OF ${totalBoxesCount}`, x + (width / 2), y + height - 3, { align: "center" });
+                    d.text("TOTAL BOX QTY", x + 3, finalY + 5.5);
+
+                    let qtyColWidth = 20;
+                    d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
+                    d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 5.5, { align: "center" });
                 }
 
-                let boxIndex = 0;
-                let it = boxesArray[0];
-
                 for (let i = 0; i < boxesArray.length; i++) {
-                    boxIndex = i;
-                    it = boxesArray[i];
-
-                    if (pageOrientation === 'p' || pageOrientation === 'l') {
-                        if (i > 0) doc.addPage(pageOrientation, 'in', [4, 6]);
-                        let w = pageOrientation === 'p' ? 101.6 : 152.4;
-                        let h = pageOrientation === 'p' ? 152.4 : 101.6;
-                        renderLabelBox(doc, 2, 2, w - 4, h - 4);
-                    } else if (pageOrientation === 'a4_1') {
-                        if (i > 0) doc.addPage();
-                        renderLabelBox(doc, 10, 10, 190, 277);
-                    } else if (pageOrientation === 'a4_2') {
-                        let isSecondOnPage = i % 2 !== 0;
-                        if (i > 0 && !isSecondOnPage) doc.addPage();
-                        let yPos = isSecondOnPage ? 148 : 10;
-                        renderLabelBox(doc, 10, yPos, 190, 138);
-                    }
+                    if (i > 0) doc.addPage();
+                    renderLabelBox(doc, boxesArray[i], i, 10, 10, 190, 130);
                 }
 
                 if (actionType === 'print') {
@@ -360,25 +392,19 @@
                     doc.save(`Box_Labels_Output.pdf`);
                 }
 
-                statusDiv.style.color = '#6fffe9';
-                statusDiv.innerText = "✅ Box Labels PDF Generated!";
+                setStatus("✅ Box Labels PDF Generated!", "#38bdf8");
             } catch (err) {
-                console.error(err);
-                statusDiv.style.color = '#ff6b6b';
-                statusDiv.innerText = "❌ Exception Error: " + err.message;
+                setStatus("❌ Error: " + err.message, "#ff6b6b");
             }
         }, 100);
     }
 
     // =========================================================================
-    // CODE 2: ADVANCED PICK LIST GENERATOR (UPDATED COLUMNS TO MATCH IMAGE)
+    // 2. ADVANCED PICK LIST GENERATOR (MATCHING IMAGE EXACTLY)
     // =========================================================================
     function processPickList(actionType = 'download') {
         if (rawJsonData.length === 0) return;
-
-        let statusDiv = document.getElementById('status');
-        statusDiv.style.color = '#5bc0be';
-        statusDiv.innerText = actionType === 'print' ? "Preparing Print View..." : "Generating Pick List PDF...";
+        setStatus("Generating Pick List PDF...");
 
         setTimeout(() => {
             try {
@@ -393,20 +419,18 @@
                 });
 
                 if (filteredData.length === 0) {
-                    statusDiv.style.color = '#ff6b6b';
-                    statusDiv.innerText = "Selected Pick List ka koi data nahi mila!";
+                    setStatus("Selected Pick List ka koi data nahi mila!", "#ff6b6b");
                     return;
                 }
 
-                // Custom Column Mapping Matching Your Image Order
                 let parsedRows = filteredData.map(row => ({
                     picklistNo: getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]),
-                    department: getValSmart(row, ["DEPARTMENT", "DEPT", "CAT", "CATEGORY"]),
-                    item: getValSmart(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "ITEM_CODE", "STYLE", "ARTICLE"]),
-                    color: getValSmart(row, ["COLOR", "COLOUR", "CLR"]),
-                    barcode: getValSmart(row, ["BARCODE", "BARCODE NO", "EAN", "SKU"]),
+                    department: getValSmart(row, ["DEPARTMENT", "DEPT", "CAT"]),
+                    item: getValSmart(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "STYLE"]),
+                    color: getValSmart(row, ["COLOR", "COLOUR"]),
+                    barcode: getValSmart(row, ["BARCODE", "BARCODE NO", "EAN"]),
                     binNo: getValSmart(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
-                    qty: parseInt(getValSmart(row, ["PICK LIST QTY", "PICK_LIST_QTY", "QTY", "QUANTITY", "PICK QTY"])) || 1
+                    qty: parseInt(getValSmart(row, ["PICK LIST QTY", "PICK_LIST_QTY", "QTY", "QUANTITY"])) || 1
                 }));
 
                 const sortRows = (rows) => {
@@ -425,7 +449,7 @@
                 const tableConfig = {
                     theme: 'grid',
                     margin: { top: 22 },
-                    headStyles: { fillColor: [11, 19, 43], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] },
+                    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] },
                     bodyStyles: { textColor: [0, 0, 0], fontSize: 8, cellPadding: 2.5, halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] },
                     footStyles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 9, halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] }
                 };
@@ -442,7 +466,6 @@
                     doc.text(subTitle, 14, 17);
                 };
 
-                // IMAGE EXACT SEQUENCE: PICK LIST NO | DEPARTMENT | ITEM | COLOR | BARCODE | BIN NO | PICK LIST QTY
                 let headers = [["PICK LIST NO", "DEPARTMENT", "ITEM", "COLOR", "BARCODE", "BIN NO", "PICK LIST QTY"]];
 
                 if (viewMode === "ITEM" || viewMode === "BARCODE") {
@@ -493,12 +516,9 @@
                     doc.save(`PICKLIST_${selectedPL}_${viewMode}.pdf`);
                 }
 
-                statusDiv.style.color = '#6fffe9';
-                statusDiv.innerText = "✅ Pick List PDF Generated!";
+                setStatus("✅ Pick List PDF Generated!", "#38bdf8");
             } catch (err) {
-                console.error(err);
-                statusDiv.style.color = '#ff6b6b';
-                statusDiv.innerText = "❌ Exception Error: " + err.message;
+                setStatus("❌ Error: " + err.message, "#ff6b6b");
             }
         }, 100);
     }
