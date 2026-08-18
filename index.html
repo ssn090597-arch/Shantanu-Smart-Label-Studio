@@ -616,7 +616,7 @@
                     }
                 }
 
-                // Enhanced Global Search for Ship To & PO No across ALL rows
+                // Global PO and Ship To search
                 let shipToVal = "";
                 let poVal = "";
 
@@ -639,7 +639,7 @@
                 let headerRowIndex = -1;
                 for (let r = 0; r < Math.min(15, rawSheetRowsLabel.length); r++) {
                     let rowStr = rawSheetRowsLabel[r].map(c => String(c).toLowerCase()).join(" ");
-                    if (rowStr.includes("sku") || rowStr.includes("fsn") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("box count") || rowStr.includes("qty")) {
+                    if (rowStr.includes("sku") || rowStr.includes("fsn") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("box count") || rowStr.includes("qty") || rowStr.includes("style")) {
                         headerRowIndex = r;
                         break;
                     }
@@ -651,35 +651,21 @@
                 }
 
                 let originalHeaders = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim());
-                let headers = originalHeaders.map(h => h.toLowerCase());
-                
-                // Primary SKU Check -> Secondary FSN/ISBN13 Replacement Fallback
-                let skuLabel = "Merchant SKU";
-                let skuIdx = headers.findIndex(h => h.includes("merchant sku") || h === "sku" || h.includes("seller sku"));
-                if (skuIdx !== -1) {
-                    skuLabel = originalHeaders[skuIdx] || "Merchant SKU";
-                } else {
-                    skuIdx = headers.findIndex(h => h.includes("fsn") || h.includes("isbn13") || h.includes("isbn"));
-                    if (skuIdx !== -1) {
-                        skuLabel = originalHeaders[skuIdx] || "FSN/ISBN13";
-                    }
-                }
+                let headersLower = originalHeaders.map(h => h.toLowerCase());
 
-                let colIdx = {
-                    sku: skuIdx,
-                    challan: headers.findIndex(h => h.includes("challan") || h.includes("ch_no")),
-                    size: headers.findIndex(h => h.includes("size")),
-                    itemCode: headers.findIndex(h => h.includes("article code") || h.includes("item code") || h.includes("itemcode") || h.includes("style")),
-                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title") || h.includes("description")),
-                    color: headers.findIndex(h => h.includes("color") || h.includes("colour")),
-                    ean: headers.findIndex(h => h.includes("ean") || h.includes("barcode")),
-                    qty: headers.findIndex(h => h.includes("qty") || h.includes("quantity")),
-                    rtae: headers.findIndex(h => h.includes("unit price") || h.includes("rtae") || h.includes("rate") || h.includes("price")),
-                    mrp: headers.findIndex(h => h.includes("mrp")),
-                    boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton")),
-                    invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv")),
-                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po" || h.includes("purchase order"))
-                };
+                // Identify Metadata Columns vs Item Level Columns Dynamically
+                let boxColIdx = headersLower.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton"));
+                let poColIdx = headersLower.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po" || h.includes("purchase order"));
+                let challanColIdx = headersLower.findIndex(h => h.includes("challan") || h.includes("ch_no"));
+                let invColIdx = headersLower.findIndex(h => h.includes("invoice") || h.includes("inv"));
+
+                // Collect All Dynamic Table Column Names (Excluding Meta Columns)
+                let dynamicTableCols = [];
+                originalHeaders.forEach((h, idx) => {
+                    let hLower = h.toLowerCase();
+                    if (!h || idx === boxColIdx || idx === poColIdx || idx === challanColIdx || idx === invColIdx) return;
+                    dynamicTableCols.push({ name: h, idx: idx });
+                });
 
                 let boxesMap = new Map();
 
@@ -687,25 +673,25 @@
                     let row = rawSheetRowsLabel[i];
                     if (!row || row.length === 0) continue;
 
-                    let boxNo = colIdx.boxCount !== -1 ? String(row[colIdx.boxCount] || '').trim() : "1";
+                    let boxNo = boxColIdx !== -1 ? String(row[boxColIdx] || '').trim() : "1";
                     if (!boxNo) continue;
 
-                    let sku = colIdx.sku !== -1 ? String(row[colIdx.sku] || '').trim() : "";
-                    let challan = colIdx.challan !== -1 ? String(row[colIdx.challan] || '').trim() : "";
-                    let size = colIdx.size !== -1 ? String(row[colIdx.size] || '').trim() : "";
-                    let itemCode = colIdx.itemCode !== -1 ? String(row[colIdx.itemCode] || '').trim() : "";
-                    let itemName = colIdx.itemName !== -1 ? String(row[colIdx.itemName] || '').trim() : "";
-                    let color = colIdx.color !== -1 ? String(row[colIdx.color] || '').trim() : "";
-                    let ean = colIdx.ean !== -1 ? String(row[colIdx.ean] || '').trim() : "";
-                    let qty = colIdx.qty !== -1 ? parseInt(row[colIdx.qty]) || 1 : 1;
-                    let rtae = colIdx.rtae !== -1 ? String(row[colIdx.rtae] || '').trim() : "";
-                    let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
-                    let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
-                    
-                    let rowPo = colIdx.poNo !== -1 ? String(row[colIdx.poNo] || '').trim() : "";
+                    let challan = challanColIdx !== -1 ? String(row[challanColIdx] || '').trim() : "";
+                    let invNo = invColIdx !== -1 ? String(row[invColIdx] || '').trim() : "";
+                    let rowPo = poColIdx !== -1 ? String(row[poColIdx] || '').trim() : "";
                     if (!rowPo) rowPo = poVal;
 
-                    if (!sku && !itemCode && !ean) continue;
+                    // Parse Dynamic Row Items
+                    let itemObj = {};
+                    let hasData = false;
+
+                    dynamicTableCols.forEach(col => {
+                        let val = row[col.idx] !== undefined ? String(row[col.idx]).trim() : "";
+                        itemObj[col.name] = val;
+                        if (val !== "" && val !== "-") hasData = true;
+                    });
+
+                    if (!hasData) continue;
 
                     if (!boxesMap.has(boxNo)) {
                         boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: rowPo, challanNo: challan, invNo, items: [] });
@@ -715,7 +701,7 @@
                     if (!b.poOrd && rowPo) b.poOrd = rowPo;
                     if (!b.challanNo && challan) b.challanNo = challan;
                     if (!b.invNo && invNo) b.invNo = invNo;
-                    b.items.push({ sku, size, itemCode, itemName, color, ean, rtae, mrp, qty });
+                    b.items.push(itemObj);
                 }
 
                 let boxesArray = Array.from(boxesMap.values());
@@ -740,7 +726,7 @@
                 }
 
                 function renderLabelBox(d, bData, x, y, width, height) {
-                    // Darker outer box border
+                    // Dark Outer Box Border
                     d.setLineWidth(0.8);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
@@ -760,7 +746,7 @@
                     let hX = x + 2;
                     let hY = y + 4;
                     
-                    // Dynamic Header Metadata lines list
+                    // Dynamic Header Metadata
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
@@ -800,40 +786,34 @@
                         console.error("Barcode Generation Error:", e);
                     }
 
-                    // Dynamic Column Builder
-                    let availableCols = [
-                        { key: 'sku', title: skuLabel },
-                        { key: 'size', title: 'SIZE' },
-                        { key: 'itemCode', title: 'ITEM CODE' },
-                        { key: 'itemName', title: 'ITEM NAME' },
-                        { key: 'color', title: 'COLOR' },
-                        { key: 'ean', title: 'EAN CODE' },
-                        { key: 'rtae', title: 'RATE' },
-                        { key: 'mrp', title: 'MRP' },
-                        { key: 'qty', title: 'QTY' }
-                    ];
-
-                    let activeCols = availableCols.filter(col => {
-                        if (col.key === 'qty') return true;
+                    // Dynamically filter active columns (Remove empty columns)
+                    let activeHeaders = dynamicTableCols.filter(col => {
+                        let lowerName = col.name.toLowerCase();
+                        if (lowerName.includes("qty") || lowerName.includes("quantity")) return true;
                         return bData.items.some(item => {
-                            let val = item[col.key];
-                            return val && val !== "" && val !== "-";
+                            let v = item[col.name];
+                            return v !== undefined && v !== null && v !== "" && v !== "-";
                         });
-                    });
+                    }).map(col => col.name);
 
-                    let tableHeaders = [activeCols.map(c => c.title)];
+                    let tableHeaders = [activeHeaders];
                     let tableBody = bData.items.map(item => {
-                        return activeCols.map(col => {
-                            let val = item[col.key];
+                        return activeHeaders.map(hName => {
+                            let val = item[hName];
                             return (val !== undefined && val !== null && val !== "") ? val : "-";
                         });
                     });
 
-                    let totalQty = bData.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
+                    // Calculate Total Qty dynamically from Qty Column
+                    let qtyHeaderName = activeHeaders.find(h => h.toLowerCase().includes("qty") || h.toLowerCase().includes("quantity"));
+                    let totalQty = bData.items.reduce((sum, item) => {
+                        let q = qtyHeaderName ? parseInt(item[qtyHeaderName]) : 1;
+                        return sum + (isNaN(q) ? 1 : q);
+                    }, 0);
 
-                    // Added distinct gap between Header and Table Data + Darker Text & Borders + Spacing between Rows
-                    let headTopGap = 4; // Gap between header section and table
-                    
+                    // Added 5mm Gap between Header Meta Block and Table Header
+                    let headTopGap = 5; 
+
                     d.autoTable({
                         startY: y + headerHeight + headTopGap,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
@@ -842,18 +822,18 @@
                         theme: 'grid',
                         styles: { 
                             fontSize: Math.max(5, baseFontSize - 1.5), 
-                            cellPadding: 2.5, // Increased vertical padding for row gap
+                            cellPadding: 2.8, // Gap between text and border lines inside rows
                             halign: 'center', 
                             textColor: [0, 0, 0], // Darker text
                             lineColor: [0, 0, 0], // Darker borders
-                            lineWidth: 0.45, // Thicker border line
+                            lineWidth: 0.45,
                             fontStyle: 'bold'
                         },
                         headStyles: { 
                             fillColor: [0, 0, 0], 
                             textColor: [255, 255, 255], 
                             fontStyle: 'bold',
-                            cellPadding: 3, // Gap inside header cells
+                            cellPadding: 3,
                             lineWidth: 0.45,
                             lineColor: [0, 0, 0]
                         },
