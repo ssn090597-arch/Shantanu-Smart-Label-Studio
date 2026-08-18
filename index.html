@@ -13,40 +13,48 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0f172a; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .card { background: #162032; border-radius: 16px; padding: 30px 35px; width: 100%; max-width: 650px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #233248; text-align: center; }
+        .card { background: #162032; border-radius: 16px; padding: 25px 30px; width: 100%; max-width: 800px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #233248; text-align: center; }
         
         /* Top Suite Selector */
-        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 25px; }
+        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 20px; }
         .switch-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
         .switch-btn.active { background: #2563eb; color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
         
-        .logo-container { width: 100px; height: 100px; margin: 0 auto 15px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-container { width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+        .logo-container svg { width: 50px; height: 50px; }
         
-        h2 { color: #38bdf8; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        p.subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 22px; }
+        h2 { color: #38bdf8; margin: 0 0 6px 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        p.subtitle { color: #94a3b8; font-size: 12px; margin-bottom: 18px; }
         
-        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; font-size: 11px; font-weight: 800; color: #e2e8f0; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-        select { width: 100%; padding: 12px; background: #0b1120; border: 1px solid #233248; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
+        select { width: 100%; padding: 10px; background: #0b1120; border: 1px solid #233248; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
         select:focus { border-color: #38bdf8; }
         
-        .custom-file-upload { display: block; padding: 14px; background: #1e293b; color: #e2e8f0; border-radius: 8px; cursor: pointer; border: 1px dashed #38bdf8; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
+        .custom-file-upload { display: block; padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; cursor: pointer; border: 1px dashed #38bdf8; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
         .custom-file-upload:hover { background: #2563eb; color: #ffffff; border-style: solid; }
         input[type="file"] { display: none; }
         
         .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .radio-option { flex: 1 1 45%; background: #0b1120; border: 1px solid #233248; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
+        .radio-option { flex: 1 1 45%; background: #0b1120; border: 1px solid #233248; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
 
-        .btn-group { display: flex; gap: 12px; margin-top: 22px; }
-        .btn-action, .btn-print { flex: 1; padding: 13px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-action, .btn-print, .btn-preview { flex: 1; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
         .btn-action { background: #1e293b; color: #38bdf8; border-color: #38bdf8; }
         .btn-action:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
         .btn-print { background: #0284c7; color: #ffffff; border-color: #38bdf8; }
         .btn-print:hover:not(:disabled) { background: #0369a1; }
-        .btn-action:disabled, .btn-print:disabled { background: #0b1120; color: #475569; border-color: #1e293b; cursor: not-allowed; opacity: 0.6; }
+        .btn-preview { background: #334155; color: #f8fafc; border-color: #64748b; }
+        .btn-preview:hover:not(:disabled) { background: #475569; }
         
-        #status { margin-top: 18px; font-size: 13px; font-weight: 700; }
+        .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { background: #0b1120; color: #475569; border-color: #1e293b; cursor: not-allowed; opacity: 0.6; }
+        
+        #status { margin-top: 15px; font-size: 13px; font-weight: 700; }
+        
+        /* Preview Frame Box */
+        #previewContainer { display: none; margin-top: 20px; border: 1px solid #334155; border-radius: 8px; overflow: hidden; background: #0f172a; }
+        #previewContainer iframe { width: 100%; height: 450px; border: none; }
+
         .tool-section { display: none; }
         .tool-section.active { display: block; }
     </style>
@@ -62,7 +70,7 @@
 
     <!-- Center Logo Header -->
     <div class="logo-container">
-        <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
+        <svg viewBox="0 0 100 100" fill="none">
             <circle cx="50" cy="50" r="45" stroke="#ff3366" stroke-width="4"/>
             <path d="M30 65 C 30 35, 70 35, 70 65 C 70 45, 30 45, 30 65" stroke="#ffffff" stroke-width="6" fill="none"/>
             <text x="50" y="82" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">DELHIVERY</text>
@@ -92,6 +100,7 @@
         </div>
 
         <div class="btn-group">
+            <button class="btn-preview" id="prevLabelBtn" disabled onclick="processBoxLabels('preview')">👁️ Preview PDF</button>
             <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 PDF Download</button>
             <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Direct Print</button>
         </div>
@@ -134,18 +143,24 @@
         </div>
 
         <div class="btn-group">
+            <button class="btn-preview" id="prevPickBtn" disabled onclick="processPickList('preview')">👁️ Preview PDF</button>
             <button class="btn-action" id="genPickBtn" disabled onclick="processPickList('download')">📥 PDF Download</button>
             <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Direct Print</button>
         </div>
     </div>
 
     <div id="status"></div>
+
+    <!-- PDF Live Preview Screen -->
+    <div id="previewContainer">
+        <iframe id="pdfFrame"></iframe>
+    </div>
 </div>
 
 <canvas id="barcodeCanvas" style="display:none;"></canvas>
 
 <script>
-    let rawJsonData = [];
+    let rawSheetRows = [];
     let activeTool = 'label';
 
     function switchTool(tool) {
@@ -156,6 +171,13 @@
         document.getElementById('toolLabelSection').classList.toggle('active', tool === 'label');
         document.getElementById('toolPickSection').classList.toggle('active', tool === 'picklist');
         document.getElementById('status').innerText = "";
+        document.getElementById('previewContainer').style.display = 'none';
+    }
+
+    function setStatus(msg, color = '#38bdf8') {
+        let st = document.getElementById('status');
+        st.style.color = color;
+        st.innerText = msg;
     }
 
     function handleFile(input, tool) {
@@ -168,18 +190,24 @@
                 try {
                     let data = new Uint8Array(e.target.result);
                     let workbook = XLSX.read(data, { type: 'array' });
-                    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    rawJsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-                    populatePicklistDropdown(rawJsonData);
+                    let sheetName = workbook.SheetNames[0];
+                    let worksheet = workbook.Sheets[sheetName];
                     
+                    // Parse raw 2D Array
+                    rawSheetRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+
+                    populatePicklistDropdown();
+
+                    document.getElementById('prevLabelBtn').disabled = false;
                     document.getElementById('genLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
+                    
                     document.getElementById('picklistSelect').disabled = false;
+                    document.getElementById('prevPickBtn').disabled = false;
                     document.getElementById('genPickBtn').disabled = false;
                     document.getElementById('printPickBtn').disabled = false;
                     
-                    setStatus("Excel file loaded successfully!", "#38bdf8");
+                    setStatus("Excel file loaded successfully! Data ready.", "#38bdf8");
                 } catch (err) {
                     setStatus("Error reading Excel File: " + err.message, "#ff6b6b");
                 }
@@ -188,31 +216,16 @@
         }
     }
 
-    function norm(str) {
-        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    }
-
-    function getValSmart(row, possibleNames) {
-        const normTargets = possibleNames.map(norm);
-        for (let key in row) {
-            if (normTargets.includes(norm(key))) {
-                return String(row[key]).trim();
-            }
-        }
-        return '';
-    }
-
-    function setStatus(msg, color = '#38bdf8') {
-        let st = document.getElementById('status');
-        st.style.color = color;
-        st.innerText = msg;
-    }
-
-    function populatePicklistDropdown(data) {
+    function populatePicklistDropdown() {
         let plSet = new Set();
-        data.forEach(row => {
-            let val = getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]);
-            if (val) plSet.add(val);
+        // Look for Picklist No in rows
+        rawSheetRows.forEach(row => {
+            row.forEach(cell => {
+                let str = String(cell).trim();
+                if (str.startsWith("PL") || str.startsWith("PICK")) {
+                    plSet.add(str);
+                }
+            });
         });
 
         let select = document.getElementById('picklistSelect');
@@ -226,78 +239,118 @@
     }
 
     // =========================================================================
-    // 1. SMART BOX LABEL GENERATOR (MATCHING IMAGE EXACTLY)
+    // SMART BOX LABEL GENERATOR (CHUNKED BATCHING & EXACT IMAGE PARSING)
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
-        if (rawJsonData.length === 0) return;
-        setStatus("Generating Box Labels PDF...");
+        if (!rawSheetRows || rawSheetRows.length === 0) return;
+
+        setStatus("Reading Box Data & Preparing PDF...", "#38bdf8");
 
         setTimeout(() => {
             try {
+                // Header Info Extraction
+                let shipToVal = "";
+                let poVal = "";
+
+                if (rawSheetRows[0] && rawSheetRows[0][1]) shipToVal = String(rawSheetRows[0][1]).trim();
+                if (rawSheetRows[1] && rawSheetRows[1][1]) poVal = String(rawSheetRows[1][1]).trim();
+
+                // Find Header Row Index
+                let headerRowIndex = -1;
+                for (let r = 0; r < Math.min(10, rawSheetRows.length); r++) {
+                    let rowStr = rawSheetRows[r].join(" ").toLowerCase();
+                    if (rowStr.includes("merchant sku") || rowStr.includes("challan")) {
+                        headerRowIndex = r;
+                        break;
+                    }
+                }
+
+                if (headerRowIndex === -1) {
+                    setStatus("Header row not detected in Excel!", "#ff6b6b");
+                    return;
+                }
+
+                // Header Mapping
+                let headers = rawSheetRows[headerRowIndex].map(h => String(h).trim().toLowerCase());
+                let colIdx = {
+                    sku: headers.findIndex(h => h.includes("sku")),
+                    challan: headers.findIndex(h => h.includes("challan")),
+                    size: headers.findIndex(h => h.includes("size")),
+                    itemCode: headers.findIndex(h => h.includes("item code")),
+                    itemName: headers.findIndex(h => h.includes("name")),
+                    color: headers.findIndex(h => h.includes("color")),
+                    ean: headers.findIndex(h => h.includes("ean")),
+                    qty: headers.findIndex(h => h.includes("qty")),
+                    rtae: headers.findIndex(h => h.includes("rtae") || h.includes("rate")),
+                    mrp: headers.findIndex(h => h.includes("mrp")),
+                    boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box")),
+                    invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv"))
+                };
+
                 let boxesMap = new Map();
 
-                rawJsonData.forEach(row => {
-                    let boxNo = getValSmart(row, ["BOX NO", "BOX_NO", "BOXNO", "BOX", "BOX #", "CARTON NO", "CARTON_NO"]);
-                    if (!boxNo) boxNo = "1";
+                for (let i = headerRowIndex + 1; i < rawSheetRows.length; i++) {
+                    let row = rawSheetRows[i];
+                    if (!row || row.length === 0) continue;
 
-                    let shipTo = getValSmart(row, ["SHIP TO", "SHIP TO / DEST", "DESTINATION", "SHIP_TO", "BUYER"]);
-                    let poOrd = getValSmart(row, ["PO/ORD", "PO NO", "PO_NO", "ORDER NO", "PO NUMBER"]);
-                    let challanNo = getValSmart(row, ["CHALLAN NO", "CHALLAN_NO", "CHALLAN"]);
-                    let invNo = getValSmart(row, ["INV NO", "INV_NO", "INVOICE NO", "INVOICE"]);
+                    let boxNo = colIdx.boxCount !== -1 ? String(row[colIdx.boxCount] || '').trim() : "1";
+                    if (!boxNo) continue;
 
-                    let merchantSku = getValSmart(row, ["Merchant SKU", "MERCHANT SKU", "SKU", "MERCHANTSKU"]);
-                    let size = getValSmart(row, ["SIZE", "SZ"]);
-                    let itemCode = getValSmart(row, ["ITEM CODE", "ITEM_CODE", "STYLE"]);
-                    let itemName = getValSmart(row, ["ITEAM NAME", "ITEM NAME", "ITEM_NAME", "DESCRIPTION"]);
-                    let color = getValSmart(row, ["color", "COLOR", "COLOUR"]);
-                    let eanCode = getValSmart(row, ["Ean code", "EAN CODE", "BARCODE", "EAN"]);
-                    let rtae = getValSmart(row, ["RTAE", "RATE", "PRICE"]);
-                    let mrp = getValSmart(row, ["MRP"]);
-                    let qty = parseInt(getValSmart(row, ["QTY", "QUANTITY", "PCS"])) || 1;
+                    let sku = colIdx.sku !== -1 ? String(row[colIdx.sku] || '').trim() : "";
+                    let challan = colIdx.challan !== -1 ? String(row[colIdx.challan] || '').trim() : "";
+                    let size = colIdx.size !== -1 ? String(row[colIdx.size] || '').trim() : "";
+                    let itemCode = colIdx.itemCode !== -1 ? String(row[colIdx.itemCode] || '').trim() : "";
+                    let itemName = colIdx.itemName !== -1 ? String(row[colIdx.itemName] || '').trim() : "";
+                    let color = colIdx.color !== -1 ? String(row[colIdx.color] || '').trim() : "";
+                    let ean = colIdx.ean !== -1 ? String(row[colIdx.ean] || '').trim() : "";
+                    let qty = colIdx.qty !== -1 ? parseInt(row[colIdx.qty]) || 1 : 1;
+                    let rtae = colIdx.rtae !== -1 ? String(row[colIdx.rtae] || '').trim() : "";
+                    let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
+                    let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
+
+                    if (!sku && !itemCode) continue;
 
                     if (!boxesMap.has(boxNo)) {
                         boxesMap.set(boxNo, {
                             boxNo: boxNo,
-                            shipTo: shipTo,
-                            poOrd: poOrd,
-                            challanNo: challanNo,
+                            shipTo: shipToVal,
+                            poOrd: poVal,
+                            challanNo: challan,
                             invNo: invNo,
                             items: []
                         });
                     }
 
-                    let bData = boxesMap.get(boxNo);
-                    if (!bData.shipTo && shipTo) bData.shipTo = shipTo;
-                    if (!bData.poOrd && poOrd) bData.poOrd = poOrd;
-                    if (!bData.challanNo && challanNo) bData.challanNo = challanNo;
-                    if (!bData.invNo && invNo) bData.invNo = invNo;
+                    let b = boxesMap.get(boxNo);
+                    if (!b.challanNo && challan) b.challanNo = challan;
+                    if (!b.invNo && invNo) b.invNo = invNo;
 
-                    bData.items.push({ merchantSku, size, itemCode, itemName, color, eanCode, rtae, mrp, qty });
-                });
+                    b.items.push({ sku, size, itemCode, itemName, color, ean, rtae, mrp, qty });
+                }
 
                 let boxesArray = Array.from(boxesMap.values());
                 let totalBoxesCount = boxesArray.length;
 
+                if (totalBoxesCount === 0) {
+                    setStatus("No Box Data Found in File!", "#ff6b6b");
+                    return;
+                }
+
                 const pageOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
                 const { jsPDF } = window.jspdf;
-
                 let doc = new jsPDF('p', 'mm', 'a4');
 
-                function renderLabelBox(d, bData, index, x, y, width, height) {
-                    // Outer Border
+                function renderLabelBox(d, bData, x, y, width, height) {
                     d.setLineWidth(0.8);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
-                    // Header Partition Line
                     let headerHeight = 26;
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    // Header Middle Vertical Divider
                     let leftColWidth = width * 0.68;
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
-                    // --- Left Header Info ---
                     d.setFontSize(8);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
@@ -312,7 +365,6 @@
                     hY += 5;
                     d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY);
 
-                    // --- Right Header (BOX NO & BARCODE) ---
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
                     d.setFontSize(10);
                     d.text("BOX NO.", rX, y + 6, { align: "center" });
@@ -320,7 +372,6 @@
                     d.setFontSize(14);
                     d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 12, { align: "center" });
 
-                    // Generate Barcode
                     try {
                         let canvas = document.getElementById('barcodeCanvas');
                         JsBarcode(canvas, String(bData.boxNo), { format: "CODE128", displayValue: false, margin: 0, height: 30 });
@@ -328,15 +379,14 @@
                         d.addImage(imgData, 'PNG', x + leftColWidth + 5, y + 14, (width - leftColWidth) - 10, 10);
                     } catch (e) {}
 
-                    // --- Item Table ---
                     let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
                     let tableBody = bData.items.map(i => [
-                        i.merchantSku || "-",
+                        i.sku || "-",
                         i.size || "-",
                         i.itemCode || "-",
                         i.itemName || "-",
                         i.color || "-",
-                        i.eanCode || "-",
+                        i.ean || "-",
                         i.rtae || "-",
                         i.mrp || "-",
                         i.qty || 1
@@ -350,23 +400,11 @@
                         head: tableHeaders,
                         body: tableBody,
                         theme: 'grid',
-                        styles: {
-                            fontSize: 7,
-                            cellPadding: 2,
-                            halign: 'center',
-                            textColor: [0, 0, 0],
-                            lineColor: [0, 0, 0],
-                            lineWidth: 0.3
-                        },
-                        headStyles: {
-                            fillColor: [0, 0, 0],
-                            textColor: [255, 255, 255],
-                            fontStyle: 'bold'
-                        },
+                        styles: { fontSize: 7, cellPadding: 1.8, halign: 'center', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.3 },
+                        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
                         tableWidth: width
                     });
 
-                    // --- Total Box Qty Row ---
                     let finalY = d.lastAutoTable.finalY;
                     let footerHeight = 8;
                     d.rect(x, finalY, width, footerHeight);
@@ -380,31 +418,57 @@
                     d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 5.5, { align: "center" });
                 }
 
-                for (let i = 0; i < boxesArray.length; i++) {
-                    if (i > 0) doc.addPage();
-                    renderLabelBox(doc, boxesArray[i], i, 10, 10, 190, 130);
+                // Async Batch processing to fix Maximum Call Stack Exceeded
+                let currentIndex = 0;
+
+                function renderNextBatch() {
+                    let batchSize = 10;
+                    let end = Math.min(currentIndex + batchSize, boxesArray.length);
+
+                    for (let i = currentIndex; i < end; i++) {
+                        if (i > 0) doc.addPage();
+                        renderLabelBox(doc, boxesArray[i], 10, 10, 190, 130);
+                    }
+
+                    currentIndex = end;
+                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#38bdf8");
+
+                    if (currentIndex < boxesArray.length) {
+                        setTimeout(renderNextBatch, 10);
+                    } else {
+                        // Complete Output
+                        let pdfDataUrl = doc.output('bloburl');
+
+                        if (actionType === 'preview') {
+                            document.getElementById('previewContainer').style.display = 'block';
+                            document.getElementById('pdfFrame').src = pdfDataUrl;
+                            setStatus(`✅ Preview Ready (${totalBoxesCount} Boxes)`, "#38bdf8");
+                        } else if (actionType === 'print') {
+                            doc.autoPrint();
+                            window.open(pdfDataUrl, '_blank');
+                            setStatus(`✅ Print Window Opened!`, "#38bdf8");
+                        } else {
+                            doc.save(`Box_Labels_Master_${totalBoxesCount}_Boxes.pdf`);
+                            setStatus(`✅ PDF Downloaded Successfully!`, "#38bdf8");
+                        }
+                    }
                 }
 
-                if (actionType === 'print') {
-                    doc.autoPrint();
-                    window.open(doc.output('bloburl'), '_blank');
-                } else {
-                    doc.save(`Box_Labels_Output.pdf`);
-                }
+                renderNextBatch();
 
-                setStatus("✅ Box Labels PDF Generated!", "#38bdf8");
             } catch (err) {
-                setStatus("❌ Error: " + err.message, "#ff6b6b");
+                console.error(err);
+                setStatus("❌ Processing Error: " + err.message, "#ff6b6b");
             }
         }, 100);
     }
 
     // =========================================================================
-    // 2. ADVANCED PICK LIST GENERATOR (MATCHING IMAGE EXACTLY)
+    // ADVANCED PICK LIST GENERATOR (PREVIEW & PRINT FIXED)
     // =========================================================================
     function processPickList(actionType = 'download') {
-        if (rawJsonData.length === 0) return;
-        setStatus("Generating Pick List PDF...");
+        if (!rawSheetRows || rawSheetRows.length === 0) return;
+        setStatus("Generating Pick List PDF...", "#38bdf8");
 
         setTimeout(() => {
             try {
@@ -412,26 +476,21 @@
                 let viewMode = document.getElementById('viewModeSelect').value;
                 let binSort = document.getElementById('binSortSelect').value;
 
-                let filteredData = rawJsonData.filter(row => {
-                    if (selectedPL === "ALL") return true;
-                    let val = getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]);
-                    return val === selectedPL;
-                });
-
-                if (filteredData.length === 0) {
-                    setStatus("Selected Pick List ka koi data nahi mila!", "#ff6b6b");
-                    return;
+                let parsedRows = [];
+                for (let i = 1; i < rawSheetRows.length; i++) {
+                    let r = rawSheetRows[i];
+                    if (r && r.length > 3) {
+                        parsedRows.push({
+                            picklistNo: String(r[0] || 'PL-001'),
+                            department: String(r[1] || 'GENERAL'),
+                            item: String(r[2] || ''),
+                            color: String(r[5] || ''),
+                            barcode: String(r[6] || ''),
+                            binNo: String(r[10] || 'BIN-01'),
+                            qty: parseInt(r[7]) || 1
+                        });
+                    }
                 }
-
-                let parsedRows = filteredData.map(row => ({
-                    picklistNo: getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]),
-                    department: getValSmart(row, ["DEPARTMENT", "DEPT", "CAT"]),
-                    item: getValSmart(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "STYLE"]),
-                    color: getValSmart(row, ["COLOR", "COLOUR"]),
-                    barcode: getValSmart(row, ["BARCODE", "BARCODE NO", "EAN"]),
-                    binNo: getValSmart(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
-                    qty: parseInt(getValSmart(row, ["PICK LIST QTY", "PICK_LIST_QTY", "QTY", "QUANTITY"])) || 1
-                }));
 
                 const sortRows = (rows) => {
                     return rows.sort((a, b) => {
@@ -454,71 +513,38 @@
                     footStyles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 9, halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] }
                 };
 
-                const renderCleanHeader = (mainTitle, subTitle) => {
-                    doc.setFontSize(13);
-                    doc.setFont("helvetica", "bold");
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(mainTitle, 14, 12);
-
-                    doc.setFontSize(9);
-                    doc.setFont("helvetica", "normal");
-                    doc.setTextColor(60, 60, 60);
-                    doc.text(subTitle, 14, 17);
-                };
-
                 let headers = [["PICK LIST NO", "DEPARTMENT", "ITEM", "COLOR", "BARCODE", "BIN NO", "PICK LIST QTY"]];
+                let sorted = sortRows(parsedRows);
+                let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
+                let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
 
-                if (viewMode === "ITEM" || viewMode === "BARCODE") {
-                    let groups = new Map();
-                    parsedRows.forEach(row => {
-                        let key = viewMode === "ITEM" ? (row.item || 'UNKNOWN') : (row.barcode || 'UNKNOWN');
-                        if (!groups.has(key)) groups.set(key, []);
-                        groups.get(key).push(row);
-                    });
+                doc.setFontSize(13);
+                doc.setFont("helvetica", "bold");
+                doc.text(`PICK LIST REPORT`, 14, 12);
 
-                    let isFirstGroup = true;
-                    groups.forEach((rows, groupKey) => {
-                        if (!isFirstGroup) doc.addPage();
-                        isFirstGroup = false;
+                doc.autoTable({
+                    ...tableConfig,
+                    head: headers,
+                    body: body,
+                    foot: [["TOTAL", "", "", "", "", "", totalQty]]
+                });
 
-                        let sorted = sortRows(rows);
-                        let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
-                        let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
+                let pdfDataUrl = doc.output('bloburl');
 
-                        renderCleanHeader(`PICK LIST REPORT (${viewMode}: ${groupKey})`, `Pick List: ${selectedPL} | Items: ${sorted.length}`);
-
-                        doc.autoTable({
-                            ...tableConfig,
-                            head: headers,
-                            body: body,
-                            foot: [["TOTAL", "", "", "", "", "", totalQty]]
-                        });
-                    });
-                } else {
-                    let sorted = sortRows(parsedRows);
-                    let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
-                    let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
-
-                    renderCleanHeader(`PICK LIST REPORT (MIXED VIEW)`, `Pick List: ${selectedPL} | Total Rows: ${sorted.length}`);
-
-                    doc.autoTable({
-                        ...tableConfig,
-                        head: headers,
-                        body: body,
-                        foot: [["TOTAL", "", "", "", "", "", totalQty]]
-                    });
-                }
-
-                if (actionType === 'print') {
+                if (actionType === 'preview') {
+                    document.getElementById('previewContainer').style.display = 'block';
+                    document.getElementById('pdfFrame').src = pdfDataUrl;
+                    setStatus("✅ Pick List Preview Loaded!", "#38bdf8");
+                } else if (actionType === 'print') {
                     doc.autoPrint();
-                    window.open(doc.output('bloburl'), '_blank');
+                    window.open(pdfDataUrl, '_blank');
+                    setStatus("✅ Print Opened!", "#38bdf8");
                 } else {
-                    doc.save(`PICKLIST_${selectedPL}_${viewMode}.pdf`);
+                    doc.save(`PICKLIST_REPORT.pdf`);
+                    setStatus("✅ Pick List PDF Downloaded!", "#38bdf8");
                 }
-
-                setStatus("✅ Pick List PDF Generated!", "#38bdf8");
             } catch (err) {
-                setStatus("❌ Error: " + err.message, "#ff6b6b");
+                setStatus("❌ Picklist Error: " + err.message, "#ff6b6b");
             }
         }, 100);
     }
