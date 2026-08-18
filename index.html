@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shantanu Delhivery Warehouse Suite</title>
+    <title>Enterprise Warehouse Suite</title>
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,47 +12,49 @@
     
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0f172a; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .card { background: #162032; border-radius: 16px; padding: 25px 30px; width: 100%; max-width: 800px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #233248; text-align: center; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0b132b; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .card { background: #1c2541; border-radius: 16px; padding: 25px 30px; width: 100%; max-width: 750px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #3a506b; text-align: center; }
         
-        /* Top Suite Selector */
-        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 20px; }
+        /* Navigation Switcher */
+        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 20px; gap: 8px; }
         .switch-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
         .switch-btn.active { background: #2563eb; color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
         
-        .logo-container { width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-        .logo-container svg { width: 50px; height: 50px; }
+        .logo-container { width: 70px; height: 70px; margin: 0 auto 10px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+        .logo-container svg { width: 45px; height: 45px; }
         
-        h2 { color: #38bdf8; margin: 0 0 6px 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        p.subtitle { color: #94a3b8; font-size: 12px; margin-bottom: 18px; }
+        h2 { color: #6fffe9; margin: 0 0 6px 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        p.subtitle { color: #5bc0be; font-size: 13px; margin-bottom: 18px; }
         
         .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-size: 11px; font-weight: 800; color: #e2e8f0; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-        select { width: 100%; padding: 10px; background: #0b1120; border: 1px solid #233248; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
-        select:focus { border-color: #38bdf8; }
+        label { display: block; font-size: 11px; font-weight: 800; color: #cbd5e1; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+        select { width: 100%; padding: 10px; background: #0b132b; border: 1px solid #3a506b; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
+        select:focus { border-color: #5bc0be; }
         
-        .custom-file-upload { display: block; padding: 12px; background: #1e293b; color: #e2e8f0; border-radius: 8px; cursor: pointer; border: 1px dashed #38bdf8; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
-        .custom-file-upload:hover { background: #2563eb; color: #ffffff; border-style: solid; }
+        .custom-file-upload { display: block; padding: 12px; background: #0b132b; color: #ffffff; border-radius: 8px; cursor: pointer; border: 1px dashed #5bc0be; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
+        .custom-file-upload:hover { background: #5bc0be; color: #0b132b; border-style: solid; }
         input[type="file"] { display: none; }
         
         .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .radio-option { flex: 1 1 45%; background: #0b1120; border: 1px solid #233248; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
+        .radio-option { flex: 1 1 45%; background: #0b132b; border: 1px solid #3a506b; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-action, .btn-print, .btn-preview { flex: 1; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
-        .btn-action { background: #1e293b; color: #38bdf8; border-color: #38bdf8; }
-        .btn-action:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
-        .btn-print { background: #0284c7; color: #ffffff; border-color: #38bdf8; }
-        .btn-print:hover:not(:disabled) { background: #0369a1; }
+        
         .btn-preview { background: #334155; color: #f8fafc; border-color: #64748b; }
         .btn-preview:hover:not(:disabled) { background: #475569; }
         
-        .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { background: #0b1120; color: #475569; border-color: #1e293b; cursor: not-allowed; opacity: 0.6; }
+        .btn-action { background: #3a506b; color: #6fffe9; border-color: #6fffe9; }
+        .btn-action:hover:not(:disabled) { background: #6fffe9; color: #0b132b; }
+        
+        .btn-print { background: #5bc0be; color: #0b132b; border-color: #5bc0be; }
+        .btn-print:hover:not(:disabled) { background: #3a506b; color: #ffffff; }
+        
+        .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { background: #1c2541; color: #475569; border-color: #334155; cursor: not-allowed; opacity: 0.6; }
         
         #status { margin-top: 15px; font-size: 13px; font-weight: 700; }
         
-        /* Preview Frame Box */
-        #previewContainer { display: none; margin-top: 20px; border: 1px solid #334155; border-radius: 8px; overflow: hidden; background: #0f172a; }
+        #previewContainer { display: none; margin-top: 20px; border: 1px solid #3a506b; border-radius: 8px; overflow: hidden; background: #0b132b; }
         #previewContainer iframe { width: 100%; height: 450px; border: none; }
 
         .tool-section { display: none; }
@@ -62,13 +64,13 @@
 <body>
 
 <div class="card">
-    <!-- Top Mode Switcher -->
+    <!-- Top Switcher -->
     <div class="tool-switcher">
         <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
         <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
     </div>
 
-    <!-- Center Logo Header -->
+    <!-- DELHIVERY Logo Header -->
     <div class="logo-container">
         <svg viewBox="0 0 100 100" fill="none">
             <circle cx="50" cy="50" r="45" stroke="#ff3366" stroke-width="4"/>
@@ -80,33 +82,33 @@
     <!-- TOOL 1: SMART BOX LABEL STUDIO -->
     <div id="toolLabelSection" class="tool-section active">
         <h2>🏷️ Smart Box Label Studio</h2>
-        <p class="subtitle">Upload Master Excel & Generate Standardized Outer Box Labels</p>
+        <p class="subtitle">Upload Excel & Generate Outer Box Labels</p>
 
         <div class="form-group">
             <label for="excelFileLabel" class="custom-file-upload" id="fileLabelText">
                 📄 SELECT EXCEL FILE
             </label>
-            <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFile(this, 'label')">
+            <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFileLabel(this)">
         </div>
 
         <div class="form-group">
-            <label>Print Orientation / Page Format:</label>
+            <label>PRINT ORIENTATION / STICKER SIZE:</label>
             <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="p"> Portrait (4" x 6")</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="l"> Landscape (6" x 4")</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_1"> A4 (1 Box/Page)</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_2" checked> A4 (2 Boxes/Page)</label>
+                <label class="radio-option"><input type="radio" name="pageOrientation" value="p"> PORTRAIT (4" X 6")</label>
+                <label class="radio-option"><input type="radio" name="pageOrientation" value="l"> LANDSCAPE (6" X 4")</label>
+                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_1"> A4 (1 BOX/PAGE)</label>
+                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_2" checked> A4 (2 BOXES/PAGE)</label>
             </div>
         </div>
 
         <div class="btn-group">
             <button class="btn-preview" id="prevLabelBtn" disabled onclick="processBoxLabels('preview')">👁️ Preview PDF</button>
-            <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 PDF Download</button>
-            <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Direct Print</button>
+            <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 Download Labels PDF</button>
+            <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Print Labels Direct</button>
         </div>
     </div>
 
-    <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
+    <!-- TOOL 2: ADVANCED PICK LIST GENERATOR (AAPKA ORIGINAL LOGIC) -->
     <div id="toolPickSection" class="tool-section">
         <h2>📦 Advanced Pick List Generator</h2>
         <p class="subtitle">Upload Excel, select filter & export/print bordered PDF.</p>
@@ -115,18 +117,18 @@
             <label for="excelFilePick" class="custom-file-upload" id="filePickText">
                 📄 SELECT EXCEL FILE
             </label>
-            <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFile(this, 'picklist')">
+            <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFilePick(this)">
         </div>
 
         <div class="form-group">
-            <label>PICK LIST NO SELECT KAREIN:</label>
+            <label for="picklistSelect">PICK LIST NO SELECT KAREIN:</label>
             <select id="picklistSelect" disabled>
                 <option value="ALL">-- ALL PICK LISTS --</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>PICKING VIEW TYPE (PAGE BREAK MODE):</label>
+            <label for="viewModeSelect">PICKING VIEW TYPE (PAGE BREAK MODE):</label>
             <select id="viewModeSelect">
                 <option value="ITEM">ITEM Wise (Each Item on Separate Page)</option>
                 <option value="BARCODE">BARCODE Wise (Each Barcode on Separate Page)</option>
@@ -135,10 +137,10 @@
         </div>
 
         <div class="form-group">
-            <label>BIN NO SORTING ORDER:</label>
+            <label for="binSortSelect">BIN NO SORTING ORDER:</label>
             <select id="binSortSelect">
-                <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
                 <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
+                <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
             </select>
         </div>
 
@@ -151,7 +153,7 @@
 
     <div id="status"></div>
 
-    <!-- PDF Live Preview Screen -->
+    <!-- PDF Live Preview Window -->
     <div id="previewContainer">
         <iframe id="pdfFrame"></iframe>
     </div>
@@ -160,11 +162,10 @@
 <canvas id="barcodeCanvas" style="display:none;"></canvas>
 
 <script>
-    let rawSheetRows = [];
-    let activeTool = 'label';
+    let rawSheetRowsLabel = [];
+    let rawJsonDataPick = [];
 
     function switchTool(tool) {
-        activeTool = tool;
         document.getElementById('btnToolLabel').classList.toggle('active', tool === 'label');
         document.getElementById('btnToolPick').classList.toggle('active', tool === 'picklist');
         
@@ -174,63 +175,76 @@
         document.getElementById('previewContainer').style.display = 'none';
     }
 
-    function setStatus(msg, color = '#38bdf8') {
+    function setStatus(msg, color = '#6fffe9') {
         let st = document.getElementById('status');
         st.style.color = color;
         st.innerText = msg;
     }
 
-    function handleFile(input, tool) {
+    // Label File Handler
+    function handleFileLabel(input) {
         if (input.files.length > 0) {
             let file = input.files[0];
-            document.getElementById(tool === 'label' ? 'fileLabelText' : 'filePickText').innerText = "✓ Loaded: " + file.name;
+            document.getElementById('fileLabelText').innerText = "✓ LOADED: " + file.name.toUpperCase();
             
             let reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     let data = new Uint8Array(e.target.result);
                     let workbook = XLSX.read(data, { type: 'array' });
-                    let sheetName = workbook.SheetNames[0];
-                    let worksheet = workbook.Sheets[sheetName];
-                    
-                    // Parse raw 2D Array
-                    rawSheetRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-
-                    populatePicklistDropdown();
+                    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    rawSheetRowsLabel = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
                     document.getElementById('prevLabelBtn').disabled = false;
                     document.getElementById('genLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
-                    
-                    document.getElementById('picklistSelect').disabled = false;
-                    document.getElementById('prevPickBtn').disabled = false;
-                    document.getElementById('genPickBtn').disabled = false;
-                    document.getElementById('printPickBtn').disabled = false;
-                    
-                    setStatus("Excel file loaded successfully! Data ready.", "#38bdf8");
+                    setStatus("Box Label Excel loaded successfully!", "#6fffe9");
                 } catch (err) {
-                    setStatus("Error reading Excel File: " + err.message, "#ff6b6b");
+                    setStatus("Error reading Excel: " + err.message, "#ff6b6b");
                 }
             };
             reader.readAsArrayBuffer(file);
         }
     }
 
-    function populatePicklistDropdown() {
-        let plSet = new Set();
-        // Look for Picklist No in rows
-        rawSheetRows.forEach(row => {
-            row.forEach(cell => {
-                let str = String(cell).trim();
-                if (str.startsWith("PL") || str.startsWith("PICK")) {
-                    plSet.add(str);
+    // Pick List File Handler
+    function handleFilePick(input) {
+        if (input.files.length > 0) {
+            let file = input.files[0];
+            document.getElementById('filePickText').innerText = "✓ LOADED: " + file.name.toUpperCase();
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data = new Uint8Array(e.target.result);
+                    let workbook = XLSX.read(data, { type: 'array' });
+                    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    rawJsonDataPick = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                    populatePicklistDropdown(rawJsonDataPick);
+                    document.getElementById('picklistSelect').disabled = false;
+                    document.getElementById('prevPickBtn').disabled = false;
+                    document.getElementById('genPickBtn').disabled = false;
+                    document.getElementById('printPickBtn').disabled = false;
+                    setStatus("Pick List Excel loaded successfully!", "#6fffe9");
+                } catch (err) {
+                    setStatus("Error reading Excel: " + err.message, "#ff6b6b");
                 }
-            });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
+    function populatePicklistDropdown(data) {
+        let picklistSet = new Set();
+        data.forEach(row => {
+            let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+            if (val) picklistSet.add(String(val).trim());
         });
 
         let select = document.getElementById('picklistSelect');
         select.innerHTML = '<option value="ALL">-- ALL PICK LISTS --</option>';
-        plSet.forEach(pl => {
+        picklistSet.forEach(pl => {
             let opt = document.createElement('option');
             opt.value = pl;
             opt.innerText = pl;
@@ -239,26 +253,20 @@
     }
 
     // =========================================================================
-    // SMART BOX LABEL GENERATOR (CHUNKED BATCHING & EXACT IMAGE PARSING)
+    // SMART BOX LABEL STUDIO LOGIC (BATCHED CHUNKS TO PREVENT CALL STACK EXCEEDED)
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
-        if (!rawSheetRows || rawSheetRows.length === 0) return;
-
-        setStatus("Reading Box Data & Preparing PDF...", "#38bdf8");
+        if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
+        setStatus("Processing Box Data...", "#5bc0be");
 
         setTimeout(() => {
             try {
-                // Header Info Extraction
-                let shipToVal = "";
-                let poVal = "";
+                let shipToVal = (rawSheetRowsLabel[0] && rawSheetRowsLabel[0][1]) ? String(rawSheetRowsLabel[0][1]).trim() : "";
+                let poVal = (rawSheetRowsLabel[1] && rawSheetRowsLabel[1][1]) ? String(rawSheetRowsLabel[1][1]).trim() : "";
 
-                if (rawSheetRows[0] && rawSheetRows[0][1]) shipToVal = String(rawSheetRows[0][1]).trim();
-                if (rawSheetRows[1] && rawSheetRows[1][1]) poVal = String(rawSheetRows[1][1]).trim();
-
-                // Find Header Row Index
                 let headerRowIndex = -1;
-                for (let r = 0; r < Math.min(10, rawSheetRows.length); r++) {
-                    let rowStr = rawSheetRows[r].join(" ").toLowerCase();
+                for (let r = 0; r < Math.min(10, rawSheetRowsLabel.length); r++) {
+                    let rowStr = rawSheetRowsLabel[r].join(" ").toLowerCase();
                     if (rowStr.includes("merchant sku") || rowStr.includes("challan")) {
                         headerRowIndex = r;
                         break;
@@ -270,8 +278,7 @@
                     return;
                 }
 
-                // Header Mapping
-                let headers = rawSheetRows[headerRowIndex].map(h => String(h).trim().toLowerCase());
+                let headers = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim().toLowerCase());
                 let colIdx = {
                     sku: headers.findIndex(h => h.includes("sku")),
                     challan: headers.findIndex(h => h.includes("challan")),
@@ -289,8 +296,8 @@
 
                 let boxesMap = new Map();
 
-                for (let i = headerRowIndex + 1; i < rawSheetRows.length; i++) {
-                    let row = rawSheetRows[i];
+                for (let i = headerRowIndex + 1; i < rawSheetRowsLabel.length; i++) {
+                    let row = rawSheetRowsLabel[i];
                     if (!row || row.length === 0) continue;
 
                     let boxNo = colIdx.boxCount !== -1 ? String(row[colIdx.boxCount] || '').trim() : "1";
@@ -311,20 +318,12 @@
                     if (!sku && !itemCode) continue;
 
                     if (!boxesMap.has(boxNo)) {
-                        boxesMap.set(boxNo, {
-                            boxNo: boxNo,
-                            shipTo: shipToVal,
-                            poOrd: poVal,
-                            challanNo: challan,
-                            invNo: invNo,
-                            items: []
-                        });
+                        boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: poVal, challanNo: challan, invNo, items: [] });
                     }
 
                     let b = boxesMap.get(boxNo);
                     if (!b.challanNo && challan) b.challanNo = challan;
                     if (!b.invNo && invNo) b.invNo = invNo;
-
                     b.items.push({ sku, size, itemCode, itemName, color, ean, rtae, mrp, qty });
                 }
 
@@ -332,11 +331,10 @@
                 let totalBoxesCount = boxesArray.length;
 
                 if (totalBoxesCount === 0) {
-                    setStatus("No Box Data Found in File!", "#ff6b6b");
+                    setStatus("No Box Data Found!", "#ff6b6b");
                     return;
                 }
 
-                const pageOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
                 const { jsPDF } = window.jspdf;
                 let doc = new jsPDF('p', 'mm', 'a4');
 
@@ -381,15 +379,7 @@
 
                     let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
                     let tableBody = bData.items.map(i => [
-                        i.sku || "-",
-                        i.size || "-",
-                        i.itemCode || "-",
-                        i.itemName || "-",
-                        i.color || "-",
-                        i.ean || "-",
-                        i.rtae || "-",
-                        i.mrp || "-",
-                        i.qty || 1
+                        i.sku || "-", i.size || "-", i.itemCode || "-", i.itemName || "-", i.color || "-", i.ean || "-", i.rtae || "-", i.mrp || "-", i.qty || 1
                     ]);
 
                     let totalQty = bData.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
@@ -418,9 +408,7 @@
                     d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 5.5, { align: "center" });
                 }
 
-                // Async Batch processing to fix Maximum Call Stack Exceeded
                 let currentIndex = 0;
-
                 function renderNextBatch() {
                     let batchSize = 10;
                     let end = Math.min(currentIndex + batchSize, boxesArray.length);
@@ -431,44 +419,41 @@
                     }
 
                     currentIndex = end;
-                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#38bdf8");
+                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#5bc0be");
 
                     if (currentIndex < boxesArray.length) {
                         setTimeout(renderNextBatch, 10);
                     } else {
-                        // Complete Output
                         let pdfDataUrl = doc.output('bloburl');
-
                         if (actionType === 'preview') {
                             document.getElementById('previewContainer').style.display = 'block';
                             document.getElementById('pdfFrame').src = pdfDataUrl;
-                            setStatus(`✅ Preview Ready (${totalBoxesCount} Boxes)`, "#38bdf8");
+                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#6fffe9");
                         } else if (actionType === 'print') {
                             doc.autoPrint();
                             window.open(pdfDataUrl, '_blank');
-                            setStatus(`✅ Print Window Opened!`, "#38bdf8");
+                            setStatus("✓ Print Window Opened!", "#6fffe9");
                         } else {
-                            doc.save(`Box_Labels_Master_${totalBoxesCount}_Boxes.pdf`);
-                            setStatus(`✅ PDF Downloaded Successfully!`, "#38bdf8");
+                            doc.save(`Box_Labels_${totalBoxesCount}_Boxes.pdf`);
+                            setStatus("✓ Labels PDF Downloaded!", "#6fffe9");
                         }
                     }
                 }
-
                 renderNextBatch();
 
             } catch (err) {
-                console.error(err);
-                setStatus("❌ Processing Error: " + err.message, "#ff6b6b");
+                setStatus("Error: " + err.message, "#ff6b6b");
             }
         }, 100);
     }
 
     // =========================================================================
-    // ADVANCED PICK LIST GENERATOR (PREVIEW & PRINT FIXED)
+    // ADVANCED PICK LIST GENERATOR (AAPKA EXACT ORIGINAL CODE AND LOGIC)
     // =========================================================================
     function processPickList(actionType = 'download') {
-        if (!rawSheetRows || rawSheetRows.length === 0) return;
-        setStatus("Generating Pick List PDF...", "#38bdf8");
+        if (rawJsonDataPick.length === 0) return;
+
+        setStatus(actionType === 'print' ? "Preparing Print View..." : "PDF Generate Ho Raha Hai...", "#5bc0be");
 
         setTimeout(() => {
             try {
@@ -476,78 +461,207 @@
                 let viewMode = document.getElementById('viewModeSelect').value;
                 let binSort = document.getElementById('binSortSelect').value;
 
-                let parsedRows = [];
-                for (let i = 1; i < rawSheetRows.length; i++) {
-                    let r = rawSheetRows[i];
-                    if (r && r.length > 3) {
-                        parsedRows.push({
-                            picklistNo: String(r[0] || 'PL-001'),
-                            department: String(r[1] || 'GENERAL'),
-                            item: String(r[2] || ''),
-                            color: String(r[5] || ''),
-                            barcode: String(r[6] || ''),
-                            binNo: String(r[10] || 'BIN-01'),
-                            qty: parseInt(r[7]) || 1
-                        });
-                    }
+                // 1. FILTER BY PICK LIST NO
+                let filteredData = rawJsonDataPick.filter(row => {
+                    if (selectedPL === "ALL") return true;
+                    let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+                    return String(val).trim() === selectedPL;
+                });
+
+                if (filteredData.length === 0) {
+                    setStatus("Selected Pick List ka koi data nahi mila!", "#ff6b6b");
+                    return;
                 }
 
+                // SORTING FUNCTION FOR BIN NO
                 const sortRows = (rows) => {
                     return rows.sort((a, b) => {
                         let binA = String(a.binNo).toUpperCase();
                         let binB = String(b.binNo).toUpperCase();
-                        return binSort === "ASC"
-                            ? binA.localeCompare(binB, undefined, { numeric: true, sensitivity: 'base' })
-                            : binB.localeCompare(binA, undefined, { numeric: true, sensitivity: 'base' });
+                        if (binSort === "ASC") {
+                            return binA.localeCompare(binB, undefined, { numeric: true, sensitivity: 'base' });
+                        } else {
+                            return binB.localeCompare(binA, undefined, { numeric: true, sensitivity: 'base' });
+                        }
                     });
                 };
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
 
+                // Table Styling with Solid Borders
                 const tableConfig = {
                     theme: 'grid',
-                    margin: { top: 22 },
-                    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] },
-                    bodyStyles: { textColor: [0, 0, 0], fontSize: 8, cellPadding: 2.5, halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] },
-                    footStyles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 9, halign: 'center', lineWidth: 0.3, lineColor: [0, 0, 0] }
+                    margin: { top: 25 },
+                    headStyles: { 
+                        fillColor: [11, 19, 43], 
+                        textColor: [255, 255, 255], 
+                        fontStyle: 'bold', 
+                        halign: 'center',
+                        lineWidth: 0.3,
+                        lineColor: [0, 0, 0]
+                    },
+                    bodyStyles: { 
+                        textColor: [0, 0, 0], 
+                        fontSize: 8, 
+                        cellPadding: 2.5, 
+                        halign: 'center',
+                        lineWidth: 0.3,
+                        lineColor: [0, 0, 0]
+                    },
+                    footStyles: {
+                        fillColor: [226, 232, 240],
+                        textColor: [0, 0, 0],
+                        fontStyle: 'bold',
+                        fontSize: 9,
+                        halign: 'center',
+                        lineWidth: 0.3,
+                        lineColor: [0, 0, 0]
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 35, fontStyle: 'bold' },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 25 },
+                        3: { cellWidth: 20 },
+                        4: { cellWidth: 30 },
+                        5: { cellWidth: 35, fontStyle: 'bold' },
+                        6: { cellWidth: 15, fontStyle: 'bold' }
+                    }
                 };
 
-                let headers = [["PICK LIST NO", "DEPARTMENT", "ITEM", "COLOR", "BARCODE", "BIN NO", "PICK LIST QTY"]];
-                let sorted = sortRows(parsedRows);
-                let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
-                let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
+                const renderCleanHeader = (mainTitle, subTitle) => {
+                    doc.setFontSize(13);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(mainTitle, 14, 12);
 
-                doc.setFontSize(13);
-                doc.setFont("helvetica", "bold");
-                doc.text(`PICK LIST REPORT`, 14, 12);
+                    doc.setFontSize(9);
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(60, 60, 60);
+                    doc.text(subTitle, 14, 17);
+                };
 
-                doc.autoTable({
-                    ...tableConfig,
-                    head: headers,
-                    body: body,
-                    foot: [["TOTAL", "", "", "", "", "", totalQty]]
-                });
+                // 2. GENERATE DATA ACCORDING TO VIEW MODE
+                if (viewMode === "ITEM" || viewMode === "BARCODE") {
+                    let groups = new Map();
+                    filteredData.forEach(row => {
+                        let itemKey = (viewMode === "ITEM") ? (row["ITEM"] || "UNKNOWN_ITEM") : (row["BARCODE"] || "UNKNOWN_BARCODE");
+                        if (!groups.has(itemKey)) {
+                            groups.set(itemKey, []);
+                        }
+                        groups.get(itemKey).push({
+                            pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
+                            department: row["DEPARTMENT"] || "",
+                            item: row["ITEM"] || "",
+                            color: row["COLOR"] || "",
+                            barcode: row["BARCODE"] || "",
+                            binNo: row["BIN NO"] || row["BIN_NO"] || "",
+                            qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
+                        });
+                    });
 
+                    let groupKeys = Array.from(groups.keys());
+
+                    groupKeys.forEach((key, index) => {
+                        if (index > 0) doc.addPage();
+
+                        let itemRows = sortRows(groups.get(key));
+                        let groupTotalQty = itemRows.reduce((sum, r) => sum + r.qty, 0);
+
+                        renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `${viewMode}: ${key} | Sort: BIN NO ${binSort}`);
+
+                        let tableBody = itemRows.map(r => [
+                            r.pickListNo,
+                            r.department,
+                            r.item,
+                            r.color,
+                            r.barcode,
+                            r.binNo,
+                            r.qty
+                        ]);
+
+                        let tableFoot = [
+                            ['TOTAL SUMMARY', '', '', '', `Lines: ${itemRows.length}`, 'TOTAL QTY:', groupTotalQty]
+                        ];
+
+                        doc.autoTable({
+                            startY: 22,
+                            head: [['PICK LIST NO', 'DEPARTMENT', 'ITEM', 'COLOR', 'BARCODE', 'BIN NO', 'QTY']],
+                            body: tableBody,
+                            foot: tableFoot,
+                            ...tableConfig,
+                            didDrawPage: function() {
+                                renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `${viewMode}: ${key} | Sort: BIN NO ${binSort}`);
+                            }
+                        });
+                    });
+
+                } else {
+                    // MIX / CONTINUOUS MODE
+                    let processedRows = filteredData.map(row => ({
+                        pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
+                        department: row["DEPARTMENT"] || "",
+                        item: row["ITEM"] || "",
+                        color: row["COLOR"] || "",
+                        barcode: row["BARCODE"] || "",
+                        binNo: row["BIN NO"] || row["BIN_NO"] || "",
+                        qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
+                    }));
+
+                    processedRows = sortRows(processedRows);
+                    let grandTotalQty = processedRows.reduce((sum, r) => sum + r.qty, 0);
+
+                    renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `Mode: As Is / Mix | Sort: BIN NO ${binSort}`);
+
+                    let tableBody = processedRows.map(r => [
+                        r.pickListNo,
+                        r.department,
+                        r.item,
+                        r.color,
+                        r.barcode,
+                        r.binNo,
+                        r.qty
+                    ]);
+
+                    let tableFoot = [
+                        ['TOTAL SUMMARY', '', '', '', `Total Items: ${processedRows.length}`, 'TOTAL QTY:', grandTotalQty]
+                    ];
+
+                    doc.autoTable({
+                        startY: 22,
+                        head: [['PICK LIST NO', 'DEPARTMENT', 'ITEM', 'COLOR', 'BARCODE', 'BIN NO', 'QTY']],
+                        body: tableBody,
+                        foot: tableFoot,
+                        ...tableConfig,
+                        didDrawPage: function() {
+                            renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `Mode: As Is / Mix | Sort: BIN NO ${binSort}`);
+                        }
+                    });
+                }
+
+                // Output Routing
                 let pdfDataUrl = doc.output('bloburl');
 
                 if (actionType === 'preview') {
                     document.getElementById('previewContainer').style.display = 'block';
                     document.getElementById('pdfFrame').src = pdfDataUrl;
-                    setStatus("✅ Pick List Preview Loaded!", "#38bdf8");
+                    setStatus("✓ Pick List Preview Loaded!", "#6fffe9");
                 } else if (actionType === 'print') {
                     doc.autoPrint();
                     window.open(pdfDataUrl, '_blank');
-                    setStatus("✅ Print Opened!", "#38bdf8");
+                    setStatus("✓ Print Window Opened!", "#6fffe9");
                 } else {
-                    doc.save(`PICKLIST_REPORT.pdf`);
-                    setStatus("✅ Pick List PDF Downloaded!", "#38bdf8");
+                    doc.save(`PickList_${selectedPL}_${viewMode}_${Date.now()}.pdf`);
+                    setStatus("✓ PDF with Summary Downloaded!", "#6fffe9");
                 }
+
             } catch (err) {
-                setStatus("❌ Picklist Error: " + err.message, "#ff6b6b");
+                console.error(err);
+                setStatus("Error: PDF process nahi ho paayi.", "#ff6b6b");
             }
         }, 100);
     }
 </script>
+
 </body>
 </html>
