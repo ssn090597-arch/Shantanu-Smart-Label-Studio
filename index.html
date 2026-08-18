@@ -393,10 +393,10 @@
                                     <div class="upload-text-sub">Drag & drop your Excel file here or click to browse</div>
                                 </div>
                             </div>
-                            <span class="file-badge">XLSX</span>
+                            <span class="file-badge">XLSX / XLS</span>
                         </div>
                     </label>
-                    <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFileLabel(this)">
+                    <input type="file" id="excelFileLabel" accept=".xlsx, .xls, .csv" onchange="handleFileLabel(this)">
                 </div>
 
                 <div class="form-group">
@@ -456,14 +456,14 @@
                                     <div class="upload-text-sub">Upload pick list sheet to start</div>
                                 </div>
                             </div>
-                            <span class="file-badge">XLSX</span>
+                            <span class="file-badge">XLSX / XLS</span>
                         </div>
                     </label>
-                    <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFilePick(this)">
+                    <input type="file" id="excelFilePick" accept=".xlsx, .xls, .csv" onchange="handleFilePick(this)">
                 </div>
 
                 <div class="form-group">
-                    <label for="picklistSelect" class="group-label">PICK LIST NO SELECT KAREIN:</label>
+                    <label for="picklistSelect" class="group-label">SELECT PICK LIST NO:</label>
                     <select id="picklistSelect" disabled>
                         <option value="ALL">-- ALL PICK LISTS --</option>
                     </select>
@@ -576,10 +576,20 @@
         }
     }
 
+    function findValueByKeys(row, keys) {
+        for (let k of Object.keys(row)) {
+            let cleanK = k.toString().trim().toUpperCase();
+            if (keys.some(target => cleanK === target || cleanK.includes(target))) {
+                return row[k];
+            }
+        }
+        return "";
+    }
+
     function populatePicklistDropdown(data) {
         let picklistSet = new Set();
         data.forEach(row => {
-            let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+            let val = findValueByKeys(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST", "PL_NO"]);
             if (val) picklistSet.add(String(val).trim());
         });
 
@@ -614,7 +624,7 @@
                 let headerRowIndex = -1;
                 for (let r = 0; r < Math.min(10, rawSheetRowsLabel.length); r++) {
                     let rowStr = rawSheetRowsLabel[r].join(" ").toLowerCase();
-                    if (rowStr.includes("merchant sku") || rowStr.includes("challan")) {
+                    if (rowStr.includes("sku") || rowStr.includes("challan") || rowStr.includes("item") || rowStr.includes("barcode")) {
                         headerRowIndex = r;
                         break;
                     }
@@ -627,17 +637,17 @@
 
                 let headers = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim().toLowerCase());
                 let colIdx = {
-                    sku: headers.findIndex(h => h.includes("sku")),
-                    challan: headers.findIndex(h => h.includes("challan")),
+                    sku: headers.findIndex(h => h.includes("sku") || h.includes("merchant")),
+                    challan: headers.findIndex(h => h.includes("challan") || h.includes("ch_no")),
                     size: headers.findIndex(h => h.includes("size")),
-                    itemCode: headers.findIndex(h => h.includes("item code")),
-                    itemName: headers.findIndex(h => h.includes("name")),
-                    color: headers.findIndex(h => h.includes("color")),
-                    ean: headers.findIndex(h => h.includes("ean")),
-                    qty: headers.findIndex(h => h.includes("qty")),
-                    rtae: headers.findIndex(h => h.includes("rtae") || h.includes("rate")),
+                    itemCode: headers.findIndex(h => h.includes("item code") || h.includes("itemcode") || h.includes("style")),
+                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title")),
+                    color: headers.findIndex(h => h.includes("color") || h.includes("colour")),
+                    ean: headers.findIndex(h => h.includes("ean") || h.includes("barcode")),
+                    qty: headers.findIndex(h => h.includes("qty") || h.includes("quantity")),
+                    rtae: headers.findIndex(h => h.includes("rtae") || h.includes("rate") || h.includes("price")),
                     mrp: headers.findIndex(h => h.includes("mrp")),
-                    boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box")),
+                    boxCount: headers.findIndex(h => h.includes("box") || h.includes("carton")),
                     invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv"))
                 };
 
@@ -662,7 +672,7 @@
                     let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
                     let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
 
-                    if (!sku && !itemCode) continue;
+                    if (!sku && !itemCode && !ean) continue;
 
                     if (!boxesMap.has(boxNo)) {
                         boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: poVal, challanNo: challan, invNo, items: [] });
@@ -848,7 +858,7 @@
 
                 let filteredData = rawJsonDataPick.filter(row => {
                     if (selectedPL === "ALL") return true;
-                    let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+                    let val = findValueByKeys(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST", "PL_NO"]);
                     return String(val).trim() === selectedPL;
                 });
 
@@ -924,13 +934,13 @@
                 };
 
                 let processedRows = filteredData.map(row => ({
-                    pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
-                    department: row["DEPARTMENT"] || "",
-                    item: row["ITEM"] || "",
-                    color: row["COLOR"] || "",
-                    barcode: row["BARCODE"] || "",
-                    binNo: row["BIN NO"] || row["BIN_NO"] || "",
-                    qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
+                    pickListNo: findValueByKeys(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST", "PL_NO"]),
+                    department: findValueByKeys(row, ["DEPARTMENT", "DEPT", "CAT"]),
+                    item: findValueByKeys(row, ["ITEM", "ITEM_NAME", "NAME", "SKU"]),
+                    color: findValueByKeys(row, ["COLOR", "COLOUR"]),
+                    barcode: findValueByKeys(row, ["BARCODE", "EAN", "UPC"]),
+                    binNo: findValueByKeys(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
+                    qty: parseFloat(findValueByKeys(row, ["PICK LIST QTY.", "PICK LIST QTY", "QTY", "QUANTITY"]) || 0)
                 }));
 
                 let sortedRows = sortRows(processedRows);
@@ -955,12 +965,12 @@
                         let groupTotalQty = itemRows.reduce((sum, r) => sum + r.qty, 0);
 
                         let tableBody = itemRows.map(r => [
-                            r.pickListNo,
-                            r.department,
-                            r.item,
-                            r.color,
-                            r.barcode,
-                            r.binNo,
+                            r.pickListNo || "-",
+                            r.department || "-",
+                            r.item || "-",
+                            r.color || "-",
+                            r.barcode || "-",
+                            r.binNo || "-",
                             r.qty
                         ]);
 
@@ -981,12 +991,12 @@
                     });
                 } else {
                     let tableBody = sortedRows.map(r => [
-                        r.pickListNo,
-                        r.department,
-                        r.item,
-                        r.color,
-                        r.barcode,
-                        r.binNo,
+                        r.pickListNo || "-",
+                        r.department || "-",
+                        r.item || "-",
+                        r.color || "-",
+                        r.barcode || "-",
+                        r.binNo || "-",
                         r.qty
                     ]);
 
@@ -1023,7 +1033,7 @@
 
             } catch (err) {
                 console.error(err);
-                setStatus("Error: PDF process nahi ho paayi.", "#d90429");
+                setStatus("Error: Failed to process PDF.", "#d90429");
             }
         }, 100);
     }
