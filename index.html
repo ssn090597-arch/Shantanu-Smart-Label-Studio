@@ -10,53 +10,300 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
-    
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0b132b; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .card { background: #1c2541; border-radius: 16px; padding: 25px 30px; width: 100%; max-width: 750px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); border: 1px solid #3a506b; text-align: center; }
-        
-        /* Navigation Switcher */
-        .tool-switcher { display: flex; background: #0b1120; border-radius: 10px; padding: 6px; border: 1px solid #233248; margin-bottom: 20px; gap: 8px; }
-        .switch-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
-        .switch-btn.active { background: #2563eb; color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
-        
-        .logo-container { width: 70px; height: 70px; margin: 0 auto 10px; border-radius: 50%; background: #000; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-        .logo-container svg { width: 45px; height: 45px; }
-        
-        h2 { color: #6fffe9; margin: 0 0 6px 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        p.subtitle { color: #5bc0be; font-size: 13px; margin-bottom: 18px; }
-        
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-size: 11px; font-weight: 800; color: #cbd5e1; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-        select { width: 100%; padding: 10px; background: #0b132b; border: 1px solid #3a506b; border-radius: 8px; color: #ffffff; font-size: 13px; font-weight: 600; outline: none; transition: 0.2s; }
-        select:focus { border-color: #5bc0be; }
-        
-        .custom-file-upload { display: block; padding: 12px; background: #0b132b; color: #ffffff; border-radius: 8px; cursor: pointer; border: 1px dashed #5bc0be; font-weight: 700; font-size: 13px; transition: 0.2s; text-align: center; }
-        .custom-file-upload:hover { background: #5bc0be; color: #0b132b; border-style: solid; }
-        input[type="file"] { display: none; }
-        
-        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .radio-option { flex: 1 1 45%; background: #0b132b; border: 1px solid #3a506b; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; font-weight: 600; color: #cbd5e1; }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-action, .btn-print, .btn-preview { flex: 1; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        .btn-preview { background: #334155; color: #f8fafc; border-color: #64748b; }
-        .btn-preview:hover:not(:disabled) { background: #475569; }
+        body { 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #0f172a 70%, #1e293b 100%);
+            color: #f8fafc; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 30px 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Decorative Background Elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card { 
+            position: relative;
+            z-index: 1;
+            background: rgba(30, 41, 59, 0.75); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px; 
+            padding: 35px 40px; 
+            width: 100%; 
+            max-width: 800px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1); 
+            text-align: center; 
+            transition: transform 0.3s ease;
+        }
+
+        /* Navigation Switcher */
+        .tool-switcher { 
+            display: flex; 
+            background: rgba(15, 23, 42, 0.8); 
+            border-radius: 14px; 
+            padding: 6px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            margin-bottom: 28px; 
+            gap: 8px; 
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .switch-btn { 
+            flex: 1; 
+            padding: 14px 18px; 
+            border: none; 
+            background: transparent; 
+            color: #94a3b8; 
+            font-weight: 700; 
+            font-size: 13.5px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .switch-btn:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .switch-btn.active { 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+            color: #ffffff; 
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5); 
+        }
+
+        /* Image Logo Container */
+        .logo-container { 
+            width: 85px; 
+            height: 85px; 
+            margin: 0 auto 16px; 
+            border-radius: 50%; 
+            background: rgba(15, 23, 42, 0.9); 
+            border: 2px solid #38bdf8; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35), 0 0 40px rgba(99, 102, 241, 0.2); 
+            transition: transform 0.3s ease;
+        }
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        .logo-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block;
+        }
+
+        h2 { 
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 6px 0; 
+            font-size: 24px; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            letter-spacing: -0.5px;
+        }
+        p.subtitle { 
+            color: #94a3b8; 
+            font-size: 13.5px; 
+            margin-bottom: 24px; 
+            font-weight: 500;
+        }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label.group-label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 800; 
+            color: #cbd5e1; 
+            margin-bottom: 8px; 
+            letter-spacing: 0.8px; 
+            text-transform: uppercase; 
+        }
         
-        .btn-action { background: #3a506b; color: #6fffe9; border-color: #6fffe9; }
-        .btn-action:hover:not(:disabled) { background: #6fffe9; color: #0b132b; }
-        
-        .btn-print { background: #5bc0be; color: #0b132b; border-color: #5bc0be; }
-        .btn-print:hover:not(:disabled) { background: #3a506b; color: #ffffff; }
-        
-        .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { background: #1c2541; color: #475569; border-color: #334155; cursor: not-allowed; opacity: 0.6; }
-        
-        #status { margin-top: 15px; font-size: 13px; font-weight: 700; }
-        
-        #previewContainer { display: none; margin-top: 20px; border: 1px solid #3a506b; border-radius: 8px; overflow: hidden; background: #0b132b; }
-        #previewContainer iframe { width: 100%; height: 450px; border: none; }
+        select { 
+            width: 100%; 
+            padding: 12px 14px; 
+            background: rgba(15, 23, 42, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            border-radius: 10px; 
+            color: #f1f5f9; 
+            font-size: 13.5px; 
+            font-weight: 600; 
+            outline: none; 
+            transition: all 0.2s ease; 
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        select:focus { 
+            border-color: #38bdf8; 
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .custom-file-upload { 
+            display: block; 
+            padding: 16px; 
+            background: rgba(15, 23, 42, 0.6); 
+            color: #38bdf8; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            border: 2px dashed rgba(56, 189, 248, 0.4); 
+            font-weight: 700; 
+            font-size: 13.5px; 
+            transition: all 0.3s ease; 
+            text-align: center; 
+        }
+        .custom-file-upload:hover { 
+            background: rgba(56, 189, 248, 0.1); 
+            border-color: #38bdf8; 
+            color: #7dd3fc;
+            transform: translateY(-1px);
+        }
+        input[type="file"] { display: none; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .radio-option { 
+            flex: 1 1 45%; 
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 10px 14px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: #cbd5e1; 
+            transition: all 0.2s ease;
+        }
+        .radio-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .radio-option input[type="radio"] {
+            accent-color: #38bdf8;
+        }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 22px; }
+        .btn-action, .btn-print, .btn-preview { 
+            flex: 1; 
+            padding: 13px 16px; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            border: 1px solid transparent; 
+        }
+
+        .btn-preview { 
+            background: rgba(51, 65, 85, 0.8); 
+            color: #f8fafc; 
+            border-color: rgba(255, 255, 255, 0.1); 
+        }
+        .btn-preview:hover:not(:disabled) { 
+            background: #475569; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-action { 
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); 
+            color: #ffffff; 
+            border-color: rgba(56, 189, 248, 0.3); 
+        }
+        .btn-action:hover:not(:disabled) { 
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+        }
+
+        .btn-print { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            color: #ffffff; 
+            border-color: rgba(52, 211, 153, 0.3); 
+        }
+        .btn-print:hover:not(:disabled) { 
+            background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { 
+            background: rgba(30, 41, 59, 0.5); 
+            color: #475569; 
+            border-color: rgba(255, 255, 255, 0.05); 
+            cursor: not-allowed; 
+            opacity: 0.5; 
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        #status { 
+            margin-top: 18px; 
+            font-size: 13.5px; 
+            font-weight: 700; 
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #previewContainer { 
+            display: none; 
+            margin-top: 24px; 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            background: #0f172a; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        #previewContainer iframe { width: 100%; height: 480px; border: none; }
 
         .tool-section { display: none; }
         .tool-section.active { display: block; }
@@ -65,19 +312,14 @@
 <body>
 
 <div class="card">
-    <!-- Top Switcher -->
     <div class="tool-switcher">
         <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
         <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
     </div>
 
-    <!-- DELHIVERY Logo Header -->
+    <!-- Replaced Logo Container with standard <img> tag linking to logo (2).png -->
     <div class="logo-container">
-        <svg viewBox="0 0 100 100" fill="none">
-            <circle cx="50" cy="50" r="45" stroke="#ff3366" stroke-width="4"/>
-            <path d="M30 65 C 30 35, 70 35, 70 65 C 70 45, 30 45, 30 65" stroke="#ffffff" stroke-width="6" fill="none"/>
-            <text x="50" y="82" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">DELHIVERY</text>
-        </svg>
+        <img src="logo (2).png" alt="Delhivery Logo">
     </div>
 
     <!-- TOOL 1: SMART BOX LABEL STUDIO -->
@@ -93,7 +335,7 @@
         </div>
 
         <div class="form-group">
-            <label>PRINT ORIENTATION / STICKER SIZE:</label>
+            <label class="group-label">PRINT ORIENTATION / STICKER SIZE:</label>
             <div class="radio-group">
                 <label class="radio-option"><input type="radio" name="pageOrientation" value="p"> PORTRAIT (4" X 6")</label>
                 <label class="radio-option"><input type="radio" name="pageOrientation" value="l"> LANDSCAPE (6" X 4")</label>
@@ -122,14 +364,14 @@
         </div>
 
         <div class="form-group">
-            <label for="picklistSelect">PICK LIST NO SELECT KAREIN:</label>
+            <label for="picklistSelect" class="group-label">PICK LIST NO SELECT KAREIN:</label>
             <select id="picklistSelect" disabled>
                 <option value="ALL">-- ALL PICK LISTS --</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="viewModeSelect">PICKING VIEW TYPE (PAGE BREAK MODE):</label>
+            <label for="viewModeSelect" class="group-label">PICKING VIEW TYPE (PAGE BREAK MODE):</label>
             <select id="viewModeSelect">
                 <option value="ITEM">ITEM Wise (Each Item on Separate Page)</option>
                 <option value="BARCODE">BARCODE Wise (Each Barcode on Separate Page)</option>
@@ -138,7 +380,7 @@
         </div>
 
         <div class="form-group">
-            <label for="binSortSelect">BIN NO SORTING ORDER:</label>
+            <label for="binSortSelect" class="group-label">BIN NO SORTING ORDER:</label>
             <select id="binSortSelect">
                 <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
                 <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
@@ -154,7 +396,6 @@
 
     <div id="status"></div>
 
-    <!-- PDF Live Preview Window -->
     <div id="previewContainer">
         <iframe id="pdfFrame"></iframe>
     </div>
@@ -176,13 +417,12 @@
         document.getElementById('previewContainer').style.display = 'none';
     }
 
-    function setStatus(msg, color = '#6fffe9') {
+    function setStatus(msg, color = '#38bdf8') {
         let st = document.getElementById('status');
         st.style.color = color;
         st.innerText = msg;
     }
 
-    // Label File Handler
     function handleFileLabel(input) {
         if (input.files.length > 0) {
             let file = input.files[0];
@@ -199,16 +439,15 @@
                     document.getElementById('prevLabelBtn').disabled = false;
                     document.getElementById('genLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
-                    setStatus("Box Label Excel loaded successfully!", "#6fffe9");
+                    setStatus("Box Label Excel loaded successfully!", "#38bdf8");
                 } catch (err) {
-                    setStatus("Error reading Excel: " + err.message, "#ff6b6b");
+                    setStatus("Error reading Excel: " + err.message, "#f87171");
                 }
             };
             reader.readAsArrayBuffer(file);
         }
     }
 
-    // Pick List File Handler
     function handleFilePick(input) {
         if (input.files.length > 0) {
             let file = input.files[0];
@@ -227,9 +466,9 @@
                     document.getElementById('prevPickBtn').disabled = false;
                     document.getElementById('genPickBtn').disabled = false;
                     document.getElementById('printPickBtn').disabled = false;
-                    setStatus("Pick List Excel loaded successfully!", "#6fffe9");
+                    setStatus("Pick List Excel loaded successfully!", "#38bdf8");
                 } catch (err) {
-                    setStatus("Error reading Excel: " + err.message, "#ff6b6b");
+                    setStatus("Error reading Excel: " + err.message, "#f87171");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -253,12 +492,9 @@
         });
     }
 
-    // =========================================================================
-    // SMART BOX LABEL STUDIO LOGIC
-    // =========================================================================
     function processBoxLabels(actionType = 'download') {
         if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
-        setStatus("Processing Box Data...", "#5bc0be");
+        setStatus("Processing Box Data...", "#38bdf8");
 
         setTimeout(() => {
             try {
@@ -284,7 +520,7 @@
                 }
 
                 if (headerRowIndex === -1) {
-                    setStatus("Header row not detected in Excel!", "#ff6b6b");
+                    setStatus("Header row not detected in Excel!", "#f87171");
                     return;
                 }
 
@@ -341,7 +577,7 @@
                 let totalBoxesCount = boxesArray.length;
 
                 if (totalBoxesCount === 0) {
-                    setStatus("No Box Data Found!", "#ff6b6b");
+                    setStatus("No Box Data Found!", "#f87171");
                     return;
                 }
 
@@ -356,7 +592,6 @@
                     doc = new jsPDF('p', 'mm', 'a4');
                 }
 
-                // EXACT REQUESTED RENDER LABEL BOX FUNCTION
                 function renderLabelBox(d, bData, x, y, width, height) {
                     d.setLineWidth(0.6);
                     d.setDrawColor(0, 0, 0);
@@ -381,7 +616,6 @@
                     d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY + (stepY * 2));
                     d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY + (stepY * 3));
 
-                    // Right Column - BOX NO. & BARCODE FIX
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
                     d.setFontSize(baseFontSize + 1);
                     d.text("BOX NO.", rX, y + 4.5, { align: "center" });
@@ -389,7 +623,6 @@
                     d.setFontSize(baseFontSize + 3);
                     d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 9.5, { align: "center" });
 
-                    // FIXED BARCODE GENERATION & PLACEMENT
                     try {
                         let canvas = document.getElementById('barcodeCanvas');
                         JsBarcode(canvas, String(bData.boxNo), { 
@@ -404,15 +637,14 @@
                         let bcX = x + leftColWidth + 3;
                         let bcY = y + 11;
                         let bcWidth = (width - leftColWidth) - 6;
-                        let bcHeight = headerHeight - 12; // Adjusts cleanly within border
+                        let bcHeight = headerHeight - 12;
 
                         d.addImage(imgData, 'PNG', bcX, bcY, bcWidth, bcHeight);
                     } catch (e) {
                         console.error("Barcode Generation Error:", e);
                     }
 
-                    // Table Data Render
-                    let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
+                    let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEM NAME", "COLOR", "EAN CODE", "RATE", "MRP", "QTY"]];
                     let tableBody = bData.items.map(i => [
                         i.sku || "-", i.size || "-", i.itemCode || "-", i.itemName || "-", i.color || "-", i.ean || "-", i.rtae || "-", i.mrp || "-", i.qty || 1
                     ]);
@@ -472,7 +704,7 @@
                     }
 
                     currentIndex = end;
-                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#5bc0be");
+                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#38bdf8");
 
                     if (currentIndex < boxesArray.length) {
                         setTimeout(renderNextBatch, 10);
@@ -481,32 +713,29 @@
                         if (actionType === 'preview') {
                             document.getElementById('previewContainer').style.display = 'block';
                             document.getElementById('pdfFrame').src = pdfDataUrl;
-                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#6fffe9");
+                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#38bdf8");
                         } else if (actionType === 'print') {
                             doc.autoPrint();
                             window.open(pdfDataUrl, '_blank');
-                            setStatus("✓ Print Window Opened!", "#6fffe9");
+                            setStatus("✓ Print Window Opened!", "#38bdf8");
                         } else {
                             doc.save(`Box_Labels_${selectedOrientation.toUpperCase()}_${totalBoxesCount}_Boxes.pdf`);
-                            setStatus("✓ Labels PDF Downloaded!", "#6fffe9");
+                            setStatus("✓ Labels PDF Downloaded!", "#38bdf8");
                         }
                     }
                 }
                 renderNextBatch();
 
             } catch (err) {
-                setStatus("Error: " + err.message, "#ff6b6b");
+                setStatus("Error: " + err.message, "#f87171");
             }
         }, 100);
     }
 
-    // =========================================================================
-    // ADVANCED PICK LIST GENERATOR
-    // =========================================================================
     function processPickList(actionType = 'download') {
         if (rawJsonDataPick.length === 0) return;
 
-        setStatus(actionType === 'print' ? "Preparing Print View..." : "PDF Generate Ho Raha Hai...", "#5bc0be");
+        setStatus(actionType === 'print' ? "Preparing Print View..." : "PDF Generating...", "#38bdf8");
 
         setTimeout(() => {
             try {
@@ -521,7 +750,7 @@
                 });
 
                 if (filteredData.length === 0) {
-                    setStatus("Selected Pick List ka koi data nahi mila!", "#ff6b6b");
+                    setStatus("No data found for selected Pick List!", "#f87171");
                     return;
                 }
 
@@ -542,9 +771,9 @@
 
                 const tableConfig = {
                     theme: 'grid',
-                    margin: { top: 25 },
+                    margin: { top: 25, left: 14, right: 14 },
                     headStyles: { 
-                        fillColor: [11, 19, 43], 
+                        fillColor: [15, 23, 42], 
                         textColor: [255, 255, 255], 
                         fontStyle: 'bold', 
                         halign: 'center',
@@ -569,12 +798,12 @@
                         lineColor: [0, 0, 0]
                     },
                     columnStyles: {
-                        0: { cellWidth: 35, fontStyle: 'bold' },
+                        0: { cellWidth: 30, fontStyle: 'bold' },
                         1: { cellWidth: 25 },
-                        2: { cellWidth: 25 },
+                        2: { cellWidth: 30 },
                         3: { cellWidth: 20 },
                         4: { cellWidth: 30 },
-                        5: { cellWidth: 35, fontStyle: 'bold' },
+                        5: { cellWidth: 32, fontStyle: 'bold' },
                         6: { cellWidth: 15, fontStyle: 'bold' }
                     }
                 };
@@ -591,22 +820,27 @@
                     doc.text(subTitle, 14, 17);
                 };
 
+                let processedRows = filteredData.map(row => ({
+                    pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
+                    department: row["DEPARTMENT"] || "",
+                    item: row["ITEM"] || "",
+                    color: row["COLOR"] || "",
+                    barcode: row["BARCODE"] || "",
+                    binNo: row["BIN NO"] || row["BIN_NO"] || "",
+                    qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
+                }));
+
+                let sortedRows = sortRows(processedRows);
+                let grandTotalQty = sortedRows.reduce((sum, r) => sum + r.qty, 0);
+
                 if (viewMode === "ITEM" || viewMode === "BARCODE") {
                     let groups = new Map();
-                    filteredData.forEach(row => {
-                        let itemKey = (viewMode === "ITEM") ? (row["ITEM"] || "UNKNOWN_ITEM") : (row["BARCODE"] || "UNKNOWN_BARCODE");
+                    sortedRows.forEach(row => {
+                        let itemKey = (viewMode === "ITEM") ? (row.item || "UNKNOWN_ITEM") : (row.barcode || "UNKNOWN_BARCODE");
                         if (!groups.has(itemKey)) {
                             groups.set(itemKey, []);
                         }
-                        groups.get(itemKey).push({
-                            pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
-                            department: row["DEPARTMENT"] || "",
-                            item: row["ITEM"] || "",
-                            color: row["COLOR"] || "",
-                            barcode: row["BARCODE"] || "",
-                            binNo: row["BIN NO"] || row["BIN_NO"] || "",
-                            qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
-                        });
+                        groups.get(itemKey).push(row);
                     });
 
                     let groupKeys = Array.from(groups.keys());
@@ -614,10 +848,8 @@
                     groupKeys.forEach((key, index) => {
                         if (index > 0) doc.addPage();
 
-                        let itemRows = sortRows(groups.get(key));
+                        let itemRows = groups.get(key);
                         let groupTotalQty = itemRows.reduce((sum, r) => sum + r.qty, 0);
-
-                        renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `${viewMode}: ${key} | Sort: BIN NO ${binSort}`);
 
                         let tableBody = itemRows.map(r => [
                             r.pickListNo,
@@ -630,7 +862,7 @@
                         ]);
 
                         let tableFoot = [
-                            ['TOTAL SUMMARY', '', '', '', `Lines: ${itemRows.length}`, 'TOTAL QTY:', groupTotalQty]
+                            ['SUMMARY', '', '', '', `Items: ${itemRows.length}`, 'TOTAL QTY:', groupTotalQty]
                         ];
 
                         doc.autoTable({
@@ -644,24 +876,8 @@
                             }
                         });
                     });
-
                 } else {
-                    let processedRows = filteredData.map(row => ({
-                        pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
-                        department: row["DEPARTMENT"] || "",
-                        item: row["ITEM"] || "",
-                        color: row["COLOR"] || "",
-                        barcode: row["BARCODE"] || "",
-                        binNo: row["BIN NO"] || row["BIN_NO"] || "",
-                        qty: parseFloat(row["PICK LIST QTY."] || row["PICK LIST QTY"] || row["QTY"] || 0)
-                    }));
-
-                    processedRows = sortRows(processedRows);
-                    let grandTotalQty = processedRows.reduce((sum, r) => sum + r.qty, 0);
-
-                    renderCleanHeader(`PICK LIST REPORT (${selectedPL})`, `Mode: As Is / Mix | Sort: BIN NO ${binSort}`);
-
-                    let tableBody = processedRows.map(r => [
+                    let tableBody = sortedRows.map(r => [
                         r.pickListNo,
                         r.department,
                         r.item,
@@ -692,19 +908,19 @@
                 if (actionType === 'preview') {
                     document.getElementById('previewContainer').style.display = 'block';
                     document.getElementById('pdfFrame').src = pdfDataUrl;
-                    setStatus("✓ Pick List Preview Loaded!", "#6fffe9");
+                    setStatus("✓ Pick List Preview Loaded!", "#38bdf8");
                 } else if (actionType === 'print') {
                     doc.autoPrint();
                     window.open(pdfDataUrl, '_blank');
-                    setStatus("✓ Print Window Opened!", "#6fffe9");
+                    setStatus("✓ Print Window Opened!", "#38bdf8");
                 } else {
                     doc.save(`PickList_${selectedPL}_${viewMode}_${Date.now()}.pdf`);
-                    setStatus("✓ PDF with Summary Downloaded!", "#6fffe9");
+                    setStatus("✓ PDF with Summary Downloaded!", "#38bdf8");
                 }
 
             } catch (err) {
                 console.error(err);
-                setStatus("Error: PDF process nahi ho paayi.", "#ff6b6b");
+                setStatus("Error: PDF process nahi ho paayi.", "#f87171");
             }
         }, 100);
     }
