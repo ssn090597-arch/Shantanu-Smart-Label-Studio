@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delhivery Operations Studio</title>
-
+    <title>Smart Box Label Studio</title>
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <!-- QRCode JS Library for Smart Box Label -->
+    <!-- QRCode JS Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+    
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #0b132b; color: #ffffff; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
@@ -23,10 +22,6 @@
         h2 { color: #6fffe9; margin: 0 0 6px 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
         p.subtitle { color: #5bc0be; font-size: 13px; margin-bottom: 18px; }
         
-        .mode-toggle { display: flex; background: #0b132b; padding: 4px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #3a506b; }
-        .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #cbd5e1; font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
-        .mode-btn.active { background: #3a506b; color: #6fffe9; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; font-size: 11px; font-weight: 800; color: #cbd5e1; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
         
@@ -60,7 +55,7 @@
 <body>
 
 <div class="card">
-    <!-- Header Logo -->
+    <!-- DELHIVERY Logo Header -->
     <div class="logo-container">
         <svg viewBox="0 0 100 100" fill="none">
             <circle cx="50" cy="50" r="45" stroke="#ff3366" stroke-width="4"/>
@@ -69,33 +64,8 @@
         </svg>
     </div>
 
-    <!-- Mode Selector Tab -->
-    <div class="mode-toggle">
-        <button class="mode-btn active" id="tabPickList" onclick="switchTab('picklist')">📋 Advance Pick List Studio</button>
-        <button class="mode-btn" id="tabBoxLabel" onclick="switchTab('boxlabel')">🏷️ Smart Box Label Studio</button>
-    </div>
-
-    <!-- ================= SECTION 1: ADVANCE PICK LIST STUDIO (UNCHANGED) ================= -->
-    <div id="toolPickListSection">
-        <h2>📋 Advance Pick List Studio</h2>
-        <p class="subtitle">Upload Excel & Generate Consolidated Picking List PDF</p>
-
-        <div class="form-group">
-            <label for="excelFilePick" class="custom-file-upload" id="filePickText">
-                📄 SELECT PICK LIST EXCEL FILE
-            </label>
-            <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFilePickList(this)">
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-preview" id="prevPickBtn" disabled onclick="processPickList('preview')">👁️ Preview PDF</button>
-            <button class="btn-action" id="genPickBtn" disabled onclick="processPickList('download')">📥 Download Pick List PDF</button>
-            <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Print Direct</button>
-        </div>
-    </div>
-
-    <!-- ================= SECTION 2: SMART BOX LABEL STUDIO (UPDATED WITH QR CODE) ================= -->
-    <div id="toolLabelSection" style="display: none;">
+    <!-- SMART BOX LABEL STUDIO -->
+    <div id="toolLabelSection">
         <h2>🏷️ Smart Box Label Studio</h2>
         <p class="subtitle">Upload Excel & Generate Outer Box Labels with QR Code</p>
 
@@ -131,11 +101,10 @@
     </div>
 </div>
 
-<!-- Hidden QR Code Generator Container -->
+<!-- Hidden QR Container -->
 <div id="qrcode" style="display:none;"></div>
 
 <script>
-    let rawSheetRowsPick = [];
     let rawSheetRowsLabel = [];
 
     function setStatus(msg, color = '#6fffe9') {
@@ -144,170 +113,7 @@
         st.innerText = msg;
     }
 
-    // Switch Tabs
-    function switchTab(mode) {
-        document.getElementById('previewContainer').style.display = 'none';
-        setStatus('');
-        if (mode === 'picklist') {
-            document.getElementById('tabPickList').classList.add('active');
-            document.getElementById('tabBoxLabel').classList.remove('active');
-            document.getElementById('toolPickListSection').style.display = 'block';
-            document.getElementById('toolLabelSection').style.display = 'none';
-        } else {
-            document.getElementById('tabBoxLabel').classList.add('active');
-            document.getElementById('tabPickList').classList.remove('active');
-            document.getElementById('toolLabelSection').style.display = 'block';
-            document.getElementById('toolPickListSection').style.display = 'none';
-        }
-    }
-
-    // ================= 1. PICK LIST LOGIC (UNCHANGED) =================
-    function handleFilePickList(input) {
-        if (input.files.length > 0) {
-            let file = input.files[0];
-            document.getElementById('filePickText').innerText = "✓ LOADED: " + file.name.toUpperCase();
-            
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    let data = new Uint8Array(e.target.result);
-                    let workbook = XLSX.read(data, { type: 'array' });
-                    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    rawSheetRowsPick = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-
-                    document.getElementById('prevPickBtn').disabled = false;
-                    document.getElementById('genPickBtn').disabled = false;
-                    document.getElementById('printPickBtn').disabled = false;
-                    setStatus("Pick List Excel loaded successfully!", "#6fffe9");
-                } catch (err) {
-                    setStatus("Error reading Excel: " + err.message, "#ff6b6b");
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    }
-
-    function processPickList(actionType = 'download') {
-        if (!rawSheetRowsPick || rawSheetRowsPick.length === 0) return;
-        setStatus("Processing Pick List Data...", "#5bc0be");
-
-        setTimeout(() => {
-            try {
-                let headerRowIndex = -1;
-                for (let r = 0; r < Math.min(10, rawSheetRowsPick.length); r++) {
-                    let rowStr = rawSheetRowsPick[r].join(" ").toLowerCase();
-                    if (rowStr.includes("sku") || rowStr.includes("item code")) {
-                        headerRowIndex = r;
-                        break;
-                    }
-                }
-
-                if (headerRowIndex === -1) {
-                    setStatus("Header row not found in Pick List Excel!", "#ff6b6b");
-                    return;
-                }
-
-                let headers = rawSheetRowsPick[headerRowIndex].map(h => String(h).trim().toLowerCase());
-                let colIdx = {
-                    sku: headers.findIndex(h => h.includes("sku")),
-                    size: headers.findIndex(h => h.includes("size")),
-                    itemCode: headers.findIndex(h => h.includes("item code")),
-                    itemName: headers.findIndex(h => h.includes("name")),
-                    color: headers.findIndex(h => h.includes("color")),
-                    ean: headers.findIndex(h => h.includes("ean")),
-                    qty: headers.findIndex(h => h.includes("qty"))
-                };
-
-                let aggregatedData = new Map();
-                let grandTotalQty = 0;
-
-                for (let i = headerRowIndex + 1; i < rawSheetRowsPick.length; i++) {
-                    let row = rawSheetRowsPick[i];
-                    if (!row || row.length === 0) continue;
-
-                    let sku = colIdx.sku !== -1 ? String(row[colIdx.sku] || '').trim() : "";
-                    let size = colIdx.size !== -1 ? String(row[colIdx.size] || '').trim() : "";
-                    let itemCode = colIdx.itemCode !== -1 ? String(row[colIdx.itemCode] || '').trim() : "";
-                    let itemName = colIdx.itemName !== -1 ? String(row[colIdx.itemName] || '').trim() : "";
-                    let color = colIdx.color !== -1 ? String(row[colIdx.color] || '').trim() : "";
-                    let ean = colIdx.ean !== -1 ? String(row[colIdx.ean] || '').trim() : "";
-                    let qty = colIdx.qty !== -1 ? parseInt(row[colIdx.qty]) || 1 : 1;
-
-                    if (!sku && !itemCode) continue;
-
-                    let key = sku || itemCode;
-                    if (aggregatedData.has(key)) {
-                        let existing = aggregatedData.get(key);
-                        existing.qty += qty;
-                    } else {
-                        aggregatedData.set(key, { sku, size, itemCode, itemName, color, ean, qty });
-                    }
-                    grandTotalQty += qty;
-                }
-
-                let itemsArray = Array.from(aggregatedData.values());
-                if (itemsArray.length === 0) {
-                    setStatus("No valid items found to generate Pick List!", "#ff6b6b");
-                    return;
-                }
-
-                const { jsPDF } = window.jspdf;
-                let doc = new jsPDF('p', 'mm', 'a4');
-
-                // Pick List PDF Header
-                doc.setFontSize(16);
-                doc.setFont("helvetica", "bold");
-                doc.text("CONSOLIDATED PICK LIST", 105, 15, { align: "center" });
-
-                doc.setFontSize(9);
-                doc.setFont("helvetica", "normal");
-                doc.text(`Generated Date: ${new Date().toLocaleString()}`, 105, 21, { align: "center" });
-
-                let tableHeaders = [["SR #", "MERCHANT SKU", "SIZE", "ITEM CODE", "ITEM NAME", "COLOR", "EAN CODE", "TOTAL QTY"]];
-                let tableBody = itemsArray.map((item, index) => [
-                    index + 1, item.sku || "-", item.size || "-", item.itemCode || "-", item.itemName || "-", item.color || "-", item.ean || "-", item.qty
-                ]);
-
-                // Total Row
-                tableBody.push(["", "TOTAL UNIQUE SKUs: " + itemsArray.length, "", "", "", "", "GRAND TOTAL QTY:", grandTotalQty]);
-
-                doc.autoTable({
-                    startY: 26,
-                    head: tableHeaders,
-                    body: tableBody,
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
-                    headStyles: { fillColor: [28, 37, 65], textColor: [255, 255, 255], fontStyle: 'bold' },
-                    didParseCell: function (data) {
-                        if (data.row.index === tableBody.length - 1) {
-                            data.cell.styles.fontStyle = 'bold';
-                            data.cell.styles.fillColor = [230, 230, 230];
-                        }
-                    }
-                });
-
-                let pdfDataUrl = doc.output('bloburl');
-
-                if (actionType === 'preview') {
-                    document.getElementById('previewContainer').style.display = 'block';
-                    document.getElementById('pdfFrame').src = pdfDataUrl;
-                    setStatus("✓ Pick List Preview Loaded!", "#6fffe9");
-                } else if (actionType === 'print') {
-                    doc.autoPrint();
-                    window.open(pdfDataUrl, '_blank');
-                    setStatus("✓ Print Window Opened!", "#6fffe9");
-                } else {
-                    doc.save("Consolidated_Pick_List.pdf");
-                    setStatus("✓ Pick List Downloaded!", "#6fffe9");
-                }
-
-            } catch (err) {
-                setStatus("Error generating Pick List: " + err.message, "#ff6b6b");
-            }
-        }, 100);
-    }
-
-    // ================= 2. SMART BOX LABEL LOGIC (UPDATED WITH QR CODE) =================
+    // Label File Handler
     function handleFileLabel(input) {
         if (input.files.length > 0) {
             let file = input.files[0];
@@ -333,22 +139,7 @@
         }
     }
 
-    // Helper to Generate Data URL for QR Code Synchronously
-    function getQRCodeDataURL(text) {
-        let container = document.getElementById('qrcode');
-        container.innerHTML = "";
-        let qrcode = new QRCode(container, {
-            text: text,
-            width: 128,
-            height: 128,
-            correctLevel: QRCode.CorrectLevel.M
-        });
-        let img = container.querySelector('img');
-        if (img && img.src) return img.src;
-        let canvas = container.querySelector('canvas');
-        return canvas ? canvas.toDataURL("image/png") : null;
-    }
-
+    // Process & Render Box Labels
     function processBoxLabels(actionType = 'download') {
         if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
         setStatus("Processing Box Data & Generating QR Codes...", "#5bc0be");
@@ -449,6 +240,22 @@
                     doc = new jsPDF('p', 'mm', 'a4');
                 }
 
+                // Helper to Generate QR Code Data URL Synchronously
+                function getQRCodeDataURL(text) {
+                    let container = document.getElementById('qrcode');
+                    container.innerHTML = "";
+                    let qrcode = new QRCode(container, {
+                        text: text,
+                        width: 128,
+                        height: 128,
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    let img = container.querySelector('img');
+                    if (img && img.src) return img.src;
+                    let canvas = container.querySelector('canvas');
+                    return canvas ? canvas.toDataURL("image/png") : null;
+                }
+
                 function renderLabelBox(d, bData, x, y, width, height) {
                     d.setLineWidth(0.6);
                     d.setDrawColor(0, 0, 0);
@@ -493,7 +300,7 @@
                     try {
                         let qrImgData = getQRCodeDataURL(qrDetails);
                         if (qrImgData) {
-                            let qrSize = headerHeight - 9;
+                            let qrSize = headerHeight - 9; // Perfect box fitting
                             let qrX = x + leftColWidth + ((width - leftColWidth - qrSize) / 2);
                             let qrY = y + 9;
                             d.addImage(qrImgData, 'PNG', qrX, qrY, qrSize, qrSize);
