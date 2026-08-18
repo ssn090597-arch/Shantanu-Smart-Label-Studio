@@ -16,139 +16,153 @@
         
         body { 
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #0f172a 70%, #1e293b 100%);
-            color: #f8fafc; 
+            background: #e2e8f0; 
+            color: #1e293b; 
             min-height: 100vh; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            padding: 30px 15px;
+            padding: 20px;
+        }
+
+        /* Main Dashboard Window Container */
+        .dashboard-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 680px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        /* Left Sidebar (Delhivery Red Theme) */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #d90429 0%, #b7094c 100%);
+            color: #ffffff;
+            padding: 35px 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
-            overflow-x: hidden;
         }
 
-        /* Decorative Background Elements */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            width: 40%;
-            height: 40%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
+        .brand-header { margin-bottom: 40px; }
+        .brand-logo { 
+            font-size: 28px; 
+            font-weight: 900; 
+            letter-spacing: -1px; 
+            line-height: 1;
+            text-transform: uppercase;
+        }
+        .brand-sub { 
+            font-size: 13px; 
+            font-weight: 600; 
+            opacity: 0.85; 
+            margin-top: 4px;
         }
 
-        body::after {
-            content: '';
-            position: absolute;
-            bottom: -10%;
-            right: -10%;
-            width: 50%;
-            height: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
+        .sidebar-features { display: flex; flex-direction: column; gap: 28px; }
+        .feature-item { display: flex; gap: 15px; align-items: flex-start; }
+        .feature-icon { 
+            background: rgba(255, 255, 255, 0.18); 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 16px; 
+            flex-shrink: 0;
+        }
+        .feature-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .feature-text p { font-size: 11.5px; opacity: 0.85; line-height: 1.4; }
+
+        /* Right Content Panel */
+        .main-panel {
+            flex: 1;
+            padding: 30px 40px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
         }
 
-        .card { 
-            position: relative;
-            z-index: 1;
-            background: rgba(30, 41, 59, 0.75); 
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 24px; 
-            padding: 35px 40px; 
-            width: 100%; 
-            max-width: 800px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
-                        0 0 0 1px rgba(255, 255, 255, 0.1); 
-            text-align: center; 
-            transition: transform 0.3s ease;
+        /* Top Header & Navigation Switcher */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
-        /* Navigation Switcher */
         .tool-switcher { 
             display: flex; 
-            background: rgba(15, 23, 42, 0.8); 
-            border-radius: 14px; 
-            padding: 6px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            margin-bottom: 28px; 
-            gap: 8px; 
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: #0f172a; 
+            border-radius: 30px; 
+            padding: 5px; 
+            width: fit-content;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .switch-btn { 
-            flex: 1; 
-            padding: 14px 18px; 
+            padding: 10px 22px; 
             border: none; 
             background: transparent; 
             color: #94a3b8; 
             font-weight: 700; 
-            font-size: 13.5px; 
-            border-radius: 10px; 
+            font-size: 13px; 
+            border-radius: 25px; 
             cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: all 0.3s ease; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .switch-btn.active { 
+            background: #d90429; 
+            color: #ffffff; 
+            box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4); 
+        }
+
+        .user-profile {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #d90429;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .user-profile img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Main Form Area */
+        .form-container { flex: 1; text-align: center; }
+
+        .center-icon {
+            width: 60px;
+            height: 60px;
+            background: #ffffff;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-        .switch-btn:hover {
-            color: #e2e8f0;
-            background: rgba(255, 255, 255, 0.03);
-        }
-        .switch-btn.active { 
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-            color: #ffffff; 
-            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5); 
-        }
-
-        /* Image Logo Container */
-        .logo-container { 
-            width: 85px; 
-            height: 85px; 
-            margin: 0 auto 16px; 
-            border-radius: 50%; 
-            background: rgba(15, 23, 42, 0.9); 
-            border: 2px solid #38bdf8; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35), 0 0 40px rgba(99, 102, 241, 0.2); 
-            transition: transform 0.3s ease;
-        }
-        .logo-container:hover {
-            transform: scale(1.05);
-        }
-        .logo-container img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            display: block;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            font-size: 26px;
         }
 
         h2 { 
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0 0 6px 0; 
-            font-size: 24px; 
+            color: #0f172a;
+            font-size: 26px; 
             font-weight: 800; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px; 
-            letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }
+        h2 span { color: #d90429; }
+
         p.subtitle { 
-            color: #94a3b8; 
-            font-size: 13.5px; 
-            margin-bottom: 24px; 
+            color: #64748b; 
+            font-size: 13px; 
+            margin-bottom: 20px; 
             font-weight: 500;
         }
 
@@ -157,153 +171,154 @@
             display: block; 
             font-size: 11px; 
             font-weight: 800; 
-            color: #cbd5e1; 
-            margin-bottom: 8px; 
-            letter-spacing: 0.8px; 
+            color: #d90429; 
+            margin-bottom: 10px; 
+            letter-spacing: 0.5px; 
             text-transform: uppercase; 
         }
-        
+
+        /* Drag & Drop Style File Input Box */
+        .upload-box {
+            border: 2px dashed #fca5a5;
+            background: #fff5f5;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-box:hover {
+            border-color: #d90429;
+            background: #ffeef0;
+        }
+        .upload-info { display: flex; align-items: center; gap: 15px; }
+        .upload-icon {
+            width: 40px;
+            height: 40px;
+            background: #ffe4e6;
+            color: #d90429;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .upload-text-main { font-weight: 700; font-size: 13.5px; color: #1e293b; }
+        .upload-text-sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+        .file-badge {
+            background: #f1f5f9;
+            color: #d90429;
+            font-weight: 800;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
+        input[type="file"] { display: none; }
+
+        /* Grid Radio Selection Layout */
+        .radio-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        .radio-card { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .radio-card:hover { border-color: #fca5a5; background: #fffdfd; }
+        .radio-card-info h5 { font-size: 12.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+        .radio-card-info p { font-size: 11px; color: #64748b; }
+        .radio-card input[type="radio"] { accent-color: #d90429; width: 16px; height: 16px; }
+
+        /* Select Options Styling */
         select { 
             width: 100%; 
             padding: 12px 14px; 
-            background: rgba(15, 23, 42, 0.8); 
-            border: 1px solid rgba(255, 255, 255, 0.12); 
+            background: #ffffff; 
+            border: 1px solid #cbd5e1; 
             border-radius: 10px; 
-            color: #f1f5f9; 
+            color: #0f172a; 
             font-size: 13.5px; 
             font-weight: 600; 
             outline: none; 
             transition: all 0.2s ease; 
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
         }
-        select:focus { 
-            border-color: #38bdf8; 
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-        }
+        select:focus { border-color: #d90429; box-shadow: 0 0 0 3px rgba(217, 4, 41, 0.1); }
 
-        .custom-file-upload { 
-            display: block; 
-            padding: 16px; 
-            background: rgba(15, 23, 42, 0.6); 
-            color: #38bdf8; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            border: 2px dashed rgba(56, 189, 248, 0.4); 
-            font-weight: 700; 
-            font-size: 13.5px; 
-            transition: all 0.3s ease; 
-            text-align: center; 
-        }
-        .custom-file-upload:hover { 
-            background: rgba(56, 189, 248, 0.1); 
-            border-color: #38bdf8; 
-            color: #7dd3fc;
-            transform: translateY(-1px);
-        }
-        input[type="file"] { display: none; }
-
-        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
-        .radio-option { 
-            flex: 1 1 45%; 
-            background: rgba(15, 23, 42, 0.6); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            padding: 10px 14px; 
-            border-radius: 10px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            cursor: pointer; 
-            font-size: 12px; 
-            font-weight: 600; 
-            color: #cbd5e1; 
-            transition: all 0.2s ease;
-        }
-        .radio-option:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        .radio-option input[type="radio"] {
-            accent-color: #38bdf8;
-        }
-
-        .btn-group { display: flex; gap: 12px; margin-top: 22px; }
+        /* Buttons Styling */
+        .btn-group { display: flex; gap: 12px; margin-top: 25px; }
         .btn-action, .btn-print, .btn-preview { 
             flex: 1; 
-            padding: 13px 16px; 
+            padding: 12px 16px; 
             border-radius: 10px; 
-            font-weight: 800; 
+            font-weight: 700; 
             font-size: 13px; 
             cursor: pointer; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: all 0.25s ease; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             gap: 8px; 
-            border: 1px solid transparent; 
         }
 
         .btn-preview { 
-            background: rgba(51, 65, 85, 0.8); 
-            color: #f8fafc; 
-            border-color: rgba(255, 255, 255, 0.1); 
+            background: #ffffff; 
+            color: #d90429; 
+            border: 1.5px solid #d90429; 
         }
-        .btn-preview:hover:not(:disabled) { 
-            background: #475569; 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
+        .btn-preview:hover:not(:disabled) { background: #fff5f5; }
 
         .btn-action { 
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); 
+            background: #d90429; 
             color: #ffffff; 
-            border-color: rgba(56, 189, 248, 0.3); 
+            border: none;
+            box-shadow: 0 4px 12px rgba(217, 4, 41, 0.3);
         }
-        .btn-action:hover:not(:disabled) { 
-            background: linear-gradient(135deg, #0369a1 0%, #075985 100%); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
-        }
+        .btn-action:hover:not(:disabled) { background: #b7094c; }
 
         .btn-print { 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            background: #0f172a; 
             color: #ffffff; 
-            border-color: rgba(52, 211, 153, 0.3); 
+            border: none;
         }
-        .btn-print:hover:not(:disabled) { 
-            background: linear-gradient(135deg, #059669 0%, #047857 100%); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-        }
+        .btn-print:hover:not(:disabled) { background: #1e293b; }
 
         .btn-action:disabled, .btn-print:disabled, .btn-preview:disabled { 
-            background: rgba(30, 41, 59, 0.5); 
-            color: #475569; 
-            border-color: rgba(255, 255, 255, 0.05); 
+            background: #e2e8f0; 
+            color: #94a3b8; 
+            border-color: #cbd5e1; 
             cursor: not-allowed; 
-            opacity: 0.5; 
-            transform: none !important;
-            box-shadow: none !important;
+            box-shadow: none;
         }
 
         #status { 
-            margin-top: 18px; 
-            font-size: 13.5px; 
+            margin-top: 15px; 
+            font-size: 13px; 
             font-weight: 700; 
-            padding: 10px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 6px;
         }
 
         #previewContainer { 
             display: none; 
-            margin-top: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
+            margin-top: 20px; 
+            border: 1px solid #cbd5e1; 
             border-radius: 12px; 
             overflow: hidden; 
-            background: #0f172a; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            background: #ffffff; 
         }
-        #previewContainer iframe { width: 100%; height: 480px; border: none; }
+        #previewContainer iframe { width: 100%; height: 400px; border: none; }
 
         .tool-section { display: none; }
         .tool-section.active { display: block; }
@@ -311,93 +326,176 @@
 </head>
 <body>
 
-<div class="card">
-    <div class="tool-switcher">
-        <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
-        <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
-    </div>
+<div class="dashboard-container">
+    <!-- Left Sidebar Section -->
+    <div class="sidebar">
+        <div>
+            <div class="brand-header">
+                <div class="brand-logo">Delhivery</div>
+                <div class="brand-sub">Small World</div>
+            </div>
 
-    <!-- Replaced Logo Container with standard <img> tag linking to logo (2).png -->
-    <div class="logo-container">
-        <img src="logo (2).png" alt="Delhivery Logo">
-    </div>
-
-    <!-- TOOL 1: SMART BOX LABEL STUDIO -->
-    <div id="toolLabelSection" class="tool-section active">
-        <h2>🏷️ Smart Box Label Studio</h2>
-        <p class="subtitle">Upload Excel & Generate Outer Box Labels</p>
-
-        <div class="form-group">
-            <label for="excelFileLabel" class="custom-file-upload" id="fileLabelText">
-                📄 SELECT EXCEL FILE
-            </label>
-            <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFileLabel(this)">
+            <div class="sidebar-features">
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <h4>Fast. Reliable. Everywhere.</h4>
+                        <p>Delivering logistics excellence at scale.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚙️</div>
+                    <div class="feature-text">
+                        <h4>Smart Automation</h4>
+                        <p>Reduce manual work and eliminate labeling errors.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🖨️</div>
+                    <div class="feature-text">
+                        <h4>Professional Output</h4>
+                        <p>Print-ready labels in seconds.</p>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label class="group-label">PRINT ORIENTATION / STICKER SIZE:</label>
-            <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="p"> PORTRAIT (4" X 6")</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="l"> LANDSCAPE (6" X 4")</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_1"> A4 (1 BOX/PAGE)</label>
-                <label class="radio-option"><input type="radio" name="pageOrientation" value="a4_2" checked> A4 (2 BOXES/PAGE)</label>
+    <!-- Main Panel Section -->
+    <div class="main-panel">
+        <div class="top-bar">
+            <div class="tool-switcher">
+                <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
+                <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
+            </div>
+            <div class="user-profile">
+                <img src="logo (2).png" alt="User Logo">
             </div>
         </div>
 
-        <div class="btn-group">
-            <button class="btn-preview" id="prevLabelBtn" disabled onclick="processBoxLabels('preview')">👁️ Preview PDF</button>
-            <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 Download Labels PDF</button>
-            <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Print Labels Direct</button>
+        <div class="form-container">
+            <!-- TOOL 1: SMART BOX LABEL STUDIO -->
+            <div id="toolLabelSection" class="tool-section active">
+                <div class="center-icon">📦</div>
+                <h2>Smart Box <span>Label Studio</span></h2>
+                <p class="subtitle">Upload Excel & Generate Outer Box Labels</p>
+
+                <div class="form-group">
+                    <label for="excelFileLabel">
+                        <div class="upload-box">
+                            <div class="upload-info">
+                                <div class="upload-icon">⬆️</div>
+                                <div>
+                                    <div class="upload-text-main" id="fileLabelText">SELECT EXCEL FILE</div>
+                                    <div class="upload-text-sub">Drag & drop your Excel file here or click to browse</div>
+                                </div>
+                            </div>
+                            <span class="file-badge">XLSX</span>
+                        </div>
+                    </label>
+                    <input type="file" id="excelFileLabel" accept=".xlsx, .xls" onchange="handleFileLabel(this)">
+                </div>
+
+                <div class="form-group">
+                    <label class="group-label">PRINT ORIENTATION / STICKER SIZE:</label>
+                    <div class="radio-grid">
+                        <label class="radio-card">
+                            <div class="radio-card-info">
+                                <h5>PORTRAIT (4" X 6")</h5>
+                                <p>Standard vertical layout</p>
+                            </div>
+                            <input type="radio" name="pageOrientation" value="p">
+                        </label>
+                        <label class="radio-card">
+                            <div class="radio-card-info">
+                                <h5>LANDSCAPE (6" X 4")</h5>
+                                <p>Wide horizontal layout</p>
+                            </div>
+                            <input type="radio" name="pageOrientation" value="l">
+                        </label>
+                        <label class="radio-card">
+                            <div class="radio-card-info">
+                                <h5>A4 (1 BOX/PAGE)</h5>
+                                <p>One box per page</p>
+                            </div>
+                            <input type="radio" name="pageOrientation" value="a4_1">
+                        </label>
+                        <label class="radio-card">
+                            <div class="radio-card-info">
+                                <h5>A4 (2 BOXES/PAGE)</h5>
+                                <p>Two boxes per page</p>
+                            </div>
+                            <input type="radio" name="pageOrientation" value="a4_2" checked>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-preview" id="prevLabelBtn" disabled onclick="processBoxLabels('preview')">👁️ Preview PDF</button>
+                    <button class="btn-action" id="genLabelBtn" disabled onclick="processBoxLabels('download')">📥 Download Labels PDF</button>
+                    <button class="btn-print" id="printLabelBtn" disabled onclick="processBoxLabels('print')">🖨️ Print Labels Direct</button>
+                </div>
+            </div>
+
+            <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
+            <div id="toolPickSection" class="tool-section">
+                <div class="center-icon">📋</div>
+                <h2>Advanced <span>Pick List Generator</span></h2>
+                <p class="subtitle">Upload Excel, select filter & export/print bordered PDF.</p>
+
+                <div class="form-group">
+                    <label for="excelFilePick">
+                        <div class="upload-box">
+                            <div class="upload-info">
+                                <div class="upload-icon">⬆️</div>
+                                <div>
+                                    <div class="upload-text-main" id="filePickText">SELECT EXCEL FILE</div>
+                                    <div class="upload-text-sub">Upload pick list sheet to start</div>
+                                </div>
+                            </div>
+                            <span class="file-badge">XLSX</span>
+                        </div>
+                    </label>
+                    <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFilePick(this)">
+                </div>
+
+                <div class="form-group">
+                    <label for="picklistSelect" class="group-label">PICK LIST NO SELECT KAREIN:</label>
+                    <select id="picklistSelect" disabled>
+                        <option value="ALL">-- ALL PICK LISTS --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="viewModeSelect" class="group-label">PICKING VIEW TYPE (PAGE BREAK MODE):</label>
+                    <select id="viewModeSelect">
+                        <option value="ITEM">ITEM Wise (Each Item on Separate Page)</option>
+                        <option value="BARCODE">BARCODE Wise (Each Barcode on Separate Page)</option>
+                        <option value="MIX">As Is / Mix (Continuous Single Document)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="binSortSelect" class="group-label">BIN NO SORTING ORDER:</label>
+                    <select id="binSortSelect">
+                        <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
+                        <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-preview" id="prevPickBtn" disabled onclick="processPickList('preview')">👁️ Preview PDF</button>
+                    <button class="btn-action" id="genPickBtn" disabled onclick="processPickList('download')">📥 PDF Download</button>
+                    <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Direct Print</button>
+                </div>
+            </div>
+
+            <div id="status"></div>
+
+            <div id="previewContainer">
+                <iframe id="pdfFrame"></iframe>
+            </div>
         </div>
-    </div>
-
-    <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
-    <div id="toolPickSection" class="tool-section">
-        <h2>📦 Advanced Pick List Generator</h2>
-        <p class="subtitle">Upload Excel, select filter & export/print bordered PDF.</p>
-
-        <div class="form-group">
-            <label for="excelFilePick" class="custom-file-upload" id="filePickText">
-                📄 SELECT EXCEL FILE
-            </label>
-            <input type="file" id="excelFilePick" accept=".xlsx, .xls" onchange="handleFilePick(this)">
-        </div>
-
-        <div class="form-group">
-            <label for="picklistSelect" class="group-label">PICK LIST NO SELECT KAREIN:</label>
-            <select id="picklistSelect" disabled>
-                <option value="ALL">-- ALL PICK LISTS --</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="viewModeSelect" class="group-label">PICKING VIEW TYPE (PAGE BREAK MODE):</label>
-            <select id="viewModeSelect">
-                <option value="ITEM">ITEM Wise (Each Item on Separate Page)</option>
-                <option value="BARCODE">BARCODE Wise (Each Barcode on Separate Page)</option>
-                <option value="MIX">As Is / Mix (Continuous Single Document)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="binSortSelect" class="group-label">BIN NO SORTING ORDER:</label>
-            <select id="binSortSelect">
-                <option value="ASC">BIN NO: Ascending (A ➔ Z)</option>
-                <option value="DESC">BIN NO: Descending (Z ➔ A)</option>
-            </select>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-preview" id="prevPickBtn" disabled onclick="processPickList('preview')">👁️ Preview PDF</button>
-            <button class="btn-action" id="genPickBtn" disabled onclick="processPickList('download')">📥 PDF Download</button>
-            <button class="btn-print" id="printPickBtn" disabled onclick="processPickList('print')">🖨️ Direct Print</button>
-        </div>
-    </div>
-
-    <div id="status"></div>
-
-    <div id="previewContainer">
-        <iframe id="pdfFrame"></iframe>
     </div>
 </div>
 
@@ -417,7 +515,7 @@
         document.getElementById('previewContainer').style.display = 'none';
     }
 
-    function setStatus(msg, color = '#38bdf8') {
+    function setStatus(msg, color = '#d90429') {
         let st = document.getElementById('status');
         st.style.color = color;
         st.innerText = msg;
@@ -439,9 +537,9 @@
                     document.getElementById('prevLabelBtn').disabled = false;
                     document.getElementById('genLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
-                    setStatus("Box Label Excel loaded successfully!", "#38bdf8");
+                    setStatus("Box Label Excel loaded successfully!", "#16a34a");
                 } catch (err) {
-                    setStatus("Error reading Excel: " + err.message, "#f87171");
+                    setStatus("Error reading Excel: " + err.message, "#d90429");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -466,9 +564,9 @@
                     document.getElementById('prevPickBtn').disabled = false;
                     document.getElementById('genPickBtn').disabled = false;
                     document.getElementById('printPickBtn').disabled = false;
-                    setStatus("Pick List Excel loaded successfully!", "#38bdf8");
+                    setStatus("Pick List Excel loaded successfully!", "#16a34a");
                 } catch (err) {
-                    setStatus("Error reading Excel: " + err.message, "#f87171");
+                    setStatus("Error reading Excel: " + err.message, "#d90429");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -494,7 +592,7 @@
 
     function processBoxLabels(actionType = 'download') {
         if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
-        setStatus("Processing Box Data...", "#38bdf8");
+        setStatus("Processing Box Data...", "#d90429");
 
         setTimeout(() => {
             try {
@@ -520,7 +618,7 @@
                 }
 
                 if (headerRowIndex === -1) {
-                    setStatus("Header row not detected in Excel!", "#f87171");
+                    setStatus("Header row not detected in Excel!", "#d90429");
                     return;
                 }
 
@@ -577,7 +675,7 @@
                 let totalBoxesCount = boxesArray.length;
 
                 if (totalBoxesCount === 0) {
-                    setStatus("No Box Data Found!", "#f87171");
+                    setStatus("No Box Data Found!", "#d90429");
                     return;
                 }
 
@@ -704,7 +802,7 @@
                     }
 
                     currentIndex = end;
-                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#38bdf8");
+                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#d90429");
 
                     if (currentIndex < boxesArray.length) {
                         setTimeout(renderNextBatch, 10);
@@ -713,21 +811,21 @@
                         if (actionType === 'preview') {
                             document.getElementById('previewContainer').style.display = 'block';
                             document.getElementById('pdfFrame').src = pdfDataUrl;
-                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#38bdf8");
+                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#16a34a");
                         } else if (actionType === 'print') {
                             doc.autoPrint();
                             window.open(pdfDataUrl, '_blank');
-                            setStatus("✓ Print Window Opened!", "#38bdf8");
+                            setStatus("✓ Print Window Opened!", "#16a34a");
                         } else {
                             doc.save(`Box_Labels_${selectedOrientation.toUpperCase()}_${totalBoxesCount}_Boxes.pdf`);
-                            setStatus("✓ Labels PDF Downloaded!", "#38bdf8");
+                            setStatus("✓ Labels PDF Downloaded!", "#16a34a");
                         }
                     }
                 }
                 renderNextBatch();
 
             } catch (err) {
-                setStatus("Error: " + err.message, "#f87171");
+                setStatus("Error: " + err.message, "#d90429");
             }
         }, 100);
     }
@@ -735,7 +833,7 @@
     function processPickList(actionType = 'download') {
         if (rawJsonDataPick.length === 0) return;
 
-        setStatus(actionType === 'print' ? "Preparing Print View..." : "PDF Generating...", "#38bdf8");
+        setStatus(actionType === 'print' ? "Preparing Print View..." : "PDF Generating...", "#d90429");
 
         setTimeout(() => {
             try {
@@ -750,7 +848,7 @@
                 });
 
                 if (filteredData.length === 0) {
-                    setStatus("No data found for selected Pick List!", "#f87171");
+                    setStatus("No data found for selected Pick List!", "#d90429");
                     return;
                 }
 
@@ -908,19 +1006,19 @@
                 if (actionType === 'preview') {
                     document.getElementById('previewContainer').style.display = 'block';
                     document.getElementById('pdfFrame').src = pdfDataUrl;
-                    setStatus("✓ Pick List Preview Loaded!", "#38bdf8");
+                    setStatus("✓ Pick List Preview Loaded!", "#16a34a");
                 } else if (actionType === 'print') {
                     doc.autoPrint();
                     window.open(pdfDataUrl, '_blank');
-                    setStatus("✓ Print Window Opened!", "#38bdf8");
+                    setStatus("✓ Print Window Opened!", "#16a34a");
                 } else {
                     doc.save(`PickList_${selectedPL}_${viewMode}_${Date.now()}.pdf`);
-                    setStatus("✓ PDF with Summary Downloaded!", "#38bdf8");
+                    setStatus("✓ PDF with Summary Downloaded!", "#16a34a");
                 }
 
             } catch (err) {
                 console.error(err);
-                setStatus("Error: PDF process nahi ho paayi.", "#f87171");
+                setStatus("Error: PDF process nahi ho paayi.", "#d90429");
             }
         }, 100);
     }
