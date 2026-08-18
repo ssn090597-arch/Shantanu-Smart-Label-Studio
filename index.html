@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <!-- TOOL 2: ADVANCED PICK LIST GENERATOR (AAPKA ORIGINAL LOGIC) -->
+    <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
     <div id="toolPickSection" class="tool-section">
         <h2>📦 Advanced Pick List Generator</h2>
         <p class="subtitle">Upload Excel, select filter & export/print bordered PDF.</p>
@@ -253,7 +253,7 @@
     }
 
     // =========================================================================
-    // SMART BOX LABEL STUDIO LOGIC (BATCHED CHUNKS TO PREVENT CALL STACK EXCEEDED)
+    // SMART BOX LABEL STUDIO LOGIC (FIXED ORIENTATION & STICKER SIZES)
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
         if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
@@ -261,6 +261,16 @@
 
         setTimeout(() => {
             try {
+                // Get Selected Orientation Radio Value
+                let selectedOrientation = "a4_2";
+                let radioElems = document.getElementsByName('pageOrientation');
+                for (let r of radioElems) {
+                    if (r.checked) {
+                        selectedOrientation = r.value;
+                        break;
+                    }
+                }
+
                 let shipToVal = (rawSheetRowsLabel[0] && rawSheetRowsLabel[0][1]) ? String(rawSheetRowsLabel[0][1]).trim() : "";
                 let poVal = (rawSheetRowsLabel[1] && rawSheetRowsLabel[1][1]) ? String(rawSheetRowsLabel[1][1]).trim() : "";
 
@@ -336,45 +346,56 @@
                 }
 
                 const { jsPDF } = window.jspdf;
-                let doc = new jsPDF('p', 'mm', 'a4');
+                let doc;
+
+                // Setup Page Size dynamically based on orientation selection
+                if (selectedOrientation === "p") {
+                    // Portrait Thermal Sticker (4" x 6") -> 101.6mm x 152.4mm
+                    doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [101.6, 152.4] });
+                } else if (selectedOrientation === "l") {
+                    // Landscape Thermal Sticker (6" x 4") -> 152.4mm x 101.6mm
+                    doc = new jsPDF({ orientation: 'l', unit: 'mm', format: [152.4, 101.6] });
+                } else {
+                    // Standard A4
+                    doc = new jsPDF('p', 'mm', 'a4');
+                }
 
                 function renderLabelBox(d, bData, x, y, width, height) {
-                    d.setLineWidth(0.8);
+                    d.setLineWidth(0.6);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
-                    let headerHeight = 26;
+                    let headerHeight = Math.min(24, height * 0.22);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    let leftColWidth = width * 0.68;
+                    let leftColWidth = width * 0.65;
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
-                    d.setFontSize(8);
+                    let baseFontSize = width < 120 ? 6 : 8;
+                    d.setFontSize(baseFontSize);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
 
-                    let hX = x + 3;
-                    let hY = y + 5;
+                    let hX = x + 2;
+                    let hY = y + 4;
+                    let stepY = (headerHeight - 4) / 4;
                     d.text(`SHIP TO / DEST: ${bData.shipTo || "-"}`, hX, hY);
-                    hY += 5;
-                    d.text(`PO/ORD: ${bData.poOrd || "-"}`, hX, hY);
-                    hY += 5;
-                    d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY);
-                    hY += 5;
-                    d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY);
+                    d.text(`PO/ORD: ${bData.poOrd || "-"}`, hX, hY + stepY);
+                    d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY + (stepY * 2));
+                    d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY + (stepY * 3));
 
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
-                    d.setFontSize(10);
-                    d.text("BOX NO.", rX, y + 6, { align: "center" });
+                    d.setFontSize(baseFontSize + 1);
+                    d.text("BOX NO.", rX, y + 5, { align: "center" });
 
-                    d.setFontSize(14);
-                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 12, { align: "center" });
+                    d.setFontSize(baseFontSize + 4);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 10, { align: "center" });
 
                     try {
                         let canvas = document.getElementById('barcodeCanvas');
-                        JsBarcode(canvas, String(bData.boxNo), { format: "CODE128", displayValue: false, margin: 0, height: 30 });
+                        JsBarcode(canvas, String(bData.boxNo), { format: "CODE128", displayValue: false, margin: 0, height: 25 });
                         let imgData = canvas.toDataURL('image/png');
-                        d.addImage(imgData, 'PNG', x + leftColWidth + 5, y + 14, (width - leftColWidth) - 10, 10);
+                        d.addImage(imgData, 'PNG', x + leftColWidth + 3, y + 12, (width - leftColWidth) - 6, Math.max(8, headerHeight - 13));
                     } catch (e) {}
 
                     let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
@@ -390,22 +411,24 @@
                         head: tableHeaders,
                         body: tableBody,
                         theme: 'grid',
-                        styles: { fontSize: 7, cellPadding: 1.8, halign: 'center', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.3 },
+                        styles: { fontSize: Math.max(5, baseFontSize - 1.5), cellPadding: 1.2, halign: 'center', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
                         headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
                         tableWidth: width
                     });
 
                     let finalY = d.lastAutoTable.finalY;
-                    let footerHeight = 8;
-                    d.rect(x, finalY, width, footerHeight);
+                    let footerHeight = 7;
+                    if (finalY + footerHeight <= y + height) {
+                        d.rect(x, finalY, width, footerHeight);
 
-                    d.setFontSize(9);
-                    d.setFont("helvetica", "bold");
-                    d.text("TOTAL BOX QTY", x + 3, finalY + 5.5);
+                        d.setFontSize(baseFontSize);
+                        d.setFont("helvetica", "bold");
+                        d.text("TOTAL BOX QTY", x + 3, finalY + 4.5);
 
-                    let qtyColWidth = 20;
-                    d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
-                    d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 5.5, { align: "center" });
+                        let qtyColWidth = width * 0.15;
+                        d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
+                        d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 4.5, { align: "center" });
+                    }
                 }
 
                 let currentIndex = 0;
@@ -414,8 +437,28 @@
                     let end = Math.min(currentIndex + batchSize, boxesArray.length);
 
                     for (let i = currentIndex; i < end; i++) {
-                        if (i > 0) doc.addPage();
-                        renderLabelBox(doc, boxesArray[i], 10, 10, 190, 130);
+                        let bData = boxesArray[i];
+
+                        if (selectedOrientation === "p") {
+                            // PORTRAIT 4x6
+                            if (i > 0) doc.addPage([101.6, 152.4], 'p');
+                            renderLabelBox(doc, bData, 3, 3, 95.6, 146.4);
+                        } else if (selectedOrientation === "l") {
+                            // LANDSCAPE 6x4
+                            if (i > 0) doc.addPage([152.4, 101.6], 'l');
+                            renderLabelBox(doc, bData, 3, 3, 146.4, 95.6);
+                        } else if (selectedOrientation === "a4_1") {
+                            // A4 (1 BOX PER PAGE)
+                            if (i > 0) doc.addPage('a4', 'p');
+                            renderLabelBox(doc, bData, 10, 10, 190, 270);
+                        } else {
+                            // A4 (2 BOXES PER PAGE)
+                            let isSecondBox = (i % 2 === 1);
+                            if (i > 0 && !isSecondBox) doc.addPage('a4', 'p');
+
+                            let yPos = isSecondBox ? 148 : 8;
+                            renderLabelBox(doc, bData, 10, yPos, 190, 132);
+                        }
                     }
 
                     currentIndex = end;
@@ -434,7 +477,7 @@
                             window.open(pdfDataUrl, '_blank');
                             setStatus("✓ Print Window Opened!", "#6fffe9");
                         } else {
-                            doc.save(`Box_Labels_${totalBoxesCount}_Boxes.pdf`);
+                            doc.save(`Box_Labels_${selectedOrientation.toUpperCase()}_${totalBoxesCount}_Boxes.pdf`);
                             setStatus("✓ Labels PDF Downloaded!", "#6fffe9");
                         }
                     }
@@ -448,7 +491,7 @@
     }
 
     // =========================================================================
-    // ADVANCED PICK LIST GENERATOR (AAPKA EXACT ORIGINAL CODE AND LOGIC)
+    // ADVANCED PICK LIST GENERATOR
     // =========================================================================
     function processPickList(actionType = 'download') {
         if (rawJsonDataPick.length === 0) return;
@@ -461,7 +504,6 @@
                 let viewMode = document.getElementById('viewModeSelect').value;
                 let binSort = document.getElementById('binSortSelect').value;
 
-                // 1. FILTER BY PICK LIST NO
                 let filteredData = rawJsonDataPick.filter(row => {
                     if (selectedPL === "ALL") return true;
                     let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
@@ -473,7 +515,6 @@
                     return;
                 }
 
-                // SORTING FUNCTION FOR BIN NO
                 const sortRows = (rows) => {
                     return rows.sort((a, b) => {
                         let binA = String(a.binNo).toUpperCase();
@@ -489,7 +530,6 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
 
-                // Table Styling with Solid Borders
                 const tableConfig = {
                     theme: 'grid',
                     margin: { top: 25 },
@@ -541,7 +581,6 @@
                     doc.text(subTitle, 14, 17);
                 };
 
-                // 2. GENERATE DATA ACCORDING TO VIEW MODE
                 if (viewMode === "ITEM" || viewMode === "BARCODE") {
                     let groups = new Map();
                     filteredData.forEach(row => {
@@ -597,7 +636,6 @@
                     });
 
                 } else {
-                    // MIX / CONTINUOUS MODE
                     let processedRows = filteredData.map(row => ({
                         pickListNo: row["PICK LIST NO"] || row["PICK_LIST_NO"] || "",
                         department: row["DEPARTMENT"] || "",
@@ -639,7 +677,6 @@
                     });
                 }
 
-                // Output Routing
                 let pdfDataUrl = doc.output('bloburl');
 
                 if (actionType === 'preview') {
