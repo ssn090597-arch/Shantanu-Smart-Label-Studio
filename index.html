@@ -616,26 +616,28 @@
                     }
                 }
 
-                // Global Ship To & PO No Search in Top Rows
+                // Enhanced Global Search for Ship To & PO No across ALL rows
                 let shipToVal = "";
                 let poVal = "";
 
-                for (let r = 0; r < Math.min(5, rawSheetRowsLabel.length); r++) {
+                for (let r = 0; r < rawSheetRowsLabel.length; r++) {
                     let rowVals = rawSheetRowsLabel[r].map(c => String(c).trim());
                     for (let c = 0; c < rowVals.length; c++) {
                         let cellVal = rowVals[c];
                         let upper = cellVal.toUpperCase();
-                        if (upper.includes("SHIP TO") || upper.includes("DESTINATION")) {
+                        
+                        if (!shipToVal && (upper.includes("SHIP TO") || upper.includes("DESTINATION"))) {
                             shipToVal = rowVals[c + 1] || cellVal.split(":")[1] || shipToVal;
                         }
-                        if (upper.includes("PO NO") || upper.includes("PO NUMBER") || upper.includes("PO_NO")) {
+                        
+                        if (!poVal && (upper.includes("PO NO") || upper.includes("PO NUMBER") || upper.includes("PO_NO") || upper === "PO" || upper.includes("PURCHASE ORDER"))) {
                             poVal = rowVals[c + 1] || cellVal.split(":")[1] || poVal;
                         }
                     }
                 }
 
                 let headerRowIndex = -1;
-                for (let r = 0; r < Math.min(10, rawSheetRowsLabel.length); r++) {
+                for (let r = 0; r < Math.min(15, rawSheetRowsLabel.length); r++) {
                     let rowStr = rawSheetRowsLabel[r].map(c => String(c).toLowerCase()).join(" ");
                     if (rowStr.includes("sku") || rowStr.includes("fsn") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("box count") || rowStr.includes("qty")) {
                         headerRowIndex = r;
@@ -676,7 +678,7 @@
                     mrp: headers.findIndex(h => h.includes("mrp")),
                     boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton")),
                     invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv")),
-                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po")
+                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po" || h.includes("purchase order"))
                 };
 
                 let boxesMap = new Map();
@@ -738,11 +740,13 @@
                 }
 
                 function renderLabelBox(d, bData, x, y, width, height) {
-                    d.setLineWidth(0.6);
+                    // Darker outer box border
+                    d.setLineWidth(0.8);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
                     let headerHeight = Math.min(26, height * 0.22);
+                    d.setLineWidth(0.6);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
                     let leftColWidth = width * 0.62;
@@ -756,7 +760,7 @@
                     let hX = x + 2;
                     let hY = y + 4;
                     
-                    // Dynamic Header Metadata lines list (Hides empty metadata fields)
+                    // Dynamic Header Metadata lines list
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
@@ -796,7 +800,7 @@
                         console.error("Barcode Generation Error:", e);
                     }
 
-                    // Dynamic Column Builder (Auto-Removes Empty Columns)
+                    // Dynamic Column Builder
                     let availableCols = [
                         { key: 'sku', title: skuLabel },
                         { key: 'size', title: 'SIZE' },
@@ -827,26 +831,31 @@
 
                     let totalQty = bData.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
 
-                    // AutoTable rendered with top gap & padding so data doesn't stick to header
+                    // Added distinct gap between Header and Table Data + Darker Text & Borders + Spacing between Rows
+                    let headTopGap = 4; // Gap between header section and table
+                    
                     d.autoTable({
-                        startY: y + headerHeight + 1.5,
+                        startY: y + headerHeight + headTopGap,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
                         head: tableHeaders,
                         body: tableBody,
                         theme: 'grid',
                         styles: { 
                             fontSize: Math.max(5, baseFontSize - 1.5), 
-                            cellPadding: 1.8, 
+                            cellPadding: 2.5, // Increased vertical padding for row gap
                             halign: 'center', 
-                            textColor: [0, 0, 0], 
-                            lineColor: [0, 0, 0], 
-                            lineWidth: 0.25 
+                            textColor: [0, 0, 0], // Darker text
+                            lineColor: [0, 0, 0], // Darker borders
+                            lineWidth: 0.45, // Thicker border line
+                            fontStyle: 'bold'
                         },
                         headStyles: { 
                             fillColor: [0, 0, 0], 
                             textColor: [255, 255, 255], 
                             fontStyle: 'bold',
-                            cellPadding: 2 
+                            cellPadding: 3, // Gap inside header cells
+                            lineWidth: 0.45,
+                            lineColor: [0, 0, 0]
                         },
                         tableWidth: width
                     });
@@ -854,10 +863,12 @@
                     let finalY = d.lastAutoTable.finalY;
                     let footerHeight = 7;
                     if (finalY + footerHeight <= y + height) {
+                        d.setLineWidth(0.6);
                         d.rect(x, finalY, width, footerHeight);
 
                         d.setFontSize(baseFontSize);
                         d.setFont("helvetica", "bold");
+                        d.setTextColor(0, 0, 0);
                         d.text("TOTAL BOX QTY", x + 3, finalY + 4.5);
 
                         let qtyColWidth = width * 0.15;
@@ -966,15 +977,15 @@
                         textColor: [255, 255, 255], 
                         fontStyle: 'bold', 
                         halign: 'center',
-                        lineWidth: 0.3,
+                        lineWidth: 0.45,
                         lineColor: [0, 0, 0]
                     },
                     bodyStyles: { 
                         textColor: [0, 0, 0], 
                         fontSize: 8, 
-                        cellPadding: 2.5, 
+                        cellPadding: 2.8, 
                         halign: 'center',
-                        lineWidth: 0.3,
+                        lineWidth: 0.45,
                         lineColor: [0, 0, 0]
                     },
                     footStyles: {
@@ -983,7 +994,7 @@
                         fontStyle: 'bold',
                         fontSize: 9,
                         halign: 'center',
-                        lineWidth: 0.3,
+                        lineWidth: 0.45,
                         lineColor: [0, 0, 0]
                     },
                     columnStyles: {
