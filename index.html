@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shantanu Smart Label Studio - Dynamic 4x6 Engine</title>
-<meta name="description" content="Official Shantanu Smart Label Studio tool for fast 4x6 enterprise box label generation, PDF exports, and upload history tracking.">
-<meta name="keywords" content="Shantanu Box Label, Shantanu Smart Label Studio, Box Label Generator, 4x6 Label Printing">
+<meta name="description" content="Official Shantanu Smart Label Studio tool for fast enterprise box label generation.">
 <meta name="author" content="Shantanu Mathura">
 <link rel="icon" type="image/jpeg" href="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -20,32 +19,16 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <body class="flex items-center justify-center min-h-screen p-4">
 <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-3xl w-full border border-gray-100 text-center">
 
+<!-- Header Logo -->
 <div class="mb-6 flex flex-col items-center justify-center gap-2">
 <img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
 <h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
 <span>Shantanu Smart Label Studio</span>
 </h1>
-<p class="text-sm text-gray-500">v6.2 Enterprise Multi-Box Page Engine</p>
+<p class="text-sm text-gray-500">v6.3 Dynamic Layout Engine</p>
 </div>
 
-<div class="mb-5 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left">
-<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION / SIZE:</label>
-<div class="flex flex-wrap items-center gap-6">
-<label class="flex items-center gap-2 cursor-pointer">
-<input type="radio" name="pageOrientation" value="p" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-<span class="text-sm font-semibold text-gray-800">📱 Portrait (4" x 6")</span>
-</label>
-<label class="flex items-center gap-2 cursor-pointer">
-<input type="radio" name="pageOrientation" value="l" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-<span class="text-sm font-semibold text-gray-800">🖥️ Landscape (6" x 4")</span>
-</label>
-<label class="flex items-center gap-2 cursor-pointer">
-<input type="radio" name="pageOrientation" value="a4" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-<span class="text-sm font-semibold text-gray-800">📄 A4 Document</span>
-</label>
-</div>
-</div>
-
+<!-- STEP 1: File Upload Area (First Step) -->
 <div class="border-2 border-dashed border-blue-400 rounded-xl p-8 bg-blue-50/50 hover:bg-blue-50 transition-all cursor-pointer relative" id="dropArea">
 <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
 <div class="space-y-3">
@@ -57,40 +40,67 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 </div>
 </div>
 
+<!-- Detected Headers Info Box -->
 <div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
 <p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
 <p id="detectedColsText" class="font-mono text-blue-800"></p>
 </div>
 
+<!-- STEP 2: Print Orientation Selector Option (Visible after upload) -->
+<div id="sizeSelectBox" class="mt-5 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left hidden">
+<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION / SIZE:</label>
+<div class="flex flex-wrap items-center gap-6">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="p" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
+<span class="text-sm font-semibold text-gray-800">📱 Portrait (4" x 6")</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="l" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
+<span class="text-sm font-semibold text-gray-800">🖥️ Landscape (6" x 4")</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="a4" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
+<span class="text-sm font-semibold text-gray-800">📄 A4 Document (Max 2 Boxes/Page)</span>
+</label>
+</div>
+</div>
+
+<!-- Status Message -->
 <div id="status" class="mt-6 text-sm font-semibold hidden"></div>
 
+<!-- LIVE PDF PREVIEW BOX & ACTIONS -->
 <div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
 <div class="flex justify-between items-center text-green-800">
 <span class="font-bold text-base">Total Active Boxes Generated:</span>
 <span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
 </div>
 
+<!-- LIVE PDF PREVIEW WINDOW -->
 <div class="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-inner h-96">
 <iframe id="pdfPreviewFrame" class="w-full h-full" src=""></iframe>
 </div>
 
 <div class="flex gap-3">
+<!-- INSTANT PRINT BUTTON -->
 <button id="printBtn" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
 <span>🖨️ Instant Print</span>
 </button>
 
+<!-- DOWNLOAD PDF BUTTON -->
 <button id="downloadBtn" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
 <span>📥 Download PDF</span>
 </button>
 </div>
 </div>
 
+<!-- History Toggle Button -->
 <div class="mt-6 text-right">
 <button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
 📜 Show 20-Day Upload History
 </button>
 </div>
 
+<!-- History Box -->
 <div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
 <span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
@@ -106,12 +116,19 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 
 </div>
 
+<!-- Hidden Canvas for Barcodes -->
 <canvas id="barcodeCanvas" class="hidden"></canvas>
 
 <script>
 const { jsPDF } = window.jspdf;
 let generatedPdfBlob = null;
 let totalBoxesFound = 0;
+
+// Global variables to hold parsed excel data for instant re-rendering on size change
+let currentParsedData = null;
+let currentMetaPO = '';
+let currentMetaDest = '';
+let currentFileName = '';
 
 document.getElementById('excelFile').addEventListener('change', handleFileSelect);
 
@@ -217,6 +234,15 @@ document.getElementById('detectedColsText').innerText = colsFound;
 document.getElementById('debugBox').classList.remove('hidden');
 }
 
+// Store globals
+currentParsedData = tableData;
+currentMetaPO = metaPO;
+currentMetaDest = metaDest;
+currentFileName = file.name;
+
+// Show size selection options AFTER file upload
+document.getElementById('sizeSelectBox').classList.remove('hidden');
+
 await generatePDF(tableData, metaPO, metaDest, file.name);
 } catch (err) {
 console.error(err);
@@ -224,6 +250,12 @@ showStatus("❌ Error processing file: " + err.message, "text-red-600");
 }
 };
 reader.readAsArrayBuffer(file);
+}
+
+function reprocessCurrentData() {
+if (currentParsedData) {
+generatePDF(currentParsedData, currentMetaPO, currentMetaDest, currentFileName);
+}
 }
 
 async function generatePDF(data, metaPO, metaDest, fileName) {
@@ -314,8 +346,9 @@ tableHeaders = tableHeaders.filter(h => h !== qtyHeaderKey);
 tableHeaders.push(qtyHeaderKey);
 }
 
-let currentY = 5;
 let isFirstPage = true;
+let boxesOnCurrentPage = 0;
+let currentY = 5;
 
 for (let i = 0; i < uniqueRawKeys.length; i++) {
 const rawKey = uniqueRawKeys[i];
@@ -357,26 +390,32 @@ tableRows.push([
 ]);
 }
 
-// Estimate height for this Box section
-const estimatedHeight = 26 + 8 + (tableRows.length * 7) + 6;
+// Calculate Box Height needed
+const estimatedHeight = 25 + (tableRows.length * 7) + 5;
 
 if (selectedOrientation !== 'a4') {
+    // 4x6 or 6x4: Standard 1 Box per page logic
     if (!isFirstPage) doc.addPage(docFormat, docOrientation);
     currentY = 2;
 } else {
+    // A4 LOGIC: STRICTLY MAXIMUM 2 BOXES PER PAGE
     if (isFirstPage) {
         currentY = 5;
-    } else if (currentY + estimatedHeight > pageHeight - 5) {
+        boxesOnCurrentPage = 1;
+    } else if (boxesOnCurrentPage >= 2 || (currentY + estimatedHeight > pageHeight - 5)) {
         doc.addPage(docFormat, docOrientation);
         currentY = 5;
+        boxesOnCurrentPage = 1;
     } else {
-        currentY += 4; // Spacing between boxes on same A4 page
+        // Place 2nd Box strictly towards the bottom or directly below if space permits
+        currentY = Math.max(currentY + 6, 148);
+        boxesOnCurrentPage++;
     }
 }
 isFirstPage = false;
 
 const drawHeaderAt = (docObj, startY) => {
-docObj.setLineWidth(0.8); // Darker border
+docObj.setLineWidth(0.8);
 docObj.setDrawColor(0, 0, 0);
 docObj.setTextColor(0, 0, 0);
 
