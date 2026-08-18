@@ -619,12 +619,12 @@
                 }
 
                 let shipToVal = (rawSheetRowsLabel[0] && rawSheetRowsLabel[0][1]) ? String(rawSheetRowsLabel[0][1]).trim() : "";
-                let poVal = (rawSheetRowsLabel[1] && rawSheetRowsLabel[1][1]) ? String(rawSheetRowsLabel[1][1]).trim() : "";
+                let poVal = "";
 
                 let headerRowIndex = -1;
                 for (let r = 0; r < Math.min(10, rawSheetRowsLabel.length); r++) {
-                    let rowStr = rawSheetRowsLabel[r].join(" ").toLowerCase();
-                    if (rowStr.includes("sku") || rowStr.includes("challan") || rowStr.includes("item") || rowStr.includes("barcode")) {
+                    let rowStr = rawSheetRowsLabel[r].map(c => String(c).toLowerCase()).join(" ");
+                    if (rowStr.includes("sku") || rowStr.includes("challan") || rowStr.includes("item") || rowStr.includes("barcode") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("fsn")) {
                         headerRowIndex = r;
                         break;
                     }
@@ -637,18 +637,19 @@
 
                 let headers = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim().toLowerCase());
                 let colIdx = {
-                    sku: headers.findIndex(h => h.includes("sku") || h.includes("merchant")),
+                    sku: headers.findIndex(h => h.includes("sku") || h.includes("merchant") || h.includes("fsn")),
                     challan: headers.findIndex(h => h.includes("challan") || h.includes("ch_no")),
                     size: headers.findIndex(h => h.includes("size")),
-                    itemCode: headers.findIndex(h => h.includes("item code") || h.includes("itemcode") || h.includes("style")),
-                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title")),
+                    itemCode: headers.findIndex(h => h.includes("article code") || h.includes("item code") || h.includes("itemcode") || h.includes("style")),
+                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title") || h.includes("article code")),
                     color: headers.findIndex(h => h.includes("color") || h.includes("colour")),
                     ean: headers.findIndex(h => h.includes("ean") || h.includes("barcode")),
                     qty: headers.findIndex(h => h.includes("qty") || h.includes("quantity")),
-                    rtae: headers.findIndex(h => h.includes("rtae") || h.includes("rate") || h.includes("price")),
+                    rtae: headers.findIndex(h => h.includes("unit price") || h.includes("rtae") || h.includes("rate") || h.includes("price")),
                     mrp: headers.findIndex(h => h.includes("mrp")),
-                    boxCount: headers.findIndex(h => h.includes("box") || h.includes("carton")),
-                    invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv"))
+                    boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton")),
+                    invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv")),
+                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po"))
                 };
 
                 let boxesMap = new Map();
@@ -671,14 +672,16 @@
                     let rtae = colIdx.rtae !== -1 ? String(row[colIdx.rtae] || '').trim() : "";
                     let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
                     let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
+                    let rowPo = colIdx.poNo !== -1 ? String(row[colIdx.poNo] || '').trim() : "";
 
                     if (!sku && !itemCode && !ean) continue;
 
                     if (!boxesMap.has(boxNo)) {
-                        boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: poVal, challanNo: challan, invNo, items: [] });
+                        boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: rowPo || poVal, challanNo: challan, invNo, items: [] });
                     }
 
                     let b = boxesMap.get(boxNo);
+                    if (!b.poOrd && rowPo) b.poOrd = rowPo;
                     if (!b.challanNo && challan) b.challanNo = challan;
                     if (!b.invNo && invNo) b.invNo = invNo;
                     b.items.push({ sku, size, itemCode, itemName, color, ean, rtae, mrp, qty });
@@ -936,7 +939,7 @@
                 let processedRows = filteredData.map(row => ({
                     pickListNo: findValueByKeys(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST", "PL_NO"]),
                     department: findValueByKeys(row, ["DEPARTMENT", "DEPT", "CAT"]),
-                    item: findValueByKeys(row, ["ITEM", "ITEM_NAME", "NAME", "SKU"]),
+                    item: findValueByKeys(row, ["ITEM", "ITEM_NAME", "NAME", "SKU", "ARTICLE CODE"]),
                     color: findValueByKeys(row, ["COLOR", "COLOUR"]),
                     barcode: findValueByKeys(row, ["BARCODE", "EAN", "UPC"]),
                     binNo: findValueByKeys(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
