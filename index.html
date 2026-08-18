@@ -125,7 +125,7 @@
             box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4); 
         }
 
-        /* Larger User Profile Logo */
+        /* User Profile Logo */
         .user-profile {
             width: 75px;
             height: 75px;
@@ -180,7 +180,7 @@
             text-transform: uppercase; 
         }
 
-        /* Drag & Drop Style File Input Box */
+        /* File Upload Box */
         .upload-box {
             border: 2px dashed #fca5a5;
             background: #fff5f5;
@@ -244,7 +244,6 @@
         .radio-card-info p { font-size: 11px; color: #64748b; }
         .radio-card input[type="radio"] { accent-color: #d90429; width: 16px; height: 16px; }
 
-        /* Select Options Styling */
         select { 
             width: 100%; 
             padding: 12px 14px; 
@@ -259,7 +258,6 @@
         }
         select:focus { border-color: #d90429; box-shadow: 0 0 0 3px rgba(217, 4, 41, 0.1); }
 
-        /* Buttons Styling */
         .btn-group { display: flex; gap: 12px; margin-top: 25px; }
         .btn-action, .btn-print, .btn-preview { 
             flex: 1; 
@@ -618,13 +616,28 @@
                     }
                 }
 
-                let shipToVal = (rawSheetRowsLabel[0] && rawSheetRowsLabel[0][1]) ? String(rawSheetRowsLabel[0][1]).trim() : "";
+                // Global Ship To & PO No Search in Top Rows
+                let shipToVal = "";
                 let poVal = "";
+
+                for (let r = 0; r < Math.min(5, rawSheetRowsLabel.length); r++) {
+                    let rowVals = rawSheetRowsLabel[r].map(c => String(c).trim());
+                    for (let c = 0; c < rowVals.length; c++) {
+                        let cellVal = rowVals[c];
+                        let upper = cellVal.toUpperCase();
+                        if (upper.includes("SHIP TO") || upper.includes("DESTINATION")) {
+                            shipToVal = rowVals[c + 1] || cellVal.split(":")[1] || shipToVal;
+                        }
+                        if (upper.includes("PO NO") || upper.includes("PO NUMBER") || upper.includes("PO_NO")) {
+                            poVal = rowVals[c + 1] || cellVal.split(":")[1] || poVal;
+                        }
+                    }
+                }
 
                 let headerRowIndex = -1;
                 for (let r = 0; r < Math.min(10, rawSheetRowsLabel.length); r++) {
                     let rowStr = rawSheetRowsLabel[r].map(c => String(c).toLowerCase()).join(" ");
-                    if (rowStr.includes("sku") || rowStr.includes("challan") || rowStr.includes("item") || rowStr.includes("barcode") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("fsn")) {
+                    if (rowStr.includes("sku") || rowStr.includes("fsn") || rowStr.includes("ean") || rowStr.includes("article code") || rowStr.includes("box count") || rowStr.includes("qty")) {
                         headerRowIndex = r;
                         break;
                     }
@@ -636,12 +649,19 @@
                 }
 
                 let headers = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim().toLowerCase());
+                
+                // Primary SKU Check -> Secondary FSN/ISBN13 Replacement Fallback
+                let skuIdx = headers.findIndex(h => h.includes("merchant sku") || h === "sku" || h.includes("seller sku"));
+                if (skuIdx === -1) {
+                    skuIdx = headers.findIndex(h => h.includes("fsn") || h.includes("isbn13") || h.includes("isbn"));
+                }
+
                 let colIdx = {
-                    sku: headers.findIndex(h => h.includes("sku") || h.includes("merchant") || h.includes("fsn")),
+                    sku: skuIdx,
                     challan: headers.findIndex(h => h.includes("challan") || h.includes("ch_no")),
                     size: headers.findIndex(h => h.includes("size")),
                     itemCode: headers.findIndex(h => h.includes("article code") || h.includes("item code") || h.includes("itemcode") || h.includes("style")),
-                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title") || h.includes("article code")),
+                    itemName: headers.findIndex(h => h.includes("name") || h.includes("desc") || h.includes("title") || h.includes("description")),
                     color: headers.findIndex(h => h.includes("color") || h.includes("colour")),
                     ean: headers.findIndex(h => h.includes("ean") || h.includes("barcode")),
                     qty: headers.findIndex(h => h.includes("qty") || h.includes("quantity")),
@@ -649,7 +669,7 @@
                     mrp: headers.findIndex(h => h.includes("mrp")),
                     boxCount: headers.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton")),
                     invNo: headers.findIndex(h => h.includes("invoice") || h.includes("inv")),
-                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po"))
+                    poNo: headers.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po")
                 };
 
                 let boxesMap = new Map();
@@ -672,12 +692,15 @@
                     let rtae = colIdx.rtae !== -1 ? String(row[colIdx.rtae] || '').trim() : "";
                     let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
                     let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
+                    
+                    // Fallback to Header PO if 3rd row or Column PO is missing
                     let rowPo = colIdx.poNo !== -1 ? String(row[colIdx.poNo] || '').trim() : "";
+                    if (!rowPo) rowPo = poVal;
 
                     if (!sku && !itemCode && !ean) continue;
 
                     if (!boxesMap.has(boxNo)) {
-                        boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: rowPo || poVal, challanNo: challan, invNo, items: [] });
+                        boxesMap.set(boxNo, { boxNo, shipTo: shipToVal, poOrd: rowPo, challanNo: challan, invNo, items: [] });
                     }
 
                     let b = boxesMap.get(boxNo);
@@ -939,7 +962,7 @@
                 let processedRows = filteredData.map(row => ({
                     pickListNo: findValueByKeys(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST", "PL_NO"]),
                     department: findValueByKeys(row, ["DEPARTMENT", "DEPT", "CAT"]),
-                    item: findValueByKeys(row, ["ITEM", "ITEM_NAME", "NAME", "SKU", "ARTICLE CODE"]),
+                    item: findValueByKeys(row, ["ITEM", "ITEM_NAME", "NAME", "SKU", "ARTICLE CODE", "FSN"]),
                     color: findValueByKeys(row, ["COLOR", "COLOUR"]),
                     barcode: findValueByKeys(row, ["BARCODE", "EAN", "UPC"]),
                     binNo: findValueByKeys(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
