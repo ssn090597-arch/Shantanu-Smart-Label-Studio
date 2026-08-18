@@ -648,12 +648,19 @@
                     return;
                 }
 
-                let headers = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim().toLowerCase());
+                let originalHeaders = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim());
+                let headers = originalHeaders.map(h => h.toLowerCase());
                 
                 // Primary SKU Check -> Secondary FSN/ISBN13 Replacement Fallback
+                let skuLabel = "Merchant SKU";
                 let skuIdx = headers.findIndex(h => h.includes("merchant sku") || h === "sku" || h.includes("seller sku"));
-                if (skuIdx === -1) {
+                if (skuIdx !== -1) {
+                    skuLabel = originalHeaders[skuIdx] || "Merchant SKU";
+                } else {
                     skuIdx = headers.findIndex(h => h.includes("fsn") || h.includes("isbn13") || h.includes("isbn"));
+                    if (skuIdx !== -1) {
+                        skuLabel = originalHeaders[skuIdx] || "FSN/ISBN13";
+                    }
                 }
 
                 let colIdx = {
@@ -693,7 +700,6 @@
                     let mrp = colIdx.mrp !== -1 ? String(row[colIdx.mrp] || '').trim() : "";
                     let invNo = colIdx.invNo !== -1 ? String(row[colIdx.invNo] || '').trim() : "";
                     
-                    // Fallback to Header PO if 3rd row or Column PO is missing
                     let rowPo = colIdx.poNo !== -1 ? String(row[colIdx.poNo] || '').trim() : "";
                     if (!rowPo) rowPo = poVal;
 
@@ -749,11 +755,18 @@
 
                     let hX = x + 2;
                     let hY = y + 4;
-                    let stepY = (headerHeight - 4) / 4;
-                    d.text(`SHIP TO / DEST: ${bData.shipTo || "-"}`, hX, hY);
-                    d.text(`PO/ORD: ${bData.poOrd || "-"}`, hX, hY + stepY);
-                    d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY + (stepY * 2));
-                    d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY + (stepY * 3));
+                    
+                    // Dynamic Header Metadata lines list (Hides empty metadata fields)
+                    let metaLines = [];
+                    if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
+                    if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
+                    if (bData.challanNo && bData.challanNo !== "-") metaLines.push(`CHALLAN NO: ${bData.challanNo}`);
+                    if (bData.invNo && bData.invNo !== "-") metaLines.push(`INV NO: ${bData.invNo}`);
+
+                    let stepY = metaLines.length > 1 ? (headerHeight - 6) / (metaLines.length) : 5;
+                    metaLines.forEach((lineText, idx) => {
+                        d.text(lineText, hX, hY + (idx * stepY));
+                    });
 
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
                     d.setFontSize(baseFontSize + 1);
@@ -783,21 +796,58 @@
                         console.error("Barcode Generation Error:", e);
                     }
 
-                    let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEM NAME", "COLOR", "EAN CODE", "RATE", "MRP", "QTY"]];
-                    let tableBody = bData.items.map(i => [
-                        i.sku || "-", i.size || "-", i.itemCode || "-", i.itemName || "-", i.color || "-", i.ean || "-", i.rtae || "-", i.mrp || "-", i.qty || 1
-                    ]);
+                    // Dynamic Column Builder (Auto-Removes Empty Columns)
+                    let availableCols = [
+                        { key: 'sku', title: skuLabel },
+                        { key: 'size', title: 'SIZE' },
+                        { key: 'itemCode', title: 'ITEM CODE' },
+                        { key: 'itemName', title: 'ITEM NAME' },
+                        { key: 'color', title: 'COLOR' },
+                        { key: 'ean', title: 'EAN CODE' },
+                        { key: 'rtae', title: 'RATE' },
+                        { key: 'mrp', title: 'MRP' },
+                        { key: 'qty', title: 'QTY' }
+                    ];
+
+                    let activeCols = availableCols.filter(col => {
+                        if (col.key === 'qty') return true;
+                        return bData.items.some(item => {
+                            let val = item[col.key];
+                            return val && val !== "" && val !== "-";
+                        });
+                    });
+
+                    let tableHeaders = [activeCols.map(c => c.title)];
+                    let tableBody = bData.items.map(item => {
+                        return activeCols.map(col => {
+                            let val = item[col.key];
+                            return (val !== undefined && val !== null && val !== "") ? val : "-";
+                        });
+                    });
 
                     let totalQty = bData.items.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
 
+                    // AutoTable rendered with top gap & padding so data doesn't stick to header
                     d.autoTable({
-                        startY: y + headerHeight,
+                        startY: y + headerHeight + 1.5,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
                         head: tableHeaders,
                         body: tableBody,
                         theme: 'grid',
-                        styles: { fontSize: Math.max(5, baseFontSize - 1.5), cellPadding: 1.2, halign: 'center', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
-                        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
+                        styles: { 
+                            fontSize: Math.max(5, baseFontSize - 1.5), 
+                            cellPadding: 1.8, 
+                            halign: 'center', 
+                            textColor: [0, 0, 0], 
+                            lineColor: [0, 0, 0], 
+                            lineWidth: 0.25 
+                        },
+                        headStyles: { 
+                            fillColor: [0, 0, 0], 
+                            textColor: [255, 255, 255], 
+                            fontStyle: 'bold',
+                            cellPadding: 2 
+                        },
                         tableWidth: width
                     });
 
