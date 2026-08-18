@@ -38,8 +38,8 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 
 <!-- Print Orientation Selector Option -->
 <div class="mb-5 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left">
-<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION:</label>
-<div class="flex items-center gap-6">
+<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION / SIZE:</label>
+<div class="flex flex-wrap items-center gap-6">
 <label class="flex items-center gap-2 cursor-pointer">
 <input type="radio" name="pageOrientation" value="p" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
 <span class="text-sm font-semibold text-gray-800">📱 Portrait (4" x 6")</span>
@@ -47,6 +47,10 @@ body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 <label class="flex items-center gap-2 cursor-pointer">
 <input type="radio" name="pageOrientation" value="l" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
 <span class="text-sm font-semibold text-gray-800">🖥️ Landscape (6" x 4")</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="pageOrientation" value="a4" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+<span class="text-sm font-semibold text-gray-800">📄 A4 Document</span>
 </label>
 </div>
 </div>
@@ -244,7 +248,22 @@ reader.readAsArrayBuffer(file);
 
 async function generatePDF(data, metaPO, metaDest, fileName) {
 const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
-const isLandscape = (selectedOrientation === 'l');
+
+let docOrientation = 'p';
+let docFormat = [101.6, 152.4];
+let pageWidth = 101.6;
+let divX = 62;
+
+if (selectedOrientation === 'l') {
+    docOrientation = 'l';
+    pageWidth = 152.4;
+    divX = 105;
+} else if (selectedOrientation === 'a4') {
+    docOrientation = 'p';
+    docFormat = 'a4';
+    pageWidth = 210;
+    divX = 145;
+}
 
 let boxKey = '';
 if (data.length > 0) {
@@ -266,7 +285,7 @@ if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
 rawGroups[boxVal].push(row);
 });
 
-const uniqueRawKeys = Object.keys(rawGroups);
+let uniqueRawKeys = Object.keys(rawGroups);
 totalBoxesFound = uniqueRawKeys.length;
 
 if (totalBoxesFound === 0) {
@@ -274,8 +293,13 @@ showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "tex
 return;
 }
 
-const pageWidth = isLandscape ? 152.4 : 101.6;
-const doc = new jsPDF({ orientation: selectedOrientation, unit: 'mm', format: [101.6, 152.4] });
+uniqueRawKeys.sort((a, b) => {
+let numA = parseInt(a.replace(/[^0-9]/g, '')) || 0;
+let numB = parseInt(b.replace(/[^0-9]/g, '')) || 0;
+return numA - numB;
+});
+
+const doc = new jsPDF({ orientation: docOrientation, unit: 'mm', format: docFormat });
 let isFirstPage = true;
 
 const allExcelHeaders = data.length > 0 ? Object.keys(data[0]) : [];
@@ -328,7 +352,6 @@ docObj.setDrawColor(0, 0, 0);
 docObj.setTextColor(0, 0, 0);
 
 const boxOuterWidth = pageWidth - 4;
-const divX = isLandscape ? 105 : 62;
 
 const headerItems = [];
 if (dest) headerItems.push(`SHIP TO / DEST: ${dest}`);
@@ -349,7 +372,7 @@ const stepY = totalLines > 1 ? 18 / totalLines : 0;
 headerItems.forEach((textLine, index) => {
 docObj.setFontSize(totalLines > 3 ? 8.0 : 9.5);
 let lineText = textLine;
-if (!isLandscape && lineText.length > 38) lineText = lineText.substring(0, 35) + "...";
+if (selectedOrientation === 'p' && lineText.length > 38) lineText = lineText.substring(0, 35) + "...";
 docObj.text(lineText, 4, startY + (index * stepY));
 });
 
@@ -391,7 +414,7 @@ tableRows.push([
 ]);
 }
 
-if (!isFirstPage) doc.addPage([101.6, 152.4], selectedOrientation);
+if (!isFirstPage) doc.addPage(docFormat, docOrientation);
 isFirstPage = false;
 
 drawHeader(doc);
