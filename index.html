@@ -16,7 +16,6 @@
         h2 { color: #6fffe9; margin-top: 0; font-size: 22px; text-align: center; font-weight: 700; letter-spacing: 0.5px; }
         p.subtitle { color: #5bc0be; font-size: 13px; margin-bottom: 20px; text-align: center; }
         
-        /* Main Tool Switcher Styling */
         .tool-switcher { display: flex; background: #0b132b; border-radius: 8px; padding: 5px; border: 1px solid #3a506b; margin-bottom: 20px; }
         .switch-btn { flex: 1; padding: 10px; border: none; background: transparent; color: #cbd5e1; font-weight: bold; font-size: 13px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         .switch-btn.active { background: #5bc0be; color: #0b132b; }
@@ -33,7 +32,6 @@
         
         .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .radio-option { flex: 1 1 45%; background: #0b132b; border: 1px solid #3a506b; padding: 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; }
-        .radio-option input { cursor: pointer; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-action { flex: 1; padding: 12px; background: #3a506b; color: #6fffe9; border: 1px solid #6fffe9; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
@@ -150,7 +148,6 @@
 
                     populatePicklistDropdown(rawJsonData);
                     
-                    // Enable Buttons
                     document.getElementById('generateLabelBtn').disabled = false;
                     document.getElementById('printLabelBtn').disabled = false;
                     document.getElementById('picklistSelect').disabled = false;
@@ -167,10 +164,15 @@
         }
     });
 
-    function getVal(row, keys) {
-        for (let k of keys) {
-            if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
-                return String(row[k]).trim();
+    function norm(str) {
+        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function getValSmart(row, possibleNames) {
+        const normTargets = possibleNames.map(norm);
+        for (let key in row) {
+            if (normTargets.includes(norm(key))) {
+                return String(row[key]).trim();
             }
         }
         return '';
@@ -179,7 +181,7 @@
     function populatePicklistDropdown(data) {
         let picklistSet = new Set();
         data.forEach(row => {
-            let val = getVal(row, ["PICK LIST NO", "PICK_LIST_NO"]);
+            let val = getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]);
             if (val) picklistSet.add(val);
         });
 
@@ -193,23 +195,8 @@
         });
     }
 
-    // Helper: Normalize Column Names
-    function norm(str) {
-        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    }
-
-    function getValSmart(row, possibleNames) {
-        const normTargets = possibleNames.map(norm);
-        for (let key in row) {
-            if (normTargets.includes(norm(key))) {
-                return row[key];
-            }
-        }
-        return '';
-    }
-
     // =========================================================================
-    // CODE 1: SMART BOX LABEL GENERATOR (PROPER FULL ORIGINAL CODE)
+    // CODE 1: SMART BOX LABEL GENERATOR
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
         if (rawJsonData.length === 0) return;
@@ -220,7 +207,6 @@
 
         setTimeout(() => {
             try {
-                // Group by Box No
                 let boxesMap = new Map();
                 rawJsonData.forEach(row => {
                     let boxNo = getValSmart(row, ["BOX NO", "BOX_NO", "BOXNO", "BOX", "BOX #", "CARTON NO", "CARTON_NO"]);
@@ -276,7 +262,6 @@
                 function renderLabelBox(d, x, y, width, height) {
                     d.rect(x, y, width, height);
 
-                    // Top Header
                     d.setFillColor(15, 23, 42);
                     d.rect(x, y, width, 14, 'F');
                     d.setFontSize(14);
@@ -284,7 +269,6 @@
                     d.setTextColor(255, 255, 255);
                     d.text("BOX NO: " + (it.boxNo || "-"), x + (width / 2), y + 9.5, { align: "center" });
 
-                    // Info Grid
                     d.setFontSize(8.5);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
@@ -303,7 +287,6 @@
                     d.setLineWidth(0.3);
                     d.line(x, infoY + 3, x + width, infoY + 3);
 
-                    // Table Data
                     let tableBody = it.items.map(i => [
                         i.item || "-",
                         i.barcode || "-",
@@ -329,7 +312,6 @@
 
                     let finalY = d.lastAutoTable.finalY + 4;
 
-                    // Barcode
                     if (it.boxNo) {
                         try {
                             let canvas = document.getElementById('barcodeCanvas');
@@ -342,7 +324,6 @@
                         } catch (e) { console.error(e); }
                     }
 
-                    // Box Counter
                     d.setFontSize(8.5);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
@@ -390,7 +371,7 @@
     }
 
     // =========================================================================
-    // CODE 2: ADVANCED PICK LIST GENERATOR (PROPER FULL ORIGINAL CODE)
+    // CODE 2: ADVANCED PICK LIST GENERATOR (UPDATED COLUMNS TO MATCH IMAGE)
     // =========================================================================
     function processPickList(actionType = 'download') {
         if (rawJsonData.length === 0) return;
@@ -407,7 +388,7 @@
 
                 let filteredData = rawJsonData.filter(row => {
                     if (selectedPL === "ALL") return true;
-                    let val = getVal(row, ["PICK LIST NO", "PICK_LIST_NO"]);
+                    let val = getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]);
                     return val === selectedPL;
                 });
 
@@ -417,14 +398,15 @@
                     return;
                 }
 
+                // Custom Column Mapping Matching Your Image Order
                 let parsedRows = filteredData.map(row => ({
-                    picklistNo: getVal(row, ["PICK LIST NO", "PICK_LIST_NO"]),
-                    item: getVal(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "ITEM_CODE", "STYLE"]),
-                    barcode: getVal(row, ["BARCODE", "BARCODE NO", "EAN"]),
-                    size: getVal(row, ["SIZE"]),
-                    color: getVal(row, ["COLOR", "COLOUR"]),
-                    binNo: getVal(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
-                    qty: parseInt(getVal(row, ["QTY", "QUANTITY", "PICK QTY"])) || 1
+                    picklistNo: getValSmart(row, ["PICK LIST NO", "PICK_LIST_NO", "PICKLIST NO", "PICKLIST_NO"]),
+                    department: getValSmart(row, ["DEPARTMENT", "DEPT", "CAT", "CATEGORY"]),
+                    item: getValSmart(row, ["ITEM", "ITEM_NAME", "ITEM CODE", "ITEM_CODE", "STYLE", "ARTICLE"]),
+                    color: getValSmart(row, ["COLOR", "COLOUR", "CLR"]),
+                    barcode: getValSmart(row, ["BARCODE", "BARCODE NO", "EAN", "SKU"]),
+                    binNo: getValSmart(row, ["BIN NO", "BIN_NO", "BIN", "LOCATION"]),
+                    qty: parseInt(getValSmart(row, ["PICK LIST QTY", "PICK_LIST_QTY", "QTY", "QUANTITY", "PICK QTY"])) || 1
                 }));
 
                 const sortRows = (rows) => {
@@ -460,7 +442,8 @@
                     doc.text(subTitle, 14, 17);
                 };
 
-                let headers = [["ITEM", "BARCODE", "SIZE", "COLOR", "BIN NO", "QTY"]];
+                // IMAGE EXACT SEQUENCE: PICK LIST NO | DEPARTMENT | ITEM | COLOR | BARCODE | BIN NO | PICK LIST QTY
+                let headers = [["PICK LIST NO", "DEPARTMENT", "ITEM", "COLOR", "BARCODE", "BIN NO", "PICK LIST QTY"]];
 
                 if (viewMode === "ITEM" || viewMode === "BARCODE") {
                     let groups = new Map();
@@ -476,7 +459,7 @@
                         isFirstGroup = false;
 
                         let sorted = sortRows(rows);
-                        let body = sorted.map(r => [r.item, r.barcode, r.size, r.color, r.binNo, r.qty]);
+                        let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
                         let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
 
                         renderCleanHeader(`PICK LIST REPORT (${viewMode}: ${groupKey})`, `Pick List: ${selectedPL} | Items: ${sorted.length}`);
@@ -485,12 +468,12 @@
                             ...tableConfig,
                             head: headers,
                             body: body,
-                            foot: [["TOTAL", "", "", "", "", totalQty]]
+                            foot: [["TOTAL", "", "", "", "", "", totalQty]]
                         });
                     });
                 } else {
                     let sorted = sortRows(parsedRows);
-                    let body = sorted.map(r => [r.item, r.barcode, r.size, r.color, r.binNo, r.qty]);
+                    let body = sorted.map(r => [r.picklistNo, r.department, r.item, r.color, r.barcode, r.binNo, r.qty]);
                     let totalQty = sorted.reduce((sum, r) => sum + r.qty, 0);
 
                     renderCleanHeader(`PICK LIST REPORT (MIXED VIEW)`, `Pick List: ${selectedPL} | Total Rows: ${sorted.length}`);
@@ -499,7 +482,7 @@
                         ...tableConfig,
                         head: headers,
                         body: body,
-                        foot: [["TOTAL", "", "", "", "", totalQty]]
+                        foot: [["TOTAL", "", "", "", "", "", totalQty]]
                     });
                 }
 
