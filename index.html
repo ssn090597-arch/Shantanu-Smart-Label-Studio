@@ -253,7 +253,7 @@
     }
 
     // =========================================================================
-    // SMART BOX LABEL STUDIO LOGIC (FIXED ORIENTATION & STICKER SIZES)
+    // SMART BOX LABEL STUDIO LOGIC
     // =========================================================================
     function processBoxLabels(actionType = 'download') {
         if (!rawSheetRowsLabel || rawSheetRowsLabel.length === 0) return;
@@ -261,7 +261,6 @@
 
         setTimeout(() => {
             try {
-                // Get Selected Orientation Radio Value
                 let selectedOrientation = "a4_2";
                 let radioElems = document.getElementsByName('pageOrientation');
                 for (let r of radioElems) {
@@ -348,27 +347,24 @@
                 const { jsPDF } = window.jspdf;
                 let doc;
 
-                // Setup Page Size dynamically based on orientation selection
                 if (selectedOrientation === "p") {
-                    // Portrait Thermal Sticker (4" x 6") -> 101.6mm x 152.4mm
                     doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [101.6, 152.4] });
                 } else if (selectedOrientation === "l") {
-                    // Landscape Thermal Sticker (6" x 4") -> 152.4mm x 101.6mm
                     doc = new jsPDF({ orientation: 'l', unit: 'mm', format: [152.4, 101.6] });
                 } else {
-                    // Standard A4
                     doc = new jsPDF('p', 'mm', 'a4');
                 }
 
+                // EXACT REQUESTED RENDER LABEL BOX FUNCTION
                 function renderLabelBox(d, bData, x, y, width, height) {
                     d.setLineWidth(0.6);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
-                    let headerHeight = Math.min(24, height * 0.22);
+                    let headerHeight = Math.min(26, height * 0.22);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    let leftColWidth = width * 0.65;
+                    let leftColWidth = width * 0.62;
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
                     let baseFontSize = width < 120 ? 6 : 8;
@@ -384,20 +380,37 @@
                     d.text(`CHALLAN NO: ${bData.challanNo || "-"}`, hX, hY + (stepY * 2));
                     d.text(`INV NO: ${bData.invNo || "-"}`, hX, hY + (stepY * 3));
 
+                    // Right Column - BOX NO. & BARCODE FIX
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
                     d.setFontSize(baseFontSize + 1);
-                    d.text("BOX NO.", rX, y + 5, { align: "center" });
+                    d.text("BOX NO.", rX, y + 4.5, { align: "center" });
 
-                    d.setFontSize(baseFontSize + 4);
-                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 10, { align: "center" });
+                    d.setFontSize(baseFontSize + 3);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 9.5, { align: "center" });
 
+                    // FIXED BARCODE GENERATION & PLACEMENT
                     try {
                         let canvas = document.getElementById('barcodeCanvas');
-                        JsBarcode(canvas, String(bData.boxNo), { format: "CODE128", displayValue: false, margin: 0, height: 25 });
+                        JsBarcode(canvas, String(bData.boxNo), { 
+                            format: "CODE128", 
+                            displayValue: false, 
+                            margin: 0, 
+                            height: 35,
+                            width: 2 
+                        });
                         let imgData = canvas.toDataURL('image/png');
-                        d.addImage(imgData, 'PNG', x + leftColWidth + 3, y + 12, (width - leftColWidth) - 6, Math.max(8, headerHeight - 13));
-                    } catch (e) {}
+                        
+                        let bcX = x + leftColWidth + 3;
+                        let bcY = y + 11;
+                        let bcWidth = (width - leftColWidth) - 6;
+                        let bcHeight = headerHeight - 12; // Adjusts cleanly within border
 
+                        d.addImage(imgData, 'PNG', bcX, bcY, bcWidth, bcHeight);
+                    } catch (e) {
+                        console.error("Barcode Generation Error:", e);
+                    }
+
+                    // Table Data Render
                     let tableHeaders = [["Merchant SKU", "SIZE", "ITEM CODE", "ITEAM NAME", "color", "Ean code", "RTAE", "MRP", "QTY"]];
                     let tableBody = bData.items.map(i => [
                         i.sku || "-", i.size || "-", i.itemCode || "-", i.itemName || "-", i.color || "-", i.ean || "-", i.rtae || "-", i.mrp || "-", i.qty || 1
@@ -440,19 +453,15 @@
                         let bData = boxesArray[i];
 
                         if (selectedOrientation === "p") {
-                            // PORTRAIT 4x6
                             if (i > 0) doc.addPage([101.6, 152.4], 'p');
                             renderLabelBox(doc, bData, 3, 3, 95.6, 146.4);
                         } else if (selectedOrientation === "l") {
-                            // LANDSCAPE 6x4
                             if (i > 0) doc.addPage([152.4, 101.6], 'l');
                             renderLabelBox(doc, bData, 3, 3, 146.4, 95.6);
                         } else if (selectedOrientation === "a4_1") {
-                            // A4 (1 BOX PER PAGE)
                             if (i > 0) doc.addPage('a4', 'p');
                             renderLabelBox(doc, bData, 10, 10, 190, 270);
                         } else {
-                            // A4 (2 BOXES PER PAGE)
                             let isSecondBox = (i % 2 === 1);
                             if (i > 0 && !isSecondBox) doc.addPage('a4', 'p');
 
