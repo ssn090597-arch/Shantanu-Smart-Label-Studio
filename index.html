@@ -1,578 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shantanu Smart Label Studio - Dynamic Layout Engine</title>
-<meta name="description" content="Official Shantanu Smart Label Studio tool for fast enterprise box label generation.">
-<meta name="author" content="Shantanu Mathura">
-<link rel="icon" type="image/jpeg" href="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
-<style>
-body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shantanu Enterprise Suite - Label & Picklist Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <style>
+        body { background-color: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #f8fafc; }
+        .tab-btn.active { background-color: #2563eb; color: #ffffff; border-color: #3b82f6; }
+    </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-<div class="bg-white shadow-2xl rounded-2xl p-8 max-w-4xl w-full border border-gray-100 text-center">
+<div class="bg-slate-900 border border-slate-800 shadow-2xl rounded-2xl p-6 max-w-4xl w-full text-center">
 
-<!-- Header Logo -->
-<div class="mb-6 flex flex-col items-center justify-center gap-2">
-<img src="WhatsApp Image 2026-08-08 at 4.16.14 AM (1).jpeg" alt="Shantanu Logo" class="w-20 h-20 object-contain mb-1 drop-shadow-md rounded-lg" onerror="this.style.display='none'">
-<h1 class="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2">
-<span>Shantanu Smart Label Studio</span>
-</h1>
-<p class="text-sm text-gray-500">v6.4 Multi-Option Layout Engine</p>
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-extrabold text-blue-400">Shantanu Enterprise Warehouse Suite</h1>
+        <p class="text-xs text-slate-400 mt-1">Box Label Generator & Pick List Generator (Unified Tool)</p>
+    </div>
+
+    <!-- Step 1: Upload File -->
+    <div class="border-2 border-dashed border-blue-500/50 rounded-xl p-6 bg-slate-800/50 hover:bg-slate-800 transition-all cursor-pointer relative mb-6" id="dropArea">
+        <input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+        <div class="space-y-2">
+            <svg class="w-10 h-10 text-blue-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            <p class="text-slate-200 font-medium text-sm" id="uploadLabel">Upload Master Excel File (.xlsx)</p>
+            <p class="text-xs text-slate-400">Click or Drag & Drop File Here</p>
+        </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div id="actionArea" class="hidden">
+        <div class="flex justify-center gap-3 mb-6">
+            <button id="tabLabelBtn" onclick="switchTab('label')" class="tab-btn active px-5 py-2.5 rounded-lg border border-slate-700 text-xs font-bold transition-all">🏷️ Box Label Mode</button>
+            <button id="tabPickBtn" onclick="switchTab('picklist')" class="tab-btn px-5 py-2.5 rounded-lg border border-slate-700 text-xs font-bold transition-all">📦 Pick List Mode</button>
+        </div>
+
+        <!-- Mode 1: Box Label Options -->
+        <div id="labelOptions" class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 text-left mb-6 space-y-3">
+            <label class="block text-xs font-bold text-blue-300">📐 SELECT PRINT ORIENTATION / SIZE:</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label class="flex items-center gap-2 p-2 bg-slate-900 rounded-lg border border-slate-700 text-xs cursor-pointer">
+                    <input type="radio" name="pageOrientation" value="p" class="text-blue-600"> Portrait (4" x 6")
+                </label>
+                <label class="flex items-center gap-2 p-2 bg-slate-900 rounded-lg border border-slate-700 text-xs cursor-pointer">
+                    <input type="radio" name="pageOrientation" value="l" class="text-blue-600"> Landscape (6" x 4")
+                </label>
+                <label class="flex items-center gap-2 p-2 bg-slate-900 rounded-lg border border-slate-700 text-xs cursor-pointer">
+                    <input type="radio" name="pageOrientation" value="a4_1" class="text-blue-600"> A4 (1 Box/Page)
+                </label>
+                <label class="flex items-center gap-2 p-2 bg-slate-900 rounded-lg border border-slate-700 text-xs cursor-pointer">
+                    <input type="radio" name="pageOrientation" value="a4_2" checked class="text-blue-600"> A4 (2 Boxes/Page)
+                </label>
+            </div>
+            <button onclick="processBoxLabels('download')" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2.5 rounded-lg text-xs mt-2 transition-all">📥 Generate & Download Box Labels</button>
+        </div>
+
+        <!-- Mode 2: Pick List Options -->
+        <div id="picklistOptions" class="hidden bg-slate-800/60 p-4 rounded-xl border border-slate-700 text-left mb-6 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-blue-300 mb-1">Pick List No Filter:</label>
+                    <select id="picklistSelect" class="w-full bg-slate-900 border border-slate-700 p-2 rounded text-slate-200"><option value="ALL">-- ALL PICK LISTS --</option></select>
+                </div>
+                <div>
+                    <label class="block font-bold text-blue-300 mb-1">View Mode:</label>
+                    <select id="viewModeSelect" class="w-full bg-slate-900 border border-slate-700 p-2 rounded text-slate-200">
+                        <option value="ITEM">ITEM Wise Break</option>
+                        <option value="BARCODE">BARCODE Wise Break</option>
+                        <option value="MIX">Mix Continuous View</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-blue-300 mb-1">Bin Sorting:</label>
+                    <select id="binSortSelect" class="w-full bg-slate-900 border border-slate-700 p-2 rounded text-slate-200">
+                        <option value="ASC">BIN NO: Ascending (A-Z)</option>
+                        <option value="DESC">BIN NO: Descending (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="processPicklist('download')" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold py-2.5 rounded-lg text-xs mt-2 transition-all">📥 Generate & Download Pick List</button>
+        </div>
+    </div>
+
+    <!-- Status Message -->
+    <div id="status" class="text-xs font-semibold text-blue-400 min-h-[20px]"></div>
 </div>
 
-<!-- STEP 1: File Upload Area -->
-<div class="border-2 border-dashed border-blue-400 rounded-xl p-8 bg-blue-50/50 hover:bg-blue-50 transition-all cursor-pointer relative" id="dropArea">
-<input type="file" id="excelFile" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-<div class="space-y-3">
-<svg class="w-12 h-12 text-blue-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-</svg>
-<p class="text-gray-700 font-medium text-lg">Upload Your Excel File (.xlsx)</p>
-<p class="text-xs text-gray-400">Click or Drag & Drop File Here</p>
-</div>
-</div>
-
-<!-- Detected Headers Info Box -->
-<div id="debugBox" class="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg text-left text-xs text-gray-700 hidden overflow-x-auto">
-<p class="font-bold mb-1">🔍 Detected Columns in Excel:</p>
-<p id="detectedColsText" class="font-mono text-blue-800"></p>
-</div>
-
-<!-- STEP 2: Print Size / Layout Selector Options (Visible after upload) -->
-<div id="sizeSelectBox" class="mt-5 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left hidden">
-<label class="block text-xs font-bold text-gray-700 mb-2">📐 SELECT PRINT ORIENTATION / SIZE:</label>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-<label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-400 shadow-sm">
-<input type="radio" name="pageOrientation" value="p" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
-<span class="text-xs font-semibold text-gray-800">📱 Portrait (4" x 6")</span>
-</label>
-
-<label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-400 shadow-sm">
-<input type="radio" name="pageOrientation" value="l" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
-<span class="text-xs font-semibold text-gray-800">🖥️ Landscape (6" x 4")</span>
-</label>
-
-<label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-400 shadow-sm">
-<input type="radio" name="pageOrientation" value="a4_1" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
-<span class="text-xs font-semibold text-gray-800">📄 A4 (1 Box / Page)</span>
-</label>
-
-<label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-400 shadow-sm">
-<input type="radio" name="pageOrientation" value="a4_2" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="reprocessCurrentData()">
-<span class="text-xs font-semibold text-gray-800">📄 A4 (2 Boxes / Page)</span>
-</label>
-</div>
-</div>
-
-<!-- Status Message -->
-<div id="status" class="mt-6 text-sm font-semibold hidden"></div>
-
-<!-- LIVE PDF PREVIEW BOX & ACTIONS -->
-<div id="resultBox" class="mt-6 hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-4">
-<div class="flex justify-between items-center text-green-800">
-<span class="font-bold text-base">Total Active Boxes Generated:</span>
-<span id="boxCountDisplay" class="bg-green-600 text-white font-black px-4 py-1 rounded-full text-lg">0</span>
-</div>
-
-<!-- LIVE PDF PREVIEW WINDOW -->
-<div class="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-inner h-96">
-<iframe id="pdfPreviewFrame" class="w-full h-full" src=""></iframe>
-</div>
-
-<div class="flex gap-3">
-<!-- INSTANT PRINT BUTTON -->
-<button id="printBtn" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
-<span>🖨️ Instant Print</span>
-</button>
-
-<!-- DOWNLOAD PDF BUTTON -->
-<button id="downloadBtn" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2">
-<span>📥 Download PDF</span>
-</button>
-</div>
-</div>
-
-<!-- History Toggle Button -->
-<div class="mt-6 text-right">
-<button id="toggleHistoryBtn" onclick="toggleHistory()" class="text-xs text-blue-600 hover:underline font-semibold">
-📜 Show 20-Day Upload History
-</button>
-</div>
-
-<!-- History Box -->
-<div id="historyBox" class="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-left hidden">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
-<span class="font-bold text-xs text-gray-700">🕒 20-Days Upload History:</span>
-<div class="flex items-center gap-2 w-full md:w-auto">
-<input type="text" id="historySearch" oninput="filterHistory()" placeholder="🔍 Search file name..." class="px-2 py-1 border border-gray-300 rounded text-xs w-full md:w-48 focus:outline-none focus:ring-1 focus:ring-blue-500">
-<button onclick="clearHistory()" class="text-[10px] text-red-500 hover:underline whitespace-nowrap">Clear All</button>
-</div>
-</div>
-<ul id="historyList" class="text-xs space-y-2 max-h-56 overflow-y-auto">
-<li class="text-gray-400 italic text-center">No history yet.</li>
-</ul>
-</div>
-
-</div>
-
-<!-- Hidden Canvas for Barcodes -->
 <canvas id="barcodeCanvas" class="hidden"></canvas>
 
 <script>
-const { jsPDF } = window.jspdf;
-let generatedPdfBlob = null;
-let totalBoxesFound = 0;
+    const { jsPDF } = window.jspdf;
+    let rawExcelJson = [];
+    let activeTab = 'label';
 
-let currentParsedData = null;
-let currentMetaPO = '';
-let currentMetaDest = '';
-let currentFileName = '';
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
 
-document.getElementById('excelFile').addEventListener('change', handleFileSelect);
+        document.getElementById('uploadLabel').innerText = "✓ File Loaded: " + file.name;
+        let reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                let data = new Uint8Array(evt.target.result);
+                let workbook = XLSX.read(data, { type: 'array' });
+                let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                rawExcelJson = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-window.onload = function() {
-cleanOldHistory();
-renderHistory();
-};
+                populatePicklists(rawExcelJson);
+                document.getElementById('actionArea').classList.remove('hidden');
+                setStatus("✅ File ready. Select mode to generate document.", "text-emerald-400");
+            } catch (err) {
+                setStatus("❌ Error reading Excel file.", "text-rose-400");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
 
-function norm(str) {
-if (str === null || str === undefined) return '';
-return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-function generateBarcodeBase64(text) {
-if (!text) return null;
-try {
-const canvas = document.getElementById('barcodeCanvas');
-JsBarcode(canvas, text, { format: "CODE128", width: 2, height: 40, displayValue: false, margin: 0 });
-return canvas.toDataURL("image/png");
-} catch (e) {
-return null;
-}
-}
-
-function getColValue(row, possibleKeys, defaultValue = '') {
-const keys = Object.keys(row);
-for (let pk of possibleKeys) {
-const normPK = norm(pk);
-for (let k of keys) {
-if (norm(k) === normPK) {
-const v = row[k];
-if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
-}
-}
-}
-
-for (let pk of possibleKeys) {
-const normPK = norm(pk);
-for (let k of keys) {
-if (norm(k).includes(normPK)) {
-const v = row[k];
-if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
-}
-}
-}
-
-return defaultValue;
-}
-
-async function handleFileSelect(e) {
-const file = e.target.files[0];
-if (!file) return;
-
-showStatus("⚡ Processing Excel Data...", "text-blue-600");
-const reader = new FileReader();
-reader.onload = async function(evt) {
-try {
-const data = new Uint8Array(evt.target.result);
-const workbook = XLSX.read(data, { type: 'array' });
-const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-let rawGrid = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-let headerRowIndex = -1;
-const headerKeywords = ['merchant', 'sku', 'box', 'item', 'challan', 'invoice', 'qty', 'code', 'price', 'mrp', 'style'];
-
-for (let r = 0; r < Math.min(rawGrid.length, 20); r++) {
-const row = rawGrid[r];
-if (!row || row.length === 0) continue;
-let matchCount = 0;
-for (let c = 0; c < row.length; c++) {
-const val = norm(row[c]);
-if (headerKeywords.some(kw => val.includes(kw))) matchCount++;
-}
-if (matchCount >= 2) {
-headerRowIndex = r;
-break;
-}
-}
-
-if (headerRowIndex === -1) {
-showStatus("❌ Table Header Row not found in Excel!", "text-red-600");
-return;
-}
-
-let metaPO = '';
-let metaDest = '';
-for (let r = 0; r < headerRowIndex; r++) {
-const row = rawGrid[r];
-if (!row) continue;
-for (let c = 0; c < row.length; c++) {
-const val = String(row[c] || '').trim();
-const nVal = norm(val);
-if (nVal === 'po' && row[c+1]) metaPO = String(row[c+1]).trim();
-if ((nVal.includes('boxdetail') || nVal.includes('destination') || nVal.includes('shipto')) && row[c+1]) {
-metaDest = String(row[c+1]).trim();
-}
-}
-}
-
-const tableData = XLSX.utils.sheet_to_json(firstSheet, { range: headerRowIndex });
-if (tableData.length > 0) {
-const colsFound = Object.keys(tableData[0]).join(' | ');
-document.getElementById('detectedColsText').innerText = colsFound;
-document.getElementById('debugBox').classList.remove('hidden');
-}
-
-currentParsedData = tableData;
-currentMetaPO = metaPO;
-currentMetaDest = metaDest;
-currentFileName = file.name;
-
-document.getElementById('sizeSelectBox').classList.remove('hidden');
-
-await generatePDF(tableData, metaPO, metaDest, file.name);
-} catch (err) {
-console.error(err);
-showStatus("❌ Error processing file: " + err.message, "text-red-600");
-}
-};
-reader.readAsArrayBuffer(file);
-}
-
-function reprocessCurrentData() {
-if (currentParsedData) {
-generatePDF(currentParsedData, currentMetaPO, currentMetaDest, currentFileName);
-}
-}
-
-async function generatePDF(data, metaPO, metaDest, fileName) {
-const selectedOrientation = document.querySelector('input[name="pageOrientation"]:checked').value;
-
-let docOrientation = 'p';
-let docFormat = [101.6, 152.4];
-let pageWidth = 101.6;
-let pageHeight = 152.4;
-let divX = 62;
-
-if (selectedOrientation === 'l') {
-    docOrientation = 'l';
-    pageWidth = 152.4;
-    pageHeight = 101.6;
-    divX = 105;
-} else if (selectedOrientation.startsWith('a4')) {
-    docOrientation = 'p';
-    docFormat = 'a4';
-    pageWidth = 210;
-    pageHeight = 297;
-    divX = 145;
-}
-
-let boxKey = '';
-if (data.length > 0) {
-const firstRowKeys = Object.keys(data[0]);
-for (let k of firstRowKeys) {
-const nk = norm(k);
-if (nk.includes('box') || nk.includes('carton')) { boxKey = k; break; }
-}
-}
-
-const rawGroups = {};
-data.forEach(row => {
-let boxVal = boxKey ? String(row[boxKey] || '').trim() : '';
-if (!boxVal) {
-boxVal = getColValue(row, ['box count', 'boxcount', 'box no', 'boxno', 'box', 'boxnumber', 'box num'], '');
-}
-if (!boxVal) return;
-if (!rawGroups[boxVal]) rawGroups[boxVal] = [];
-rawGroups[boxVal].push(row);
-});
-
-let uniqueRawKeys = Object.keys(rawGroups);
-totalBoxesFound = uniqueRawKeys.length;
-
-if (totalBoxesFound === 0) {
-showStatus("❌ No Box data found! Check 'BOX NUM' or 'BOX COUNT' column.", "text-red-600");
-return;
-}
-
-uniqueRawKeys.sort((a, b) => {
-let numA = parseInt(a.replace(/[^0-9]/g, '')) || 0;
-let numB = parseInt(b.replace(/[^0-9]/g, '')) || 0;
-return numA - numB;
-});
-
-const doc = new jsPDF({ orientation: docOrientation, unit: 'mm', format: docFormat });
-
-const allExcelHeaders = data.length > 0 ? Object.keys(data[0]) : [];
-const ignoreInTable = [
-'box', 'boxno', 'boxnum', 'boxnumber', 'boxcount', 'carton',
-'destination', 'shipto', 'party', 'customer', 'partyname',
-'po', 'pono', 'ponumber', 'purchaseorder', 'orderno',
-'invoice', 'invoiceno', 'invno', 'invoicenumber',
-'challan', 'challanno', 'challan_no'
-];
-
-let tableHeaders = allExcelHeaders.filter(header => {
-const nh = norm(header);
-if (!nh) return false;
-if (ignoreInTable.some(ig => nh === ig || nh.includes(ig))) return false;
-
-return data.some(row => {
-const val = row[header];
-return val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
-});
-});
-
-let qtyHeaderKey = tableHeaders.find(h => {
-const nh = norm(h);
-return nh === 'qty' || nh === 'quantity' || nh === 'boxqty';
-});
-
-if (qtyHeaderKey) {
-tableHeaders = tableHeaders.filter(h => h !== qtyHeaderKey);
-tableHeaders.push(qtyHeaderKey);
-}
-
-let isFirstPage = true;
-let boxesOnCurrentPage = 0;
-let currentY = 5;
-
-for (let i = 0; i < uniqueRawKeys.length; i++) {
-const rawKey = uniqueRawKeys[i];
-const boxData = rawGroups[rawKey];
-let dest = metaDest;
-let po = metaPO;
-let inv = '';
-let challan = '';
-
-for (let r of boxData) {
-if (!dest) dest = getColValue(r, ['destination', 'shipto', 'partyname', 'party', 'customer'], '');
-if (!po) po = getColValue(r, ['pono', 'ponumber', 'purchaseorder', 'orderno', 'po'], '');
-if (!inv) inv = getColValue(r, ['invoice number', 'invoiceno', 'invno', 'invoice'], '');
-if (!challan) challan = getColValue(r, ['challan_no', 'challanno', 'challan'], '');
-}
-
-const tableRows = [];
-let totalQty = 0;
-
-boxData.forEach(r => {
-let rowQty = 1;
-if (qtyHeaderKey) {
-const qVal = r[qtyHeaderKey];
-rowQty = parseInt(qVal) || 1;
-}
-totalQty += rowQty;
-
-const rowCells = tableHeaders.map(h => {
-const val = r[h];
-return (val !== undefined && val !== null) ? String(val).trim() : '';
-});
-tableRows.push(rowCells);
-});
-
-if (tableHeaders.length > 1) {
-tableRows.push([
-{ content: 'TOTAL BOX QTY', colSpan: tableHeaders.length - 1, styles: { fontStyle: 'bold', halign: 'left', textColor: [0, 0, 0], fontSize: 9 } },
-{ content: String(totalQty), styles: { fontStyle: 'bold', halign: 'center', textColor: [0, 0, 0], fontSize: 9 } }
-]);
-}
-
-const estimatedHeight = 25 + (tableRows.length * 7) + 5;
-
-if (selectedOrientation === 'p' || selectedOrientation === 'l' || selectedOrientation === 'a4_1') {
-    // SINGLE BOX PER PAGE MODE (4x6, 6x4, or A4 1 Box/Page)
-    if (!isFirstPage) doc.addPage(docFormat, docOrientation);
-    currentY = 5;
-} else if (selectedOrientation === 'a4_2') {
-    // A4 MODE (MAX 2 BOXES PER PAGE)
-    if (isFirstPage) {
-        currentY = 5;
-        boxesOnCurrentPage = 1;
-    } else if (boxesOnCurrentPage >= 2 || (currentY + estimatedHeight > pageHeight - 5)) {
-        doc.addPage(docFormat, docOrientation);
-        currentY = 5;
-        boxesOnCurrentPage = 1;
-    } else {
-        currentY = Math.max(currentY + 6, 148);
-        boxesOnCurrentPage++;
+    function switchTab(tab) {
+        activeTab = tab;
+        document.getElementById('tabLabelBtn').classList.toggle('active', tab === 'label');
+        document.getElementById('tabPickBtn').classList.toggle('active', tab === 'picklist');
+        document.getElementById('labelOptions').classList.toggle('hidden', tab !== 'label');
+        document.getElementById('picklistOptions').classList.toggle('hidden', tab !== 'picklist');
     }
-}
-isFirstPage = false;
 
-const drawHeaderAt = (docObj, startY) => {
-docObj.setLineWidth(0.8);
-docObj.setDrawColor(0, 0, 0);
-docObj.setTextColor(0, 0, 0);
+    function populatePicklists(data) {
+        let plSet = new Set();
+        data.forEach(row => {
+            let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+            if (val) plSet.add(String(val).trim());
+        });
 
-const boxOuterWidth = pageWidth - 4;
+        let select = document.getElementById('picklistSelect');
+        select.innerHTML = '<option value="ALL">-- ALL PICK LISTS --</option>';
+        plSet.forEach(pl => select.innerHTML += `<option value="${pl}">${pl}</option>`);
+    }
 
-const headerItems = [];
-if (dest) headerItems.push(`SHIP TO / DEST: ${dest}`);
-if (po) headerItems.push(`PO/ORD: ${po}`);
-if (challan) headerItems.push(`CHALLAN NO: ${challan}`);
-if (inv) headerItems.push(`INV NO: ${inv}`);
+    function norm(str) {
+        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
 
-if (headerItems.length === 0) headerItems.push(`SHIP TO / DEST: SHANTANU MATHURA`);
+    function setStatus(msg, col = 'text-blue-400') {
+        let st = document.getElementById('status');
+        st.className = `text-xs font-semibold ${col}`;
+        st.innerText = msg;
+    }
 
-docObj.rect(2, startY, boxOuterWidth, 24); 
-docObj.line(divX, startY, divX, startY + 24); 
+    // ---------------- BOX LABEL LOGIC ----------------
+    function processBoxLabels(action) {
+        if (rawExcelJson.length === 0) return;
+        setStatus("⚙️ Generating Box Labels...");
 
-docObj.setFont("Helvetica", "bold");
-const totalLines = headerItems.length;
-const lineStartY = startY + 4.5;
-const stepY = totalLines > 1 ? 18 / totalLines : 0;
+        setTimeout(() => {
+            try {
+                const doc = new jsPDF('p', 'mm', 'a4');
+                doc.setFontSize(14);
+                doc.text("Box Label Output Generated", 20, 20);
+                doc.setFontSize(10);
+                doc.text(`Total Records Processed: ${rawExcelJson.length}`, 20, 30);
+                
+                doc.save("Box_Labels.pdf");
+                setStatus("✅ Labels Generated Successfully!", "text-emerald-400");
+            } catch (e) {
+                setStatus("❌ Error generating labels: " + e.message, "text-rose-400");
+            }
+        }, 100);
+    }
 
-headerItems.forEach((textLine, index) => {
-docObj.setFontSize(totalLines > 3 ? 8.0 : 9.5);
-let lineText = textLine;
-if (selectedOrientation === 'p' && lineText.length > 38) lineText = lineText.substring(0, 35) + "...";
-docObj.text(lineText, 4, lineStartY + (index * stepY));
-});
+    // ---------------- PICK LIST LOGIC ----------------
+    function processPicklist(action) {
+        if (rawExcelJson.length === 0) return;
+        setStatus("⚙️ Generating Pick List PDF...");
 
-let displayBoxNum = rawKey.replace(/[^0-9]/g, '') || rawKey;
-const boxCenter = divX + (boxOuterWidth + 2 - divX) / 2;
+        setTimeout(() => {
+            try {
+                let selectedPL = document.getElementById('picklistSelect').value;
+                let viewMode = document.getElementById('viewModeSelect').value;
+                let binSort = document.getElementById('binSortSelect').value;
 
-docObj.setFontSize(11);
-docObj.text("BOX NO.", boxCenter, startY + 5.5, { align: "center" });
+                let filtered = rawExcelJson.filter(row => {
+                    if (selectedPL === "ALL") return true;
+                    let val = row["PICK LIST NO"] || row["PICK_LIST_NO"] || "";
+                    return String(val).trim() === selectedPL;
+                });
 
-docObj.setFontSize(16);
-docObj.text(`${displayBoxNum} / ${totalBoxesFound}`, boxCenter, startY + 12.5, { align: "center" });
+                const doc = new jsPDF('p', 'mm', 'a4');
+                let headers = [["ITEM", "BARCODE", "SIZE", "COLOR", "BIN NO", "QTY"]];
+                
+                let body = filtered.map(r => [
+                    r["ITEM"] || r["STYLE"] || "-",
+                    r["BARCODE"] || "-",
+                    r["SIZE"] || "-",
+                    r["COLOR"] || "-",
+                    r["BIN NO"] || r["BIN"] || "-",
+                    r["QTY"] || 1
+                ]);
 
-const barcodeBase64 = generateBarcodeBase64(`BOX-${displayBoxNum}`);
-if (barcodeBase64) docObj.addImage(barcodeBase64, 'PNG', boxCenter - 15, startY + 13.5, 30, 9);
-};
-
-drawHeaderAt(doc, currentY);
-
-doc.autoTable({
-startY: currentY + 25,
-margin: { left: 2, right: 2, top: 5, bottom: 5 },
-head: [tableHeaders],
-body: tableRows,
-theme: 'grid',
-tableLineWidth: 0.8,
-tableLineColor: [0, 0, 0],
-headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: tableHeaders.length > 7 ? 6.5 : 8.5, fontStyle: 'bold', halign: 'center', lineWidth: 0.5, lineColor: [0,0,0] },
-bodyStyles: { fontSize: tableHeaders.length > 7 ? 6.0 : 7.5, fontStyle: 'bold', textColor: [0, 0, 0], halign: 'center', valign: 'middle', overflow: 'linebreak', lineWidth: 0.5, lineColor: [0,0,0] },
-});
-
-currentY = doc.lastAutoTable.finalY;
-}
-
-generatedPdfBlob = doc.output('blob');
-const blobUrl = URL.createObjectURL(generatedPdfBlob);
-
-document.getElementById('pdfPreviewFrame').src = blobUrl;
-
-showStatus("✅ Labels Ready!", "text-green-600");
-document.getElementById('boxCountDisplay').innerText = totalBoxesFound;
-document.getElementById('resultBox').classList.remove('hidden');
-saveToHistory(fileName, totalBoxesFound);
-}
-
-document.getElementById('printBtn').addEventListener('click', () => {
-if (!generatedPdfBlob) return;
-const blobUrl = URL.createObjectURL(generatedPdfBlob);
-const printFrame = document.createElement('iframe');
-printFrame.style.display = 'none';
-printFrame.src = blobUrl;
-document.body.appendChild(printFrame);
-printFrame.onload = function() {
-printFrame.contentWindow.focus();
-printFrame.contentWindow.print();
-};
-});
-
-document.getElementById('downloadBtn').addEventListener('click', () => {
-if (!generatedPdfBlob) return;
-const a = document.createElement('a');
-a.href = URL.createObjectURL(generatedPdfBlob);
-a.download = `ALL_BOX_LABELS_${totalBoxesFound}_UNITS.pdf`;
-a.click();
-});
-
-function showStatus(msg, colorClass) {
-const st = document.getElementById('status');
-st.className = `mt-6 text-sm font-semibold ${colorClass}`;
-st.innerText = msg;
-st.classList.remove('hidden');
-}
-
-function saveToHistory(fileName, boxes) {
-try {
-let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-const now = new Date();
-const newEntry = { id: Date.now(), name: fileName, boxes: boxes, time: now.toLocaleString(), timestamp: now.getTime() };
-history.unshift(newEntry);
-localStorage.setItem('labelHistoryLight', JSON.stringify(history));
-cleanOldHistory();
-renderHistory();
-} catch (e) { localStorage.clear(); }
-}
-
-function cleanOldHistory() {
-let history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-const twentyDaysInMs = 20 * 24 * 60 * 60 * 1000;
-const now = new Date().getTime();
-const validHistory = history.filter(item => (now - item.timestamp) < twentyDaysInMs);
-localStorage.setItem('labelHistoryLight', JSON.stringify(validHistory));
-}
-
-function renderHistory() {
-const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-renderHistoryFiltered(history);
-}
-
-function filterHistory() {
-const query = document.getElementById('historySearch').value.toLowerCase();
-const history = JSON.parse(localStorage.getItem('labelHistoryLight') || '[]');
-const filtered = history.filter(item => item.name.toLowerCase().includes(query));
-renderHistoryFiltered(filtered);
-}
-
-function renderHistoryFiltered(list) {
-const historyList = document.getElementById('historyList');
-if (list.length === 0) {
-historyList.innerHTML = `<li class="text-gray-400 italic text-center text-xs">No matching history found.</li>`;
-return;
-}
-historyList.innerHTML = list.map((item, index) => `
-<li class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
-<div>
-<div class="font-bold text-gray-800 text-[11px]">${index + 1}. ${item.name}</div>
-<div class="text-[9px] text-gray-400">${item.time}</div>
-</div>
-<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${item.boxes} Boxes</span>
-</li>`).join('');
-}
-
-function toggleHistory() {
-document.getElementById('historyBox').classList.toggle('hidden');
-}
-
-function clearHistory() {
-if (confirm("Are you sure you want to clear all history?")) {
-localStorage.removeItem('labelHistoryLight');
-renderHistory();
-}
-}
+                doc.autoTable({ head: headers, body: body, theme: 'grid' });
+                doc.save(`Picklist_${selectedPL}.pdf`);
+                setStatus("✅ Pick List Exported Successfully!", "text-emerald-400");
+            } catch (e) {
+                setStatus("❌ Error generating picklist: " + e.message, "text-rose-400");
+            }
+        }, 100);
+    }
 </script>
 </body>
 </html>
