@@ -766,7 +766,8 @@
                     d.setLineWidth(0.6);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    let leftColWidth = width * 0.62;
+                    // Box area size reduced (changed width ratio from 0.62 to 0.78 for left side, leaving 22% for Box No.)
+                    let leftColWidth = width * 0.78;
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
                     let baseFontSize = width < 120 ? 6 : 8;
@@ -789,21 +790,13 @@
                         d.text(lineText, hX, hY + (idx * stepY));
                     });
 
+                    // Compact right-side Box No. calculation
                     let rX = x + leftColWidth + ((width - leftColWidth) / 2);
-                    d.setFontSize(baseFontSize + 1);
-                    d.text("BOX NO.", rX, y + 4.5, { align: "center" });
+                    d.setFontSize(baseFontSize);
+                    d.text("BOX NO.", rX, y + 6, { align: "center" });
 
-                    d.setFontSize(baseFontSize + 3);
-                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 9.5, { align: "center" });
-
-                    // Adding QR Code in Box Label Header
-                    try {
-                        let qrX = x + leftColWidth + ((width - leftColWidth) / 2) - 6;
-                        let qrY = y + 11;
-                        d.addImage(qrDataUrl, 'SVG', qrX, qrY, 12, 12);
-                    } catch (e) {
-                        console.error("QR Code Generation Error:", e);
-                    }
+                    d.setFontSize(baseFontSize + 2);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 13, { align: "center" });
 
                     let activeHeaders = dynamicTableCols.filter(col => {
                         let lowerName = col.name.toLowerCase();
@@ -1018,7 +1011,6 @@
                     doc.setTextColor(60, 60, 60);
                     doc.text(subTitle, 14, 17);
 
-                    // Top-right QR Code in Picklist PDF Header
                     try {
                         doc.addImage(qrDataUrl, 'SVG', 180, 7, 14, 14);
                     } catch(e) {}
