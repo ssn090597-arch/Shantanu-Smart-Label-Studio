@@ -387,7 +387,6 @@
                 <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
             </div>
             
-            <!-- Updated QR Code Header Component -->
             <div class="header-qr-container">
                 <div class="qr-header-box">
                     <img id="qrHeaderImg" src="" alt="QR Code">
@@ -526,7 +525,6 @@
     let rawSheetRowsLabel = [];
     let rawJsonDataPick = [];
 
-    // Base64 QR Code SVG System
     const qrSvgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" fill="white"/><rect x="10" y="10" width="30" height="30" fill="#d90429"/><rect x="15" y="15" width="20" height="20" fill="white"/><rect x="20" y="20" width="10" height="10" fill="#d90429"/><rect x="60" y="10" width="30" height="30" fill="#d90429"/><rect x="65" y="15" width="20" height="20" fill="white"/><rect x="70" y="20" width="10" height="10" fill="#d90429"/><rect x="10" y="60" width="30" height="30" fill="#d90429"/><rect x="15" y="65" width="20" height="20" fill="white"/><rect x="20" y="70" width="10" height="10" fill="#d90429"/><rect x="45" y="10" width="10" height="10" fill="#1e293b"/><rect x="45" y="30" width="10" height="10" fill="#1e293b"/><rect x="10" y="45" width="10" height="10" fill="#1e293b"/><rect x="30" y="45" width="10" height="10" fill="#1e293b"/><rect x="60" y="45" width="15" height="15" fill="#1e293b"/><rect x="45" y="60" width="15" height="15" fill="#1e293b"/><rect x="75" y="60" width="15" height="15" fill="#1e293b"/><rect x="60" y="80" width="10" height="10" fill="#1e293b"/><rect x="80" y="80" width="10" height="10" fill="#1e293b"/></svg>`;
     const qrDataUrl = "data:image/svg+xml;base64," + btoa(qrSvgString);
 
@@ -758,55 +756,58 @@
                 }
 
                 function renderLabelBox(d, bData, x, y, width, height) {
+                    // Outer Border
                     d.setLineWidth(0.8);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
 
-                    let headerHeight = Math.min(26, height * 0.22);
+                    let headerHeight = Math.min(24, height * 0.20);
+                    
+                    // BOX NO Compact Block Settings (Shifted to Right Corner)
+                    let boxBlockWidth = Math.max(30, width * 0.18); 
+                    let leftColWidth = width - boxBlockWidth;
+
+                    // Horizontal Line below Header
                     d.setLineWidth(0.6);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
 
-                    // BOX NO area width set to exactly 25% (left area gets 75%)
-                    let boxAreaRatio = 0.25; 
-                    let leftColWidth = width * (1 - boxAreaRatio);
+                    // Vertical Separator Line
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
-                    let baseFontSize = width < 120 ? 6 : 8;
-                    let hX = x + 2;
-                    let maxLeftTextWidth = leftColWidth - 4; // Ensures SHIP TO text wraps and never overlaps BOX NO vertical line
-
+                    // Left Details Text Auto-Fit & Wrap Fix
+                    let maxLeftTextWidth = leftColWidth - 4; 
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
                     if (bData.challanNo && bData.challanNo !== "-") metaLines.push(`CHALLAN NO: ${bData.challanNo}`);
                     if (bData.invNo && bData.invNo !== "-") metaLines.push(`INV NO: ${bData.invNo}`);
 
-                    let headerMetaFontSize = baseFontSize + 1.5; 
-                    d.setFontSize(headerMetaFontSize);
+                    let fontSize = width < 120 ? 6 : 7.5;
+                    d.setFontSize(fontSize);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
 
-                    // Multi-line auto-wrap rendering for SHIP TO details to prevent overlap
-                    let currentY = y + 4;
+                    let currentY = y + 3.8;
                     metaLines.forEach((lineText) => {
-                        let wrappedLines = d.splitTextToSize(lineText, maxLeftTextWidth);
-                        wrappedLines.forEach(wLine => {
+                        let lines = d.splitTextToSize(lineText, maxLeftTextWidth);
+                        lines.forEach(l => {
                             if (currentY <= y + headerHeight - 1) {
-                                d.text(wLine, hX, currentY);
-                                currentY += (headerMetaFontSize * 0.4);
+                                d.text(l, x + 2, currentY);
+                                currentY += 3.5;
                             }
                         });
                     });
 
-                    // BOX NO section rendering with original font size kept intact
-                    let rX = x + leftColWidth + ((width - leftColWidth) / 2);
-                    d.setFontSize(baseFontSize + 1);
+                    // BOX NO Compact Rendering
+                    let rCenterX = x + leftColWidth + (boxBlockWidth / 2);
+                    d.setFontSize(fontSize - 0.5);
                     d.setFont("helvetica", "bold");
-                    d.text("BOX NO.", rX, y + 7, { align: "center" });
+                    d.text("BOX NO.", rCenterX, y + 5.5, { align: "center" });
 
-                    d.setFontSize(baseFontSize + 4);
-                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 16, { align: "center" });
+                    d.setFontSize(fontSize + 2.5);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rCenterX, y + 13, { align: "center" });
 
+                    // Table Data
                     let activeHeaders = dynamicTableCols.filter(col => {
                         let lowerName = col.name.toLowerCase();
                         if (lowerName.includes("qty") || lowerName.includes("quantity")) return true;
@@ -830,8 +831,8 @@
                         return sum + (isNaN(q) ? 1 : q);
                     }, 0);
 
-                    let headTopGap = 5; 
-                    let tableFontSize = Math.max(4.5, baseFontSize - 2);
+                    let headTopGap = 2; 
+                    let tableFontSize = Math.max(4.5, (width < 120 ? 5.5 : 7.5));
 
                     d.autoTable({
                         startY: y + headerHeight + headTopGap,
@@ -862,19 +863,19 @@
                     });
 
                     let finalY = d.lastAutoTable.finalY;
-                    let footerHeight = 7;
+                    let footerHeight = 6.5;
                     if (finalY + footerHeight <= y + height) {
                         d.setLineWidth(0.6);
                         d.rect(x, finalY, width, footerHeight);
 
-                        d.setFontSize(baseFontSize);
+                        d.setFontSize(fontSize);
                         d.setFont("helvetica", "bold");
                         d.setTextColor(0, 0, 0);
-                        d.text("TOTAL BOX QTY", x + 3, finalY + 4.5);
+                        d.text("TOTAL BOX QTY", x + 3, finalY + 4.2);
 
                         let qtyColWidth = width * 0.15;
                         d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
-                        d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 4.5, { align: "center" });
+                        d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 4.2, { align: "center" });
                     }
                 }
 
