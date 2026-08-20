@@ -687,6 +687,16 @@
 
                     dynamicTableCols.forEach(col => {
                         let val = row[col.idx] !== undefined ? String(row[col.idx]).trim() : "";
+                        
+                        // Requirement 2: Format RATE / Rate column values to max 2 decimal places
+                        let isRateCol = col.name.toLowerCase().includes("rate") || col.name.toLowerCase().includes("price");
+                        if (isRateCol && val !== "" && val !== "-") {
+                            let numVal = parseFloat(val);
+                            if (!isNaN(numVal)) {
+                                val = (Math.round(numVal * 100) / 100).toFixed(2);
+                            }
+                        }
+
                         itemObj[col.name] = val;
                         if (val !== "" && val !== "-") hasData = true;
                     });
@@ -739,10 +749,7 @@
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
                     let baseFontSize = width < 120 ? 6 : 8;
-                    d.setFontSize(baseFontSize);
-                    d.setFont("helvetica", "bold");
-                    d.setTextColor(0, 0, 0);
-
+                    
                     let hX = x + 2;
                     let hY = y + 4;
                     
@@ -752,6 +759,12 @@
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
                     if (bData.challanNo && bData.challanNo !== "-") metaLines.push(`CHALLAN NO: ${bData.challanNo}`);
                     if (bData.invNo && bData.invNo !== "-") metaLines.push(`INV NO: ${bData.invNo}`);
+
+                    // Requirement 3: Increased font size for SHIP TO, PO/ORD, INV NO, CHALLAN NO
+                    let headerMetaFontSize = baseFontSize + 2.5; 
+                    d.setFontSize(headerMetaFontSize);
+                    d.setFont("helvetica", "bold");
+                    d.setTextColor(0, 0, 0);
 
                     let stepY = metaLines.length > 1 ? (headerHeight - 6) / (metaLines.length) : 5;
                     metaLines.forEach((lineText, idx) => {
@@ -814,6 +827,9 @@
                     // Added 5mm Gap between Header Meta Block and Table Header
                     let headTopGap = 5; 
 
+                    // Requirement 1: Prevent 1-2 numbers wrapping & prevent overlap
+                    let tableFontSize = Math.max(4.5, baseFontSize - 2);
+
                     d.autoTable({
                         startY: y + headerHeight + headTopGap,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
@@ -821,19 +837,21 @@
                         body: tableBody,
                         theme: 'grid',
                         styles: { 
-                            fontSize: Math.max(5, baseFontSize - 1.5), 
-                            cellPadding: 2.8, // Gap between text and border lines inside rows
+                            fontSize: tableFontSize, 
+                            cellPadding: 1.5, // Reduced padding to give max space for digits inside cells
                             halign: 'center', 
+                            valign: 'middle',
                             textColor: [0, 0, 0], // Darker text
                             lineColor: [0, 0, 0], // Darker borders
                             lineWidth: 0.45,
-                            fontStyle: 'bold'
+                            fontStyle: 'bold',
+                            overflow: 'linebreak'
                         },
                         headStyles: { 
                             fillColor: [0, 0, 0], 
                             textColor: [255, 255, 255], 
                             fontStyle: 'bold',
-                            cellPadding: 3,
+                            cellPadding: 2,
                             lineWidth: 0.45,
                             lineColor: [0, 0, 0]
                         },
