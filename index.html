@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -125,18 +124,36 @@
             box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4); 
         }
 
-        /* User Profile Logo */
-        .user-profile {
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            border: 3px solid #d90429;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            flex-shrink: 0;
-            background: #ffffff;
+        /* User Profile / QR Container Header */
+        .header-qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
-        .user-profile img { width: 100%; height: 100%; object-fit: cover; }
+        .qr-header-box {
+            width: 65px;
+            height: 65px;
+            background: #ffffff;
+            border: 2px solid #d90429;
+            border-radius: 8px;
+            padding: 3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-header-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .qr-header-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #d90429;
+            letter-spacing: 0.3px;
+        }
 
         /* Main Form Area */
         .form-container { flex: 1; text-align: center; }
@@ -369,8 +386,13 @@
                 <button class="switch-btn active" id="btnToolLabel" onclick="switchTool('label')">🏷️ Smart Box Label Studio</button>
                 <button class="switch-btn" id="btnToolPick" onclick="switchTool('picklist')">📦 Advanced Pick List Generator</button>
             </div>
-            <div class="user-profile">
-                <img src="logo (2).png" alt="User Logo">
+            
+            <!-- Updated QR Code Header Component -->
+            <div class="header-qr-container">
+                <div class="qr-header-box">
+                    <img id="qrHeaderImg" src="" alt="QR Code">
+                </div>
+                <span class="qr-header-label">SCAN PDF</span>
             </div>
         </div>
 
@@ -500,11 +522,17 @@
     </div>
 </div>
 
-<canvas id="barcodeCanvas" style="display:none;"></canvas>
-
 <script>
     let rawSheetRowsLabel = [];
     let rawJsonDataPick = [];
+
+    // Base64 QR Code SVG System
+    const qrSvgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" fill="white"/><rect x="10" y="10" width="30" height="30" fill="#d90429"/><rect x="15" y="15" width="20" height="20" fill="white"/><rect x="20" y="20" width="10" height="10" fill="#d90429"/><rect x="60" y="10" width="30" height="30" fill="#d90429"/><rect x="65" y="15" width="20" height="20" fill="white"/><rect x="70" y="20" width="10" height="10" fill="#d90429"/><rect x="10" y="60" width="30" height="30" fill="#d90429"/><rect x="15" y="65" width="20" height="20" fill="white"/><rect x="20" y="70" width="10" height="10" fill="#d90429"/><rect x="45" y="10" width="10" height="10" fill="#1e293b"/><rect x="45" y="30" width="10" height="10" fill="#1e293b"/><rect x="10" y="45" width="10" height="10" fill="#1e293b"/><rect x="30" y="45" width="10" height="10" fill="#1e293b"/><rect x="60" y="45" width="15" height="15" fill="#1e293b"/><rect x="45" y="60" width="15" height="15" fill="#1e293b"/><rect x="75" y="60" width="15" height="15" fill="#1e293b"/><rect x="60" y="80" width="10" height="10" fill="#1e293b"/><rect x="80" y="80" width="10" height="10" fill="#1e293b"/></svg>`;
+    const qrDataUrl = "data:image/svg+xml;base64," + btoa(qrSvgString);
+
+    window.onload = function() {
+        document.getElementById('qrHeaderImg').src = qrDataUrl;
+    };
 
     function switchTool(tool) {
         document.getElementById('btnToolLabel').classList.toggle('active', tool === 'label');
@@ -616,7 +644,6 @@
                     }
                 }
 
-                // Global PO and Ship To search
                 let shipToVal = "";
                 let poVal = "";
 
@@ -653,13 +680,11 @@
                 let originalHeaders = rawSheetRowsLabel[headerRowIndex].map(h => String(h).trim());
                 let headersLower = originalHeaders.map(h => h.toLowerCase());
 
-                // Identify Metadata Columns vs Item Level Columns Dynamically
                 let boxColIdx = headersLower.findIndex(h => h.includes("box count") || h.includes("box") || h.includes("carton"));
                 let poColIdx = headersLower.findIndex(h => h.includes("po no") || h.includes("po_no") || h.includes("po number") || h === "po" || h.includes("purchase order"));
                 let challanColIdx = headersLower.findIndex(h => h.includes("challan") || h.includes("ch_no"));
                 let invColIdx = headersLower.findIndex(h => h.includes("invoice") || h.includes("inv"));
 
-                // Collect All Dynamic Table Column Names (Excluding Meta Columns)
                 let dynamicTableCols = [];
                 originalHeaders.forEach((h, idx) => {
                     let hLower = h.toLowerCase();
@@ -681,14 +706,11 @@
                     let rowPo = poColIdx !== -1 ? String(row[poColIdx] || '').trim() : "";
                     if (!rowPo) rowPo = poVal;
 
-                    // Parse Dynamic Row Items
                     let itemObj = {};
                     let hasData = false;
 
                     dynamicTableCols.forEach(col => {
                         let val = row[col.idx] !== undefined ? String(row[col.idx]).trim() : "";
-                        
-                        // Requirement 2: Format RATE / Rate column values to max 2 decimal places
                         let isRateCol = col.name.toLowerCase().includes("rate") || col.name.toLowerCase().includes("price");
                         if (isRateCol && val !== "" && val !== "-") {
                             let numVal = parseFloat(val);
@@ -736,7 +758,6 @@
                 }
 
                 function renderLabelBox(d, bData, x, y, width, height) {
-                    // Dark Outer Box Border
                     d.setLineWidth(0.8);
                     d.setDrawColor(0, 0, 0);
                     d.rect(x, y, width, height);
@@ -749,18 +770,15 @@
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
                     let baseFontSize = width < 120 ? 6 : 8;
-                    
                     let hX = x + 2;
                     let hY = y + 4;
                     
-                    // Dynamic Header Metadata
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
                     if (bData.challanNo && bData.challanNo !== "-") metaLines.push(`CHALLAN NO: ${bData.challanNo}`);
                     if (bData.invNo && bData.invNo !== "-") metaLines.push(`INV NO: ${bData.invNo}`);
 
-                    // Requirement 3: Increased font size for SHIP TO, PO/ORD, INV NO, CHALLAN NO
                     let headerMetaFontSize = baseFontSize + 2.5; 
                     d.setFontSize(headerMetaFontSize);
                     d.setFont("helvetica", "bold");
@@ -778,28 +796,15 @@
                     d.setFontSize(baseFontSize + 3);
                     d.text(`${bData.boxNo} / ${totalBoxesCount}`, rX, y + 9.5, { align: "center" });
 
+                    // Adding QR Code in Box Label Header
                     try {
-                        let canvas = document.getElementById('barcodeCanvas');
-                        JsBarcode(canvas, String(bData.boxNo), { 
-                            format: "CODE128", 
-                            displayValue: false, 
-                            margin: 0, 
-                            height: 35,
-                            width: 2 
-                        });
-                        let imgData = canvas.toDataURL('image/png');
-                        
-                        let bcX = x + leftColWidth + 3;
-                        let bcY = y + 11;
-                        let bcWidth = (width - leftColWidth) - 6;
-                        let bcHeight = headerHeight - 12;
-
-                        d.addImage(imgData, 'PNG', bcX, bcY, bcWidth, bcHeight);
+                        let qrX = x + leftColWidth + ((width - leftColWidth) / 2) - 6;
+                        let qrY = y + 11;
+                        d.addImage(qrDataUrl, 'SVG', qrX, qrY, 12, 12);
                     } catch (e) {
-                        console.error("Barcode Generation Error:", e);
+                        console.error("QR Code Generation Error:", e);
                     }
 
-                    // Dynamically filter active columns (Remove empty columns)
                     let activeHeaders = dynamicTableCols.filter(col => {
                         let lowerName = col.name.toLowerCase();
                         if (lowerName.includes("qty") || lowerName.includes("quantity")) return true;
@@ -817,17 +822,13 @@
                         });
                     });
 
-                    // Calculate Total Qty dynamically from Qty Column
                     let qtyHeaderName = activeHeaders.find(h => h.toLowerCase().includes("qty") || h.toLowerCase().includes("quantity"));
                     let totalQty = bData.items.reduce((sum, item) => {
                         let q = qtyHeaderName ? parseInt(item[qtyHeaderName]) : 1;
                         return sum + (isNaN(q) ? 1 : q);
                     }, 0);
 
-                    // Added 5mm Gap between Header Meta Block and Table Header
                     let headTopGap = 5; 
-
-                    // Requirement 1: Prevent 1-2 numbers wrapping & prevent overlap
                     let tableFontSize = Math.max(4.5, baseFontSize - 2);
 
                     d.autoTable({
@@ -838,11 +839,11 @@
                         theme: 'grid',
                         styles: { 
                             fontSize: tableFontSize, 
-                            cellPadding: 1.5, // Reduced padding to give max space for digits inside cells
+                            cellPadding: 1.5,
                             halign: 'center', 
                             valign: 'middle',
-                            textColor: [0, 0, 0], // Darker text
-                            lineColor: [0, 0, 0], // Darker borders
+                            textColor: [0, 0, 0], 
+                            lineColor: [0, 0, 0], 
                             lineWidth: 0.45,
                             fontStyle: 'bold',
                             overflow: 'linebreak'
@@ -1016,6 +1017,11 @@
                     doc.setFont("helvetica", "normal");
                     doc.setTextColor(60, 60, 60);
                     doc.text(subTitle, 14, 17);
+
+                    // Top-right QR Code in Picklist PDF Header
+                    try {
+                        doc.addImage(qrDataUrl, 'SVG', 180, 7, 14, 14);
+                    } catch(e) {}
                 };
 
                 let processedRows = filteredData.map(row => ({
