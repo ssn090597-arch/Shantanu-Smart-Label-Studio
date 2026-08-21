@@ -743,71 +743,61 @@
                 }
 
                 const { jsPDF } = window.jspdf;
-                let doc;
+                let doc = new jsPDF('p', 'mm', 'a4');
 
-                if (selectedOrientation === "p") {
-                    doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [101.6, 152.4] });
-                } else if (selectedOrientation === "l") {
-                    doc = new jsPDF({ orientation: 'l', unit: 'mm', format: [152.4, 101.6] });
-                } else if (selectedOrientation === "a4_1") {
-                    doc = new jsPDF('p', 'mm', 'a4');
-                } else {
-                    doc = new jsPDF('p', 'mm', 'a4');
-                }
-
-                function renderLabelBox(d, bData, x, y, width, height) {
-                    // Outer Border
-                    d.setLineWidth(0.8);
-                    d.setDrawColor(0, 0, 0);
-                    d.rect(x, y, width, height);
-
-                    let headerHeight = Math.min(24, height * 0.20);
-                    
-                    // BOX NO Compact Block Settings (Shifted to Right Corner)
+                function renderLabelBox(d, bData, x, y, width) {
                     let boxBlockWidth = Math.max(30, width * 0.18); 
                     let leftColWidth = width - boxBlockWidth;
 
-                    // Horizontal Line below Header
-                    d.setLineWidth(0.6);
-                    d.line(x, y + headerHeight, x + width, y + headerHeight);
-
-                    // Vertical Separator Line
-                    d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
-
-                    // Left Details Text Auto-Fit & Wrap Fix
-                    let maxLeftTextWidth = leftColWidth - 4; 
+                    // 1. Calculate BOLD Header Height Dynamically
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
                     if (bData.challanNo && bData.challanNo !== "-") metaLines.push(`CHALLAN NO: ${bData.challanNo}`);
                     if (bData.invNo && bData.invNo !== "-") metaLines.push(`INV NO: ${bData.invNo}`);
 
-                    let fontSize = width < 120 ? 6 : 7.5;
-                    d.setFontSize(fontSize);
+                    let headerFontSize = 9.5; 
+                    d.setFontSize(headerFontSize);
+                    d.setFont("helvetica", "bold");
+
+                    let maxLeftTextWidth = leftColWidth - 4;
+                    let totalHeaderLines = 0;
+                    metaLines.forEach(l => {
+                        let wrapped = d.splitTextToSize(l, maxLeftTextWidth);
+                        totalHeaderLines += wrapped.length;
+                    });
+
+                    let headerHeight = Math.max(22, totalHeaderLines * 4.5 + 4);
+
+                    // Render Header Details
+                    d.setFontSize(headerFontSize);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
 
-                    let currentY = y + 3.8;
+                    let currentY = y + 4.5;
                     metaLines.forEach((lineText) => {
                         let lines = d.splitTextToSize(lineText, maxLeftTextWidth);
                         lines.forEach(l => {
-                            if (currentY <= y + headerHeight - 1) {
-                                d.text(l, x + 2, currentY);
-                                currentY += 3.5;
-                            }
+                            d.text(l, x + 2, currentY);
+                            currentY += 4.5;
                         });
                     });
 
-                    // BOX NO Compact Rendering
+                    // Render Box Number Block
                     let rCenterX = x + leftColWidth + (boxBlockWidth / 2);
-                    d.setFontSize(fontSize - 0.5);
+                    d.setFontSize(8);
                     d.setFont("helvetica", "bold");
-                    d.text("BOX NO.", rCenterX, y + 5.5, { align: "center" });
+                    d.text("BOX NO.", rCenterX, y + 6, { align: "center" });
 
-                    d.setFontSize(fontSize + 2.5);
-                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rCenterX, y + 13, { align: "center" });
+                    d.setFontSize(12);
+                    d.text(`${bData.boxNo} / ${totalBoxesCount}`, rCenterX, y + 14, { align: "center" });
 
-                    // Table Data
+                    // Line Separators Header
+                    d.setLineWidth(0.6);
+                    d.line(x, y + headerHeight, x + width, y + headerHeight);
+                    d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
+
+                    // 2. Active Columns & Table Body Setup
                     let activeHeaders = dynamicTableCols.filter(col => {
                         let lowerName = col.name.toLowerCase();
                         if (lowerName.includes("qty") || lowerName.includes("quantity")) return true;
@@ -831,23 +821,21 @@
                         return sum + (isNaN(q) ? 1 : q);
                     }, 0);
 
-                    let headTopGap = 2; 
-                    let tableFontSize = Math.max(4.5, (width < 120 ? 5.5 : 7.5));
-
+                    // Dynamic Auto-Sizing for long texts inside cells
                     d.autoTable({
-                        startY: y + headerHeight + headTopGap,
+                        startY: y + headerHeight + 1,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
                         head: tableHeaders,
                         body: tableBody,
                         theme: 'grid',
                         styles: { 
-                            fontSize: tableFontSize, 
-                            cellPadding: 1.5,
+                            fontSize: 6.5, 
+                            cellPadding: 1.2,
                             halign: 'center', 
                             valign: 'middle',
                             textColor: [0, 0, 0], 
                             lineColor: [0, 0, 0], 
-                            lineWidth: 0.45,
+                            lineWidth: 0.4,
                             fontStyle: 'bold',
                             overflow: 'linebreak'
                         },
@@ -855,78 +843,77 @@
                             fillColor: [0, 0, 0], 
                             textColor: [255, 255, 255], 
                             fontStyle: 'bold',
-                            cellPadding: 2,
-                            lineWidth: 0.45,
+                            cellPadding: 1.8,
+                            lineWidth: 0.4,
                             lineColor: [0, 0, 0]
+                        },
+                        didParseCell: function(data) {
+                            if (data.cell.raw && String(data.cell.raw).length > 22) {
+                                data.cell.styles.fontSize = 5.2; 
+                            }
                         },
                         tableWidth: width
                     });
 
                     let finalY = d.lastAutoTable.finalY;
-                    let footerHeight = 6.5;
-                    if (finalY + footerHeight <= y + height) {
-                        d.setLineWidth(0.6);
-                        d.rect(x, finalY, width, footerHeight);
 
-                        d.setFontSize(fontSize);
-                        d.setFont("helvetica", "bold");
-                        d.setTextColor(0, 0, 0);
-                        d.text("TOTAL BOX QTY", x + 3, finalY + 4.2);
+                    // 3. Render Total Box Qty Footer
+                    let footerHeight = 6;
+                    d.setLineWidth(0.6);
+                    d.rect(x, finalY, width, footerHeight);
 
-                        let qtyColWidth = width * 0.15;
-                        d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
-                        d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 4.2, { align: "center" });
-                    }
+                    d.setFontSize(7.5);
+                    d.setFont("helvetica", "bold");
+                    d.setTextColor(0, 0, 0);
+                    d.text("TOTAL BOX QTY", x + 3, finalY + 4.2);
+
+                    let qtyColWidth = width * 0.15;
+                    d.line(x + width - qtyColWidth, finalY, x + width - qtyColWidth, finalY + footerHeight);
+                    d.text(String(totalQty), x + width - (qtyColWidth / 2), finalY + 4.2, { align: "center" });
+
+                    let boxTotalHeight = (finalY + footerHeight) - y;
+
+                    // Draw Outer Border
+                    d.rect(x, y, width, boxTotalHeight);
+
+                    return boxTotalHeight;
                 }
 
-                let currentIndex = 0;
-                function renderNextBatch() {
-                    let batchSize = 10;
-                    let end = Math.min(currentIndex + batchSize, boxesArray.length);
+                // Page Management for A4 (2 Boxes/Page Auto-Height Split)
+                let pageHeight = doc.internal.pageSize.height; // 297mm
+                let currentY = 8;
+                let boxesOnPage = 0;
 
-                    for (let i = currentIndex; i < end; i++) {
-                        let bData = boxesArray[i];
+                for (let i = 0; i < boxesArray.length; i++) {
+                    let bData = boxesArray[i];
 
-                        if (selectedOrientation === "p") {
-                            if (i > 0) doc.addPage([101.6, 152.4], 'p');
-                            renderLabelBox(doc, bData, 3, 3, 95.6, 146.4);
-                        } else if (selectedOrientation === "l") {
-                            if (i > 0) doc.addPage([152.4, 101.6], 'l');
-                            renderLabelBox(doc, bData, 3, 3, 146.4, 95.6);
-                        } else if (selectedOrientation === "a4_1") {
-                            if (i > 0) doc.addPage('a4', 'p');
-                            renderLabelBox(doc, bData, 10, 10, 190, 270);
-                        } else {
-                            let isSecondBox = (i % 2 === 1);
-                            if (i > 0 && !isSecondBox) doc.addPage('a4', 'p');
+                    // Rough Height Estimation (Header + Rows + Footer)
+                    let estimatedHeight = 25 + (bData.items.length * 6) + 10;
 
-                            let yPos = isSecondBox ? 148 : 8;
-                            renderLabelBox(doc, bData, 10, yPos, 190, 132);
-                        }
+                    if (boxesOnPage >= 2 || (currentY + estimatedHeight > pageHeight - 10)) {
+                        doc.addPage('a4', 'p');
+                        currentY = 8;
+                        boxesOnPage = 0;
                     }
 
-                    currentIndex = end;
-                    setStatus(`Processing Labels: ${currentIndex} / ${boxesArray.length} Boxes...`, "#d90429");
-
-                    if (currentIndex < boxesArray.length) {
-                        setTimeout(renderNextBatch, 10);
-                    } else {
-                        let pdfDataUrl = doc.output('bloburl');
-                        if (actionType === 'preview') {
-                            document.getElementById('previewContainer').style.display = 'block';
-                            document.getElementById('pdfFrame').src = pdfDataUrl;
-                            setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#16a34a");
-                        } else if (actionType === 'print') {
-                            doc.autoPrint();
-                            window.open(pdfDataUrl, '_blank');
-                            setStatus("✓ Print Window Opened!", "#16a34a");
-                        } else {
-                            doc.save(`Box_Labels_${selectedOrientation.toUpperCase()}_${totalBoxesCount}_Boxes.pdf`);
-                            setStatus("✓ Labels PDF Downloaded!", "#16a34a");
-                        }
-                    }
+                    let boxActualHeight = renderLabelBox(doc, bData, 10, currentY, 190);
+                    currentY += boxActualHeight + 8; // Add spacing between Box 1 and Box 2
+                    boxesOnPage++;
                 }
-                renderNextBatch();
+
+                let pdfDataUrl = doc.output('bloburl');
+                if (actionType === 'preview') {
+                    document.getElementById('previewContainer').style.display = 'block';
+                    document.getElementById('pdfFrame').src = pdfDataUrl;
+                    setStatus(`✓ Box Labels Preview Loaded! (${totalBoxesCount} Boxes)`, "#16a34a");
+                } else if (actionType === 'print') {
+                    doc.autoPrint();
+                    window.open(pdfDataUrl, '_blank');
+                    setStatus("✓ Print Window Opened!", "#16a34a");
+                } else {
+                    doc.save(`Box_Labels_A4_${totalBoxesCount}_Boxes.pdf`);
+                    setStatus("✓ Labels PDF Downloaded!", "#16a34a");
+                }
 
             } catch (err) {
                 setStatus("Error: " + err.message, "#d90429");
