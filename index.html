@@ -24,7 +24,6 @@
             padding: 20px;
         }
 
-        /* Main Dashboard Window Container */
         .dashboard-container {
             display: flex;
             width: 100%;
@@ -36,7 +35,6 @@
             overflow: hidden;
         }
 
-        /* Left Sidebar (Delhivery Red Theme) */
         .sidebar {
             width: 320px;
             background: linear-gradient(180deg, #d90429 0%, #b7094c 100%);
@@ -79,7 +77,6 @@
         .feature-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
         .feature-text p { font-size: 11.5px; opacity: 0.85; line-height: 1.4; }
 
-        /* Right Content Panel */
         .main-panel {
             flex: 1;
             padding: 30px 40px;
@@ -88,7 +85,6 @@
             flex-direction: column;
         }
 
-        /* Top Header & Navigation Switcher */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -124,7 +120,6 @@
             box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4); 
         }
 
-        /* User Profile / QR Container Header */
         .header-qr-container {
             display: flex;
             flex-direction: column;
@@ -155,7 +150,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* Main Form Area */
         .form-container { flex: 1; text-align: center; }
 
         .center-icon {
@@ -197,7 +191,6 @@
             text-transform: uppercase; 
         }
 
-        /* File Upload Box */
         .upload-box {
             border: 2px dashed #fca5a5;
             background: #fff5f5;
@@ -238,7 +231,6 @@
         }
         input[type="file"] { display: none; }
 
-        /* Grid Radio Selection Layout */
         .radio-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -345,7 +337,6 @@
 <body>
 
 <div class="dashboard-container">
-    <!-- Left Sidebar Section -->
     <div class="sidebar">
         <div>
             <div class="brand-header">
@@ -379,7 +370,6 @@
         </div>
     </div>
 
-    <!-- Main Panel Section -->
     <div class="main-panel">
         <div class="top-bar">
             <div class="tool-switcher">
@@ -396,7 +386,6 @@
         </div>
 
         <div class="form-container">
-            <!-- TOOL 1: SMART BOX LABEL STUDIO -->
             <div id="toolLabelSection" class="tool-section active">
                 <div class="center-icon">📦</div>
                 <h2>Smart Box <span>Label Studio</span></h2>
@@ -459,7 +448,6 @@
                 </div>
             </div>
 
-            <!-- TOOL 2: ADVANCED PICK LIST GENERATOR -->
             <div id="toolPickSection" class="tool-section">
                 <div class="center-icon">📋</div>
                 <h2>Advanced <span>Pick List Generator</span></h2>
@@ -745,11 +733,11 @@
                 const { jsPDF } = window.jspdf;
                 let doc = new jsPDF('p', 'mm', 'a4');
 
-                function renderLabelBox(d, bData, x, y, width) {
+                // Render Box Function with Max Height Constraint option
+                function renderLabelBox(d, bData, x, y, width, maxAllowedHeight = null) {
                     let boxBlockWidth = Math.max(30, width * 0.18); 
                     let leftColWidth = width - boxBlockWidth;
 
-                    // 1. Calculate BOLD Header Height Dynamically
                     let metaLines = [];
                     if (bData.shipTo && bData.shipTo !== "-") metaLines.push(`SHIP TO / DEST: ${bData.shipTo}`);
                     if (bData.poOrd && bData.poOrd !== "-") metaLines.push(`PO/ORD: ${bData.poOrd}`);
@@ -769,7 +757,6 @@
 
                     let headerHeight = Math.max(22, totalHeaderLines * 4.5 + 4);
 
-                    // Render Header Details
                     d.setFontSize(headerFontSize);
                     d.setFont("helvetica", "bold");
                     d.setTextColor(0, 0, 0);
@@ -783,7 +770,6 @@
                         });
                     });
 
-                    // Render Box Number Block
                     let rCenterX = x + leftColWidth + (boxBlockWidth / 2);
                     d.setFontSize(8);
                     d.setFont("helvetica", "bold");
@@ -792,12 +778,10 @@
                     d.setFontSize(12);
                     d.text(`${bData.boxNo} / ${totalBoxesCount}`, rCenterX, y + 14, { align: "center" });
 
-                    // Line Separators Header
                     d.setLineWidth(0.6);
                     d.line(x, y + headerHeight, x + width, y + headerHeight);
                     d.line(x + leftColWidth, y, x + leftColWidth, y + headerHeight);
 
-                    // 2. Active Columns & Table Body Setup
                     let activeHeaders = dynamicTableCols.filter(col => {
                         let lowerName = col.name.toLowerCase();
                         if (lowerName.includes("qty") || lowerName.includes("quantity")) return true;
@@ -821,7 +805,6 @@
                         return sum + (isNaN(q) ? 1 : q);
                     }, 0);
 
-                    // Dynamic Auto-Sizing for long texts inside cells
                     d.autoTable({
                         startY: y + headerHeight + 1,
                         margin: { left: x, right: (d.internal.pageSize.width - (x + width)) },
@@ -857,7 +840,6 @@
 
                     let finalY = d.lastAutoTable.finalY;
 
-                    // 3. Render Total Box Qty Footer
                     let footerHeight = 6;
                     d.setLineWidth(0.6);
                     d.rect(x, finalY, width, footerHeight);
@@ -873,32 +855,61 @@
 
                     let boxTotalHeight = (finalY + footerHeight) - y;
 
-                    // Draw Outer Border
                     d.rect(x, y, width, boxTotalHeight);
 
                     return boxTotalHeight;
                 }
 
-                // Page Management for A4 (2 Boxes/Page Auto-Height Split)
+                // --- UPDATED A4 2-BOXES/PAGE EQUAL HALF SPLIT LOGIC ---
                 let pageHeight = doc.internal.pageSize.height; // 297mm
-                let currentY = 8;
-                let boxesOnPage = 0;
+                let halfPageHeight = (pageHeight / 2) - 10; // ~138.5mm per half
 
                 for (let i = 0; i < boxesArray.length; i++) {
                     let bData = boxesArray[i];
-
-                    // Rough Height Estimation (Header + Rows + Footer)
                     let estimatedHeight = 25 + (bData.items.length * 6) + 10;
 
-                    if (boxesOnPage >= 2 || (currentY + estimatedHeight > pageHeight - 10)) {
-                        doc.addPage('a4', 'p');
-                        currentY = 8;
-                        boxesOnPage = 0;
-                    }
+                    if (selectedOrientation === "a4_2") {
+                        // Check if current box can fit in half page
+                        let isFitsInHalf = estimatedHeight <= halfPageHeight;
 
-                    let boxActualHeight = renderLabelBox(doc, bData, 10, currentY, 190);
-                    currentY += boxActualHeight + 8; // Add spacing between Box 1 and Box 2
-                    boxesOnPage++;
+                        if (isFitsInHalf) {
+                            // Check next box too if available
+                            let nextFitsInHalf = false;
+                            if (i + 1 < boxesArray.length) {
+                                let nextBox = boxesArray[i + 1];
+                                let nextEstimated = 25 + (nextBox.items.length * 6) + 10;
+                                if (nextEstimated <= halfPageHeight) {
+                                    nextFitsInHalf = true;
+                                }
+                            }
+
+                            if (nextFitsInHalf) {
+                                // BOTH FIT IN HALF: Render 2 boxes on same page split in exact top/bottom halves
+                                if (i > 0) doc.addPage('a4', 'p');
+                                
+                                // Render Top Box (Half 1)
+                                renderLabelBox(doc, bData, 10, 8, 190);
+                                
+                                // Render Bottom Box (Half 2)
+                                i++; // Move to next box
+                                renderLabelBox(doc, boxesArray[i], 10, (pageHeight / 2) + 4, 190);
+                            } else {
+                                // Next box is too big: Render current box on top half alone
+                                if (i > 0) doc.addPage('a4', 'p');
+                                renderLabelBox(doc, bData, 10, 8, 190);
+                            }
+                        } else {
+                            // CURRENT BOX IS LARGE: Render on full page automatically
+                            if (i > 0) doc.addPage('a4', 'p');
+                            renderLabelBox(doc, bData, 10, 8, 190);
+                        }
+                    } else if (selectedOrientation === "a4_1") {
+                        if (i > 0) doc.addPage('a4', 'p');
+                        renderLabelBox(doc, bData, 10, 8, 190);
+                    } else {
+                        if (i > 0) doc.addPage(selectedOrientation === 'l' ? [152, 101.6] : [101.6, 152]);
+                        renderLabelBox(doc, bData, 5, 5, selectedOrientation === 'l' ? 142 : 91.6);
+                    }
                 }
 
                 let pdfDataUrl = doc.output('bloburl');
